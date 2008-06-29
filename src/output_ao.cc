@@ -29,10 +29,9 @@ OutputAO::play(char* buf, size_t len)
 	ao_play(output_dev, buf, len);
 }
 
-int
+void
 OutputAO::done()
 {
 	ao_close(output_dev);
 	ao_shutdown();
-	return 1;
 }

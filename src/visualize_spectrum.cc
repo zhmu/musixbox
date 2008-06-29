@@ -3,9 +3,6 @@
 #include <math.h>
 #include "visualize_spectrum.h"
 
-#define WIDTH		640
-#define HEIGHT		480
-
 #define MAX_VIS_SIZE	1152
 
 int
@@ -16,20 +13,6 @@ SpectrumVisualizer::init()
 
 	p = fftw_plan_dft_r2c_1d(MAX_VIS_SIZE, in, out, 0);
 
-	if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-		fprintf(stderr, "SDL_Init() failure: %s\n", SDL_GetError());
-		return 0;
-	}
-
-	screen = SDL_SetVideoMode(WIDTH, HEIGHT, 32, SDL_HWSURFACE | SDL_DOUBLEBUF);
-	if (screen == NULL) {
-		fprintf(stderr, "SDL_SetVideoMode() failure: %s\n", SDL_GetError());
-		return 0;
-	}
-	if (screen->format->BytesPerPixel != 4) {
-		printf("TODO\n");
-		return 0;
-	}
 	return 1;
 }
 
@@ -38,22 +21,7 @@ SpectrumVisualizer::done()
 {
 	fftw_destroy_plan(p);
 	fftw_free(in); fftw_free(out);
-	SDL_Quit();
 }
-
-void
-SpectrumVisualizer::putpixel(int x, int y, int r, int g, int b)
-{
-	Uint32 color = SDL_MapRGB(screen->format, r, g, b);
-	Uint32* p;
-
-	if (x < 0 || y < 0 || x >= WIDTH || y >= HEIGHT)
-		return;
-
-	p = (Uint32*)screen->pixels + y * screen->pitch/4 + x;
-	*p = color;
-}
-
 void
 SpectrumVisualizer::update(const char* input, unsigned int num)
 {
@@ -87,6 +55,7 @@ SpectrumVisualizer::update(const char* input, unsigned int num)
 		out[i][0] = r;
 	}
 
+#if 0
 	if (SDL_MUSTLOCK(screen))
 		SDL_LockSurface(screen);
 
@@ -110,4 +79,5 @@ SpectrumVisualizer::update(const char* input, unsigned int num)
 	if (SDL_MUSTLOCK(screen))
 		SDL_UnlockSurface(screen);
 	SDL_Flip(screen);
+#endif
 }

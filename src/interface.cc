@@ -8,7 +8,9 @@
 #include <vector>
 #include <string>
 #include "output_ao.h"
+#include "output_null.h"
 #include "input_file.h"
+#include "info_mp3.h"
 #include "decode_mp3.h"
 #include "decode_ogg.h"
 #include "interface.h"
@@ -19,14 +21,12 @@ using namespace std;
 int
 Interface::init()
 {
-	output = new OutputAO();
+	output = new OutputNull();
 	if (!output->init())
 		return 0;
 
 	currentPath = "/geluid";
-
-	play(string("mp3/music.mp3"));
-	launchPlayer();
+	playFile("mp3/music.mp3");
 	return 1;
 }
 
@@ -40,8 +40,19 @@ Interface::done()
 void
 Interface::run()
 {
+	int state = 1;
+	string file;
+
 	while (!interaction->mustTerminate()) {
-		interaction->yield();
+		switch(state) {
+			case 0: file = launchBrowser();
+			        if (file != "") {
+			        	playFile(file); state++;
+			        }
+			        break;
+			case 1: launchPlayer();
+			        break;
+		}
 	}
 }
 
@@ -124,7 +135,6 @@ Interface::launchBrowser()
 					/* Need to go one level lower, so strip
 					 * off the last /path item */
 					currentPath = string(currentPath.begin(), currentPath.begin() + currentPath.find_last_of("/"));
-					printf("==>[%s]\n", currentPath.c_str());
 					rehash = true;
 					continue;
 				}
@@ -149,23 +159,47 @@ Interface::launchBrowser()
 			}
 		}
 	}
+
+	return "";
 }
 
 void
 Interface::launchPlayer()
 {
 	bool dirty = true;
+	int oldplayingtime = -1, oldtotaltime = -1;
+	int playingtime, totaltime;
+	char temp[64];
 
 	while (!interaction->mustTerminate()) {
 		interaction->yield();
 
+		if (decoder != NULL && hasPlayerThread) {
+			playingtime = decoder->getPlayingTime();
+			totaltime = decoder->getTotalTime();
+		}
+
 		if (dirty) {
+			const char* s;
+
 			interaction->clear(0, 0, interaction->getHeight(), interaction->getWidth());
-			interaction->puttext(2, 0, "Artist");
-			interaction->puttext(2, interaction->getTextHeight(), "Album");
-			interaction->puttext(2, interaction->getTextHeight() * 2, "Title");
-			interaction->puttext(2, interaction->getTextHeight() * 3, "0:00 / 0:00");
+			s = "Unknown Artist";
+			if (info != NULL && info->getArtist() != NULL) s = info->getArtist();
+			interaction->puttext(2, 0, s);
+			s = "Unknown Album";
+			if (info != NULL && info->getAlbum() != NULL) s = info->getAlbum();
+			interaction->puttext(2, interaction->getTextHeight(), s);
+			s = "Unknown Title";
+			if (info != NULL && info->getTitle() != NULL) s = info->getTitle();
+			interaction->puttext(2, interaction->getTextHeight() * 2, s);
 			dirty = false;
+		}
+
+		if (playingtime != oldplayingtime || totaltime != oldtotaltime) {
+			interaction->clear(2, interaction->getTextHeight() * 3, interaction->getTextHeight(), interaction->getWidth());
+			sprintf(temp, "%u:%02u / %u:%02u", playingtime / 60, playingtime % 60, totaltime / 60, totaltime % 60);
+			interaction->puttext(2, interaction->getTextHeight() * 3, temp);
+			oldplayingtime = playingtime; oldtotaltime = totaltime;
 		}
 	}
 }
@@ -180,14 +214,23 @@ player_wrapper(void* data)
 }
 
 void
-Interface::play(string fname)
+Interface::playFile(string fname)
 {
 	InputFile* i = new InputFile();
 	if (!i->open(fname.c_str()))
 		return;
 	input = i;
-	
-	decoder = new DecoderMP3();
+
+	string extension = string(fname.begin() + fname.find_last_of(".") + 1, fname.end());
+	if (!strcasecmp(extension.c_str(), "ogg")) {
+		decoder = new DecoderOgg();
+		info = NULL;
+	} else {
+		/* assume MP3 */
+		info = new InfoMP3();
+		info->load(fname.c_str());
+		decoder = new DecoderMP3();
+	}
         decoder->setInput(input);
 
         decoder->setOutput(output);

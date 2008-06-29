@@ -1,5 +1,6 @@
 #include <pthread.h>
 #include <string>
+#include "info.h"
 #include "interaction.h"
 #include "output.h"
 #include "visualize.h"
@@ -49,7 +50,7 @@ protected:
 	/*! \brief Plays a file
 	 *  \param fname File to play
 	 */
-	void play(std::string fname);
+	void playFile(std::string fname);
 	
 
 private:
@@ -69,6 +70,9 @@ private:
 
 	//! \brief Visualization object
 	Visualizer* visualization;
+
+	//! \brief Informatiom object
+	Info* info;
 
 	//! \brief Do we have a playing thread?
 	bool hasPlayerThread;

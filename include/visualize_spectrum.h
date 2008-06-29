@@ -1,3 +1,5 @@
+#include <SDL/SDL.h>
+#include <fftw3.h>
 #include "visualize.h"
 
 #ifndef __VISUALIZE_SPECTRUM_H__
@@ -17,6 +19,15 @@ public:
 
 	//! \brief Deinitialize the spectrum analyzer
 	void done();
+
+private:
+	double* in;
+	fftw_complex *out;
+	fftw_plan p;
+
+	SDL_Surface* screen;
+
+	void putpixel(int x, int y, int r, int g, int b);
 };
 
 #endif /* __VISUALIZE_SPECTRUM_H__ */

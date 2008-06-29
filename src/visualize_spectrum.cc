@@ -8,12 +8,6 @@
 
 #define MAX_VIS_SIZE	1152
 
-double* in;
-fftw_complex *out;
-fftw_plan p;
-
-SDL_Surface* screen;
-
 int
 SpectrumVisualizer::init()
 {
@@ -48,7 +42,7 @@ SpectrumVisualizer::done()
 }
 
 void
-putpixel(int x, int y, int r, int g, int b)
+SpectrumVisualizer::putpixel(int x, int y, int r, int g, int b)
 {
 	Uint32 color = SDL_MapRGB(screen->format, r, g, b);
 	Uint32* p;

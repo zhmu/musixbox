@@ -97,13 +97,11 @@ DecoderMP3::handleInput(struct mad_stream* stream)
 DecoderMP3::DecoderMP3() : Decoder()
 {
 	musicfile = NULL;
-	player_buf = (char*)malloc(PLAYER_BUF_SIZE);
 	music_chunk = (char*)malloc(CHUNK_SIZE);
 }
 
 DecoderMP3::~DecoderMP3()
 {
-	free(player_buf);
 	free(music_chunk);
 }
 
@@ -149,14 +147,14 @@ DecoderMP3::run()
 			}
 
 			mad_synth_frame(&synth, &frame);
-			buflen = PLAYER_BUF_SIZE;
-			if (!mp3_convert(player_buf, &buflen, &frame.header, &synth.pcm))
+			buflen = DECODER_OUTBUF_SIZE;
+			if (!mp3_convert(out_buffer, &buflen, &frame.header, &synth.pcm))
 				goto fail;
 
 			if (visualizer != NULL)
-				visualizer->update(player_buf, buflen);
+				visualizer->update(out_buffer, buflen);
 			if (output != NULL)
-				output->play(player_buf, buflen * 4);
+				output->play(out_buffer, buflen * 4);
 		}
 	} while (stream.error == MAD_ERROR_BUFLEN);
 

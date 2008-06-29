@@ -5,12 +5,14 @@
 #ifndef __DECODE_H__
 #define __DECODE_H__
 
+#define DECODER_OUTBUF_SIZE	8192
+
 class Decoder {
 public:
-	Decoder() {
-		output = NULL; visualizer = NULL;
-	}
-	virtual int open(const char*) = 0;
+	Decoder();
+	~Decoder();
+
+	virtual int open(const char*) { };
 	virtual int close() { };
 	virtual int run() = 0;
 
@@ -20,7 +22,8 @@ public:
 protected:
 	Output* output;
 	Visualizer* visualizer;
-	
+
+	char* out_buffer;
 };
 
 #endif /* __DECODE_H__ */

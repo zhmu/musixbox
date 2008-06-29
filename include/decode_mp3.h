@@ -4,7 +4,6 @@
 #define __DECODE_MP3_H__
 
 #define CHUNK_SIZE	4096
-#define PLAYER_BUF_SIZE	8192
 
 class DecoderMP3 : public Decoder {
 public:
@@ -18,7 +17,6 @@ public:
 private:
 	int handleInput(struct mad_stream* stream);
 
-	char* player_buf;
 	FILE* musicfile;
 	char* music_chunk;
 

@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <err.h>
 #include "decode_mp3.h"
+#include "decode_ogg.h"
 #include "decode_tone.h"
 #include "input_file.h"
 #include "output_ao.h"
@@ -26,7 +27,8 @@ main(int argc, char** argv)
 		err(1, "input");
 
 #if 1
-	decoder = new DecoderMP3();
+	//decoder = new DecoderMP3();
+	decoder = new DecoderOgg();
 #else
 	decoder = new DecoderTone();
 #endif

@@ -1,7 +1,7 @@
 OBJS=		main.o decode_mp3.o output_ao.o visualize_spectrum.o decode.o \
-		decode_tone.o input_file.o
+		decode_tone.o input_file.o decode_ogg.o
 CXXFLAGS=	-I/usr/local/include -I../include -g
-LIBS=		-L/usr/local/lib -lmad -lao -lfftw3 -lSDL
+LIBS=		-L/usr/local/lib -lmad -lao -lfftw3 -lSDL -logg -lvorbis -lvorbisfile
 
 musicd:		$(OBJS)
 		$(CXX) -o musicd $(OBJS) $(LIBS)

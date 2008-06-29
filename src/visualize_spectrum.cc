@@ -67,6 +67,9 @@ SpectrumVisualizer::update(const char* input, unsigned int num)
 	float max = 10;
 	float min = 1000;
 
+	if (num > MAX_VIS_SIZE)
+		return;
+
 	/*
 	 * Pollute the input buffer by adding the left and right channel
 	 * inputs together (divide by two afterwards)
@@ -88,7 +91,6 @@ SpectrumVisualizer::update(const char* input, unsigned int num)
 		if (min > r) min = r;
 		if (max < r) max = r;
 		out[i][0] = r;
-//		printf("%f => %f\n", in[i], sqrt(r));
 	}
 
 	if (SDL_MUSTLOCK(screen))
@@ -109,7 +111,6 @@ SpectrumVisualizer::update(const char* input, unsigned int num)
 		while (j < HEIGHT) {
 			putpixel(i, j++, 100, 100, 100);
 		}
-		//printf("%f ", out[i][0]);
 	}
 
 	if (SDL_MUSTLOCK(screen))

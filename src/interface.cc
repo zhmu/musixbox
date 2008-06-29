@@ -72,6 +72,46 @@ char filebutton[10*10] = {
  0, 1, 0, 0, 0, 0, 0, 1, 0, 0,
 };
 
+char upbutton[10*10] = {
+ 0, 0, 0, 0, 1, 1, 0, 0, 0, 0,
+ 0, 0, 0, 1, 1, 1, 1, 0, 0, 0,
+ 0, 0, 1, 0, 1, 1, 0, 1, 0, 0,
+ 0, 1, 0, 0, 1, 1, 0, 0, 1, 0,
+ 0, 0, 0, 0, 1, 1, 0, 0, 0, 0,
+ 0, 0, 0, 0, 1, 1, 0, 0, 0, 0,
+ 0, 0, 0, 0, 1, 1, 0, 0, 0, 0,
+ 0, 0, 0, 0, 1, 1, 0, 0, 0, 0,
+ 0, 0, 0, 0, 1, 1, 0, 0, 0, 0,
+ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+};
+
+char downbutton[10*10] = {
+ 0, 0, 0, 0, 1, 1, 0, 0, 0, 0,
+ 0, 0, 0, 0, 1, 1, 0, 0, 0, 0,
+ 0, 0, 0, 0, 1, 1, 0, 0, 0, 0,
+ 0, 0, 0, 0, 1, 1, 0, 0, 0, 0,
+ 0, 0, 0, 0, 1, 1, 0, 0, 0, 0,
+ 0, 1, 0, 0, 1, 1, 0, 0, 1, 0,
+ 0, 0, 1, 0, 1, 1, 0, 1, 0, 0,
+ 0, 0, 0, 1, 1, 1, 1, 0, 0, 0,
+ 0, 0, 0, 0, 1, 1, 0, 0, 0, 0,
+ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+};
+
+char crossbutton[10*10] = {
+ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+ 0, 1, 0, 0, 0, 0, 0, 0, 1, 0,
+ 0, 0, 1, 0, 0, 0, 0, 1, 0, 0,
+ 0, 0, 0, 1, 0, 0, 1, 0, 0, 0,
+ 0, 0, 0, 0, 1, 1, 0, 0, 0, 0,
+ 0, 0, 0, 0, 1, 1, 0, 0, 0, 0,
+ 0, 0, 0, 1, 0, 0, 1, 0, 0, 0,
+ 0, 0, 1, 0, 0, 0, 0, 1, 0, 0,
+ 0, 1, 0, 0, 0, 0, 0, 0, 1, 0,
+ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+};
+
+
 int
 Interface::init()
 {
@@ -101,8 +141,9 @@ Interface::run()
 		switch(state) {
 			case 0: file = launchBrowser();
 			        if (file != "") {
-			        	playFile(file); state++;
+			        	playFile(file);
 			        }
+				state = 1;
 			        break;
 			case 1: state = launchPlayer();
 			        break;
@@ -161,10 +202,10 @@ Interface::launchBrowser()
 				last_index++;
 			}
 
-			/* Draw a line-thing where someday the ^ and v buttons will be */
-			for (int i = 0; i < interaction->getHeight(); i++) {
-				interaction->putpixel(interaction->getWidth() - INTERFACE_BROWSER_BAR_SIZE, i, 1);
-			}
+			/* Draw the ^,v and [] buttons */
+			blitImage(interaction->getWidth() - 10, 0, crossbutton);
+			blitImage(interaction->getWidth() - 10, 10, upbutton);
+			blitImage(interaction->getWidth() - 10, interaction->getHeight() - 10, downbutton);
 			dirty = false;
 		}
 
@@ -175,10 +216,14 @@ Interface::launchBrowser()
 
 		/* Left bar click? */
 		if (x > interaction->getWidth() - INTERFACE_BROWSER_BAR_SIZE) {
+			if (y <= 10) {
+				/* Stop button - return to main screen */
+				return "";
+			}
 			if (y > interaction->getHeight() / 2) {
-				first_index = (first_index + 1) % dirlist.size();
+				first_index = (first_index + (interaction->getHeight() / 10)) % dirlist.size();
 			} else {
-				first_index = (first_index - 1) % dirlist.size();
+				first_index = (first_index - (interaction->getHeight() / 10)) % dirlist.size();
 			}
 			dirty = 1;
 		} else {

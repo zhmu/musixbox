@@ -2,6 +2,7 @@
 #include <sys/stat.h>
 #include <dirent.h>
 #include <pthread.h>
+#include <pthread_np.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <algorithm>
@@ -19,17 +20,69 @@
 
 using namespace std;
 
+char playbutton[10*10] = {
+ 0, 1, 0, 0, 0, 0, 0, 0, 0, 0,
+ 0, 1, 1, 0, 0, 0, 0, 0, 0, 0,
+ 0, 1, 1, 1, 0, 0, 0, 0, 0, 0,
+ 0, 1, 1, 1, 1, 0, 0, 0, 0, 0,
+ 0, 1, 1, 1, 1, 1, 0, 0, 0, 0,
+ 0, 1, 1, 1, 1, 0, 0, 0, 0, 0,
+ 0, 1, 1, 1, 0, 0, 0, 0, 0, 0,
+ 0, 1, 1, 0, 0, 0, 0, 0, 0, 0,
+ 0, 1, 0, 0, 0, 0, 0, 0, 0, 0,
+ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+};
+
+char pausebutton[10*10] = {
+ 0, 0, 1, 1, 0, 0, 1, 1, 0, 0,
+ 0, 0, 1, 1, 0, 0, 1, 1, 0, 0,
+ 0, 0, 1, 1, 0, 0, 1, 1, 0, 0,
+ 0, 0, 1, 1, 0, 0, 1, 1, 0, 0,
+ 0, 0, 1, 1, 0, 0, 1, 1, 0, 0,
+ 0, 0, 1, 1, 0, 0, 1, 1, 0, 0,
+ 0, 0, 1, 1, 0, 0, 1, 1, 0, 0,
+ 0, 0, 1, 1, 0, 0, 1, 1, 0, 0,
+ 0, 0, 1, 1, 0, 0, 1, 1, 0, 0,
+ 0, 0, 1, 1, 0, 0, 1, 1, 0, 0,
+};
+
+char stopbutton[10*10] = {
+ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+ 0, 1, 1, 1, 1, 1, 1, 1, 1, 0,
+ 0, 1, 1, 1, 1, 1, 1, 1, 1, 0,
+ 0, 1, 1, 1, 1, 1, 1, 1, 1, 0,
+ 0, 1, 1, 1, 1, 1, 1, 1, 1, 0,
+ 0, 1, 1, 1, 1, 1, 1, 1, 1, 0,
+ 0, 1, 1, 1, 1, 1, 1, 1, 1, 0,
+ 0, 1, 1, 1, 1, 1, 1, 1, 1, 0,
+ 0, 1, 1, 1, 1, 1, 1, 1, 1, 0,
+ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+};
+
+char filebutton[10*10] = {
+ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+ 0, 0, 0, 1, 1, 1, 1, 1, 1, 1,
+ 0, 0, 0, 1, 0, 0, 0, 0, 0, 1,
+ 0, 0, 0, 1, 0, 0, 0, 0, 0, 1,
+ 0, 0, 0, 1, 0, 0, 0, 0, 0, 1,
+ 0, 0, 0, 1, 0, 0, 0, 0, 0, 1,
+ 0, 0, 0, 1, 0, 0, 0, 0, 0, 1,
+ 0, 1, 0, 1, 0, 0, 0, 1, 0, 1,
+ 1, 1, 1, 1, 0, 0, 1, 1, 1, 1,
+ 0, 1, 0, 0, 0, 0, 0, 1, 0, 0,
+};
+
 int
 Interface::init()
 {
-	output = new OutputNull();
+	output = new OutputAO();
 	if (!output->init())
 		return 0;
 
 	currentPath = "/geluid";
-	playFile("a.ogg");
+	playFile("mp3/09 - Dark Air.mp3");
 	return 1;
-}
+} 
 
 void
 Interface::done()
@@ -41,7 +94,7 @@ Interface::done()
 void
 Interface::run()
 {
-	int state = 1;
+	int state = 0;
 	string file;
 
 	while (!interaction->mustTerminate()) {
@@ -51,7 +104,7 @@ Interface::run()
 			        	playFile(file); state++;
 			        }
 			        break;
-			case 1: launchPlayer();
+			case 1: state = launchPlayer();
 			        break;
 		}
 	}
@@ -164,7 +217,7 @@ Interface::launchBrowser()
 	return "";
 }
 
-void
+int
 Interface::launchPlayer()
 {
 	bool dirty = true;
@@ -184,6 +237,8 @@ Interface::launchPlayer()
 			const char* s;
 
 			interaction->clear(0, 0, interaction->getHeight(), interaction->getWidth());
+
+			/* Basic Artist / Album / Title information */
 			s = "Unknown Artist";
 			if (info != NULL && info->getArtist() != NULL) s = info->getArtist();
 			interaction->puttext(2, 0, s);
@@ -193,16 +248,48 @@ Interface::launchPlayer()
 			s = "Unknown Title";
 			if (info != NULL && info->getTitle() != NULL) s = info->getTitle();
 			interaction->puttext(2, interaction->getTextHeight() * 2, s);
-			dirty = false;
+
+			/* Control bar */
+			blitImage(2, interaction->getHeight() - 12, (isPlayerPaused) ? pausebutton : playbutton);
+			blitImage(14, interaction->getHeight() - 12, stopbutton);
+			blitImage(26, interaction->getHeight() - 12, filebutton);
 		}
 
-		if (playingtime != oldplayingtime || totaltime != oldtotaltime) {
+		if (playingtime != oldplayingtime || totaltime != oldtotaltime || dirty) {
 			interaction->clear(2, interaction->getTextHeight() * 3, interaction->getTextHeight(), interaction->getWidth());
 			sprintf(temp, "%u:%02u / %u:%02u", playingtime / 60, playingtime % 60, totaltime / 60, totaltime % 60);
 			interaction->puttext(2, interaction->getTextHeight() * 3, temp);
 			oldplayingtime = playingtime; oldtotaltime = totaltime;
+			dirty = false;
+		}
+
+		/* See if there is any interaction */
+		int x, y;
+		if (!interaction->getCoordinates(&x, &y))
+			continue;
+
+		if (y > interaction->getHeight() - 12) {
+			/* We are at the bottom bar */
+			if (x >= 2 && x <= 12) {
+				/* Play/resume button */
+				if (isPlayerPaused)
+					cont();
+				else
+					pause();
+				dirty = true;
+			}
+			if (x >= 14 && x <= 24) {
+				/* Stop button */
+				stop();
+			}
+			if (x >= 26 && x <= 36) {
+				/* File button - go to new state */
+				return 0;
+			}
 		}
 	}
+
+	return 1;
 }
 
 static void*
@@ -217,6 +304,8 @@ player_wrapper(void* data)
 void
 Interface::playFile(string fname)
 {
+	stop();
+
 	InputFile* i = new InputFile();
 	if (!i->open(fname.c_str()))
 		return;
@@ -236,7 +325,7 @@ Interface::playFile(string fname)
 	info->load(fname.c_str());
 
 	pthread_create(&player_thread, NULL, player_wrapper, this);
-	hasPlayerThread = true;
+	hasPlayerThread = true; isPlayerPaused = false;
 }
 
 void
@@ -245,11 +334,43 @@ Interface::stop()
 	if (!hasPlayerThread)
 		return;
 
+
 	/* Ask the decoder thread to terminate, and wait until it is gone */
 	decoder->terminate();
+	cont();
 	pthread_join(player_thread, NULL);
 
-	delete decoder;
-
 	hasPlayerThread = false;
+}
+
+void
+Interface::blitImage(int x, int y, char* img)
+{
+	int i, j;
+
+	for (j = 0; j < 10; j++) {
+		for (i = 0; i < 10; i++) {
+			interaction->putpixel(i + x, j + y, img[j*10+i]);
+		}
+	}
+}
+
+void
+Interface::pause()
+{
+	if (isPlayerPaused || !hasPlayerThread)
+		return;
+
+	pthread_suspend_np(player_thread);
+	isPlayerPaused = true;
+}
+
+void
+Interface::cont()
+{
+	if (!isPlayerPaused || !hasPlayerThread)
+		return;
+
+	pthread_resume_np(player_thread);
+	isPlayerPaused = false;
 }

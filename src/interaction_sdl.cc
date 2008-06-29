@@ -75,13 +75,12 @@ void
 InteractionSDL::putpixel(int x, int y, int c)
 {
 	Uint32 color;
-
+	Uint32* p;
 
 	if (c)
-		 SDL_MapRGB(screen->format, 0, 0, 0);
+		 color = SDL_MapRGB(screen->format, 255, 255, 255);
 	else
-		 SDL_MapRGB(screen->format, 255, 255, 255);
-	Uint32* p;
+		 color = SDL_MapRGB(screen->format, 100, 100, 100);
 
 	if (x < 0 || y < 0 || x >= getWidth() || y >= getHeight())
 		return;
@@ -103,7 +102,6 @@ InteractionSDL::puttext(int x, int y, const char* s)
 	SDL_BlitSurface(text, NULL, screen, &rect);
 	SDL_FreeSurface(text);
 }
-
 
 void
 InteractionSDL::gettextsize(const char* s, int* h, int* w)

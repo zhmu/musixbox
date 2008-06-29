@@ -41,8 +41,10 @@ protected:
 	 */
 	std::string launchBrowser();
 
-	//! \brief Launch the player
-	void launchPlayer();
+	/*! \brief Launch the player
+	 *  \return The new state of the user interface
+	 */
+	int launchPlayer();
 
 	//! \brief Stops playing
 	void stop();
@@ -51,9 +53,16 @@ protected:
 	 *  \param fname File to play
 	 */
 	void playFile(std::string fname);
-	
 
 private:
+	//! \brief Pause the player
+	void pause();
+
+	//! \brief Continue playing
+	void cont();
+
+	void blitImage(int x, int y, char* img);
+
 	Interaction* interaction;
 
 	//! \brief Current path of the browser
@@ -76,6 +85,9 @@ private:
 
 	//! \brief Do we have a playing thread?
 	bool hasPlayerThread;
+
+	//! \brief Is the playing thread paused?
+	bool isPlayerPaused;
 
 	//! \brief Playing thread
 	pthread_t player_thread;

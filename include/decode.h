@@ -1,4 +1,5 @@
 #include <mad.h>
+#include "input.h"
 #include "output.h"
 #include "visualize.h"
 
@@ -12,14 +13,14 @@ public:
 	Decoder();
 	~Decoder();
 
-	virtual int open(const char*) { };
-	virtual int close() { };
 	virtual int run() = 0;
 
+	inline void setInput(Input* i) { input = i; }
 	inline void setOutput(Output* o) { output = o; }
 	inline void setVisualizer(Visualizer* v) { visualizer = v; }
 
 protected:
+	Input* input;
 	Output* output;
 	Visualizer* visualizer;
 

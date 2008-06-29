@@ -57,55 +57,37 @@ int
 DecoderMP3::handleInput(struct mad_stream* stream)
 {
 	size_t len, max, saved;
-	unsigned char* ptr = (unsigned char*)music_chunk;
-	unsigned char* base = (unsigned char*)music_chunk;
+	char* ptr = music_chunk;
+	char* base = music_chunk;
 
 	if (stream->next_frame != NULL) {
 		/*
 		 * There is still data in the buffer that should be played, so
 		 * we need to recycle it.
 		 */
-		saved = (char*)stream->bufend - (char*)stream->next_frame;
+		saved = stream->bufend - stream->next_frame;
 		memmove(ptr, stream->next_frame, saved);
 		ptr += saved;
 	} else {
 		saved = 0;
 	}
 
-	len = fread(ptr, 1, CHUNK_SIZE - saved, musicfile);
+	len = input->read(ptr, CHUNK_SIZE - saved);
 	if (!len)
 		return 0;
 
-	mad_stream_buffer(stream, base, len + saved);
+	mad_stream_buffer(stream, (unsigned char*)base, len + saved);
 	return 1;
 }
 
 DecoderMP3::DecoderMP3() : Decoder()
 {
-	musicfile = NULL;
 	music_chunk = (char*)malloc(CHUNK_SIZE);
 }
 
 DecoderMP3::~DecoderMP3()
 {
 	free(music_chunk);
-}
-
-int
-DecoderMP3::open(const char* fname)
-{
-	musicfile = fopen(fname, "rb");
-	if (musicfile == NULL)
-		return 0;
-
-	return 1;
-}
-
-int
-DecoderMP3::close()
-{
-	fclose(musicfile);
-	return 1;
 }
 
 int

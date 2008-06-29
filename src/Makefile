@@ -1,5 +1,5 @@
 OBJS=		main.o decode_mp3.o output_ao.o visualize_spectrum.o decode.o \
-		decode_tone.o
+		decode_tone.o input_file.o
 CXXFLAGS=	-I/usr/local/include -I../include -g
 LIBS=		-L/usr/local/lib -lmad -lao -lfftw3 -lSDL
 

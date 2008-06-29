@@ -2,7 +2,7 @@
 #include "decode.h"
 
 Decoder::Decoder() {
-	output = NULL; visualizer = NULL;
+	input = NULL; output = NULL; visualizer = NULL;
 	out_buffer = (char*)malloc(DECODER_OUTBUF_SIZE);
 }
 

@@ -10,6 +10,16 @@ public:
 	 *  \return Number of bytes read, 0 if end of stream
 	 */
 	virtual size_t read(char* buffer, size_t len) = 0;
+
+	/*! \brief Retrieve size of input stream
+	 *  \return Number of bytes, or 0 if this is unknown
+	 */
+	virtual size_t getLength() { return 0; }
+
+	/*! \brief Retrieve current position in input stream
+	 *  \return Current byte position, or 0 if this is unknown
+	 */
+	virtual size_t getCurrentPosition() { return 0; }
 };
 
 #endif /* __INPUT_H__ */

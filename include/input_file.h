@@ -23,9 +23,18 @@ public:
 	 */
 	size_t read(char* buffer, size_t len);
 
+	//! \brief Returns the length of the file, in bytes
+	size_t getLength();
+
+	//! \brief Returns current file position, in bytes
+	size_t getCurrentPosition();
+
 private:
 	//! \brief File handle
 	FILE* f;
+
+	//! \brief File length
+	size_t length;
 };
 
 #endif /* __INPUT_FILE_H__ */

@@ -3,6 +3,7 @@
 #include <string.h>
 #include <mad.h>
 #include <math.h>
+#include <id3/tag.h>
 #include "decode_mp3.h"
 #include "output.h"
 
@@ -96,12 +97,33 @@ DecoderMP3::run()
 	struct mad_stream stream;
 	struct mad_frame frame;
 	struct mad_synth synth;
+	struct mad_header header;
 	int buflen;
+	mad_timer_t time = mad_timer_zero;
 
 	mad_stream_init(&stream);
 	mad_frame_init(&frame);
 	mad_synth_init(&synth);
 	mad_stream_options(&stream, 0);
+
+	/*
+	 * Scan the entire file until we find a header we can understand. 
+	 */
+	do {
+		if (!terminating && !handleInput(&stream))
+			goto fail;
+
+		if (mad_header_decode(&header, &stream) < 0) {
+			if (MAD_RECOVERABLE(stream.error))
+				continue;
+			break;
+		}
+		/* We found a header - stop here */
+		break;
+	} while (1);
+	
+	if (!MAD_RECOVERABLE(stream.error))
+		goto fail;
 
 	do {
 		if (!terminating && !handleInput(&stream))
@@ -113,6 +135,8 @@ DecoderMP3::run()
 					break;
 				continue;
 			}
+			mad_timer_add(&time, frame.header.duration);
+			playingtime = time.seconds;
 
 			mad_synth_frame(&synth, &frame);
 			buflen = DECODER_OUTBUF_SIZE;

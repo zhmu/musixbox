@@ -32,6 +32,12 @@ public:
 	//! \brief Get rid of the decoder
 	inline void terminate() { terminating = true; }
 
+	//! \brief Retrieve number of seconds this file is playing
+	inline int getPlayingTime() { return playingtime; }
+
+	//! \brief Retrieve number of seconds this file lasts
+	inline int getTotalTime() { return totaltime; }
+
 protected:
 	Input* input;
 	Output* output;
@@ -42,6 +48,12 @@ protected:
 
 	//! \brief Are we currently terminating?
 	bool terminating;
+
+	//! \brief Number of seconds we have been playing
+	int playingtime;
+
+	//! \brief Number of seconds this song lasts
+	int totaltime;
 };
 
 #endif /* __DECODE_H__ */

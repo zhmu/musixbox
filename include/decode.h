@@ -16,18 +16,14 @@
  */
 class Decoder {
 public:
-	Decoder();
+	Decoder(Input* i, Output* o, Visualizer* v);
 	~Decoder();
+
+	//! \brief Initialize processing of the input stream
+	virtual int init() { return 1; }
 
 	//! \brief Decode the input stream until the end
 	virtual int run() = 0;
-
-	//! \brief Attach an Input object with the decoder
-	inline void setInput(Input* i) { input = i; }
-	//! \brief Attach an Output object with the decoder
-	inline void setOutput(Output* o) { output = o; }
-	//! \brief Attach a Visualizer object with the decoder
-	inline void setVisualizer(Visualizer* v) { visualizer = v; }
 
 	//! \brief Get rid of the decoder
 	inline void terminate() { terminating = true; }

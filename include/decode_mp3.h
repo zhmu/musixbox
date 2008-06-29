@@ -12,7 +12,7 @@
  */
 class DecoderMP3 : public Decoder {
 public:
-	DecoderMP3();
+	DecoderMP3(Input* i, Output* o, Visualizer* v);
 	~DecoderMP3();
 
 	//! \brief Performs a mp3 decoding run

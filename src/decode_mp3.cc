@@ -81,7 +81,7 @@ DecoderMP3::handleInput(struct mad_stream* stream)
 	return 1;
 }
 
-DecoderMP3::DecoderMP3() : Decoder()
+DecoderMP3::DecoderMP3(Input* i, Output* o, Visualizer* v) : Decoder(i, o, v)
 {
 	music_chunk = (char*)malloc(CHUNK_SIZE);
 }

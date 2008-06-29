@@ -21,14 +21,23 @@ ov_callbacks ov_input_wrapper = {
 	NULL
 };
 
+DecoderOgg::~DecoderOgg()
+{
+	ov_clear(&ovf);
+}
+
+int
+DecoderOgg::init() {
+	if (ov_open_callbacks(input, &ovf, NULL, 0, ov_input_wrapper) < 0)
+		return 0;
+
+	return 1;
+}
+
 int
 DecoderOgg::run()
 {
-	struct OggVorbis_File ovf;
 	int current;
-
-	if (ov_open_callbacks(input, &ovf, NULL, 0, ov_input_wrapper) < 0)
-		return 0;
 
 	while (!terminating) {
 		size_t len = ov_read(&ovf, out_buffer, DECODER_OUTBUF_SIZE, 0, 2, 1, &current);
@@ -36,12 +45,13 @@ DecoderOgg::run()
 			/* end of file or error */
 			break;
 
+//		playingtime = (int)ov_time_tell(&ovf);
+
 		if (visualizer != NULL)
 			visualizer->update(out_buffer, len);
 		if (output != NULL)
 			output->play(out_buffer, len);
 	}
-	ov_clear(&ovf);
 
 	return 1;
 }

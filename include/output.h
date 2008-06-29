@@ -3,8 +3,8 @@
 
 class Output {
 public:
-	virtual int init() = 0;
-	virtual int done() = 0;
+	virtual int init() { };
+	virtual int done() { };
 	virtual void play(char* buf, size_t len) = 0;
 };
 

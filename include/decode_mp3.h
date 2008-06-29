@@ -11,8 +11,6 @@ public:
 	DecoderMP3();
 	~DecoderMP3();
 
-	int open(const char*);
-	int close();
 	int run();
 
 private:

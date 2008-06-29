@@ -5,18 +5,24 @@
 #include "decode_ogg.h"
 #include "decode_tone.h"
 #include "input_file.h"
+#include "interface.h"
+#include "interaction_sdl.h"
 #include "output_ao.h"
+#include "output_null.h"
 #include "visualize_spectrum.h"
 
 InputFile* input;
 Output* output;
 Decoder* decoder;
 Visualizer* vis;
+Interaction* interaction;
+Interface* interface;
 
 int
 main(int argc, char** argv)
 {
-	output = new OutputAO();
+	//output = new OutputAO();
+	output = new OutputNull();
 	vis = new SpectrumVisualizer();
 
 	input = new InputFile();
@@ -26,12 +32,11 @@ main(int argc, char** argv)
 	if (!input->open(file))
 		err(1, "input");
 
-#if 1
-	//decoder = new DecoderMP3();
-	decoder = new DecoderOgg();
-#else
-	decoder = new DecoderTone();
-#endif
+	interaction = new InteractionSDL();
+	interface = new Interface(interaction);
+
+/*
+	decoder = new DecoderMP3();
 
 	decoder->setInput(input);
 	vis->init();
@@ -44,6 +49,14 @@ main(int argc, char** argv)
 	output->done();
 	vis->done();
 	input->close();
+*/
 
+	interaction->init();
+	interface->init();
+
+	interface->run();
+
+	interaction->done();
+	
 	return 0;
 }

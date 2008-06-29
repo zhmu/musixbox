@@ -6,8 +6,8 @@
 #include "decode_mp3.h"
 #include "output.h"
 
-static inline signed int
-scale(mad_fixed_t s)
+signed int
+DecoderMP3::scaleFrequency(mad_fixed_t s)
 {
 	s += (1L << (MAD_F_FRACBITS - 16));
 	if (s > MAD_F_ONE)
@@ -17,8 +17,8 @@ scale(mad_fixed_t s)
 	return s >> (MAD_F_FRACBITS + 1 - 16);
 }
 
-static int
-mp3_convert(char* buf, int* len, struct mad_header const* header, struct mad_pcm* pcm)
+int
+DecoderMP3::convertOutput(char* buf, int* len, struct mad_header const* header, struct mad_pcm* pcm)
 {
 	unsigned int num = pcm->length;
 	mad_fixed_t const *left, *right;
@@ -27,40 +27,26 @@ mp3_convert(char* buf, int* len, struct mad_header const* header, struct mad_pcm
 	left = pcm->samples[0];
 	right = pcm->samples[1];
 
+	/* Ensure the output buffer is large enough */
 	if (*len < num * 4)
 		return 0;
 
-	//int buf_size = 2 * 2 * 44100;
-	
-	static float freq = 20000;
-	//if (freq++ > 10000) freq=20;
-#if 0
-	for (i = 0; i < num; i++) {
-		int sample = (int)(0.75 * 32768.0 * 
-			sin(2 * M_PI * freq * ((float) i/44100)));
-		
-		/* Put the same stuff in left and right channel */
-		buf[4*i] = buf[4*i+2] = sample & 0xff;
-		buf[4*i+1] = buf[4*i+3] = (sample >> 8) & 0xff;
-	}
-#else
 	/*
 	 * Convert 24 bit data to 16 bit suitable for output.
 	 */
 	i = 0;
 	while (num--) {
 		signed int s;
-		s = scale(*left++);
+		s = scaleFrequency(*left++);
 		buf[4 * i    ] = s & 0xff;
 		buf[4 * i + 1] = (s >> 8) & 0xff;
 		if (pcm->channels > 1)
-			s = scale(*right++);
+			s = scaleFrequency(*right++);
 		buf[4 * i + 2] = s & 0xff;
 		buf[4 * i + 3] = (s >> 8) & 0xff;
 
 		i++;
 	}
-#endif
 	*len = i;
 	
 	return 1;
@@ -148,7 +134,7 @@ DecoderMP3::run()
 
 			mad_synth_frame(&synth, &frame);
 			buflen = DECODER_OUTBUF_SIZE;
-			if (!mp3_convert(out_buffer, &buflen, &frame.header, &synth.pcm))
+			if (!convertOutput(out_buffer, &buflen, &frame.header, &synth.pcm))
 				goto fail;
 
 			if (visualizer != NULL)

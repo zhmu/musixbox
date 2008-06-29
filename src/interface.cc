@@ -11,6 +11,7 @@
 #include "output_null.h"
 #include "input_file.h"
 #include "info_mp3.h"
+#include "info_ogg.h"
 #include "decode_mp3.h"
 #include "decode_ogg.h"
 #include "interface.h"
@@ -26,7 +27,7 @@ Interface::init()
 		return 0;
 
 	currentPath = "/geluid";
-	playFile("mp3/music.mp3");
+	playFile("a.ogg");
 	return 1;
 }
 
@@ -223,17 +224,16 @@ Interface::playFile(string fname)
 
 	string extension = string(fname.begin() + fname.find_last_of(".") + 1, fname.end());
 	if (!strcasecmp(extension.c_str(), "ogg")) {
-		decoder = new DecoderOgg();
-		info = NULL;
+		decoder = new DecoderOgg(input, output, visualizer);
+		decoder->init();
+		info = new InfoOgg(decoder);
 	} else {
 		/* assume MP3 */
-		info = new InfoMP3();
-		info->load(fname.c_str());
-		decoder = new DecoderMP3();
+		decoder = new DecoderMP3(input, output, visualizer);
+		decoder->init();
+		info = new InfoMP3(decoder);
 	}
-        decoder->setInput(input);
-
-        decoder->setOutput(output);
+	info->load(fname.c_str());
 
 	pthread_create(&player_thread, NULL, player_wrapper, this);
 	hasPlayerThread = true;
@@ -248,6 +248,8 @@ Interface::stop()
 	/* Ask the decoder thread to terminate, and wait until it is gone */
 	decoder->terminate();
 	pthread_join(player_thread, NULL);
+
+	delete decoder;
 
 	hasPlayerThread = false;
 }

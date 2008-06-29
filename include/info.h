@@ -1,3 +1,5 @@
+#include "decode.h"
+
 #ifndef __INFO_H__
 #define __INFO_H__
 
@@ -8,7 +10,7 @@
  */
 class Info {
 public:
-	Info();
+	Info(Decoder* d);
 	~Info();
 
 	//! \brief Process an input file
@@ -26,8 +28,10 @@ public:
 	//! \brief Retrieve song title
 	inline const char* getTitle() { return title; }
 	
-
 protected:
+	//! \brief Decoder object we belong to
+	Decoder* decoder;
+
 	//! \brief Number of seconds this song lasts
 	int totaltime;
 

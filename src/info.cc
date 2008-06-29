@@ -1,8 +1,8 @@
 #include <stdlib.h>
 #include "info.h"
 
-Info::Info() {
-	totaltime = 0;
+Info::Info(Decoder* d) {
+	totaltime = 0; decoder = d;
 	artist = NULL; album = NULL; title = NULL;
 }
 

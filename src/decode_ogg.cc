@@ -39,13 +39,17 @@ DecoderOgg::run()
 {
 	int current;
 
+	totaltime = (int)ov_time_total(&ovf, 0);
+	if (totaltime < 0)
+		totaltime = 0;
+
 	while (!terminating) {
 		size_t len = ov_read(&ovf, out_buffer, DECODER_OUTBUF_SIZE, 0, 2, 1, &current);
 		if (len <= 0)
 			/* end of file or error */
 			break;
 
-//		playingtime = (int)ov_time_tell(&ovf);
+		playingtime = (int)ov_time_tell(&ovf);
 
 		if (visualizer != NULL)
 			visualizer->update(out_buffer, len);
@@ -54,4 +58,10 @@ DecoderOgg::run()
 	}
 
 	return 1;
+}
+
+struct vorbis_comment*
+DecoderOgg::getComments()
+{
+	return ov_comment(&ovf, -1);
 }

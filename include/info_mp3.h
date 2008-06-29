@@ -6,6 +6,8 @@
 //! \brief Retrieve information on MP3 files
 class InfoMP3 : public Info {
 public:
+	InfoMP3(Decoder* d) : Info(d) { }
+
 	//! \brief Process an input file
 	int load(const char* fname);
 };

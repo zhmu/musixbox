@@ -17,7 +17,7 @@ public:
 	//! \brief Constructs a new interface object
 	Interface(Interaction* i) {
 		interaction = i;
-		output = NULL; input = NULL; decoder = NULL; visualization = NULL;
+		output = NULL; input = NULL; decoder = NULL; visualizer = NULL; info = NULL;
 		hasPlayerThread = false; player_thread = NULL;
 	}
 
@@ -69,7 +69,7 @@ private:
 	Decoder* decoder;
 
 	//! \brief Visualization object
-	Visualizer* visualization;
+	Visualizer* visualizer;
 
 	//! \brief Informatiom object
 	Info* info;

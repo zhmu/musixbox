@@ -19,6 +19,9 @@ public:
 	//! \brief Performs a Ogg Vorbis decoding run
 	int run();
 
+	//! \brief Retrieve Ogg Vorbuis comments
+	struct vorbis_comment* getComments();
+
 private:
 	struct OggVorbis_File ovf;
 };

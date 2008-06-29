@@ -29,6 +29,9 @@ public:
 	//! \brief Attach a Visualizer object with the decoder
 	inline void setVisualizer(Visualizer* v) { visualizer = v; }
 
+	//! \brief Get rid of the decoder
+	inline void terminate() { terminating = true; }
+
 protected:
 	Input* input;
 	Output* output;
@@ -36,6 +39,9 @@ protected:
 
 	//! \brief Buffer available to the object, 
 	char* out_buffer;
+
+	//! \brief Are we currently terminating?
+	bool terminating;
 };
 
 #endif /* __DECODE_H__ */

@@ -35,27 +35,12 @@ main(int argc, char** argv)
 	interaction = new InteractionSDL();
 	interface = new Interface(interaction);
 
-/*
-	decoder = new DecoderMP3();
-
-	decoder->setInput(input);
-	vis->init();
-	output->init();
-
-	decoder->setOutput(output);
-	decoder->setVisualizer(vis);
-	decoder->run();
-
-	output->done();
-	vis->done();
-	input->close();
-*/
-
 	interaction->init();
 	interface->init();
 
 	interface->run();
 
+	interface->done();
 	interaction->done();
 	
 	return 0;

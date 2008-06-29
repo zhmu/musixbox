@@ -30,7 +30,7 @@ DecoderOgg::run()
 	if (ov_open_callbacks(input, &ovf, NULL, 0, ov_input_wrapper) < 0)
 		return 0;
 
-	while (1) {
+	while (!terminating) {
 		size_t len = ov_read(&ovf, out_buffer, DECODER_OUTBUF_SIZE, 0, 2, 1, &current);
 		if (len <= 0)
 			/* end of file or error */

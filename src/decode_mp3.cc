@@ -104,10 +104,10 @@ DecoderMP3::run()
 	mad_stream_options(&stream, 0);
 
 	do {
-		if (!handleInput(&stream))
+		if (!terminating && !handleInput(&stream))
 			goto fail;
 
-		while (1) {
+		while (!terminating) {
 			if (mad_frame_decode(&frame, &stream) == -1) {
 				if (!MAD_RECOVERABLE(stream.error))
 					break;
@@ -124,7 +124,7 @@ DecoderMP3::run()
 			if (output != NULL)
 				output->play(out_buffer, buflen * 4);
 		}
-	} while (stream.error == MAD_ERROR_BUFLEN);
+	} while (stream.error == MAD_ERROR_BUFLEN && !terminating);
 
 fail:
 	mad_synth_finish(&synth);

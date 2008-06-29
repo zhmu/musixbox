@@ -1,11 +1,16 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <dirent.h>
+#include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <algorithm>
 #include <vector>
 #include <string>
+#include "output_ao.h"
+#include "input_file.h"
+#include "decode_mp3.h"
+#include "decode_ogg.h"
 #include "interface.h"
 #include "interaction.h"
 
@@ -14,14 +19,22 @@ using namespace std;
 int
 Interface::init()
 {
+	output = new OutputAO();
+	if (!output->init())
+		return 0;
+
 	currentPath = "/geluid";
-	launchBrowser();
+
+	play(string("mp3/music.mp3"));
+	launchPlayer();
 	return 1;
 }
 
 void
 Interface::done()
 {
+	stop();
+	output->done();
 }
 
 void
@@ -136,4 +149,62 @@ Interface::launchBrowser()
 			}
 		}
 	}
+}
+
+void
+Interface::launchPlayer()
+{
+	bool dirty = true;
+
+	while (!interaction->mustTerminate()) {
+		interaction->yield();
+
+		if (dirty) {
+			interaction->clear(0, 0, interaction->getHeight(), interaction->getWidth());
+			interaction->puttext(2, 0, "Artist");
+			interaction->puttext(2, interaction->getTextHeight(), "Album");
+			interaction->puttext(2, interaction->getTextHeight() * 2, "Title");
+			interaction->puttext(2, interaction->getTextHeight() * 3, "0:00 / 0:00");
+			dirty = false;
+		}
+	}
+}
+
+static void*
+player_wrapper(void* data)
+{
+	Interface* interface = (Interface*)data;
+
+	interface->runDecoder();
+	return NULL;
+}
+
+void
+Interface::play(string fname)
+{
+	InputFile* i = new InputFile();
+	if (!i->open(fname.c_str()))
+		return;
+	input = i;
+	
+	decoder = new DecoderMP3();
+        decoder->setInput(input);
+
+        decoder->setOutput(output);
+
+	pthread_create(&player_thread, NULL, player_wrapper, this);
+	hasPlayerThread = true;
+}
+
+void
+Interface::stop()
+{
+	if (!hasPlayerThread)
+		return;
+
+	/* Ask the decoder thread to terminate, and wait until it is gone */
+	decoder->terminate();
+	pthread_join(player_thread, NULL);
+
+	hasPlayerThread = false;
 }

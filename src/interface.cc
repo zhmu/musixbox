@@ -97,7 +97,6 @@ char crossbutton[8*8] = {
  1, 0, 0, 0, 0, 0, 0, 1,
 };
 
-
 int
 Interface::init()
 {
@@ -106,7 +105,6 @@ Interface::init()
 		return 0;
 
 	currentPath = "/geluid";
-	playFile("mp3/09 - Dark Air.mp3");
 	return 1;
 } 
 
@@ -127,6 +125,8 @@ Interface::run()
 		switch(state) {
 			case 0: file = launchBrowser();
 			        if (file != "") {
+					playingPath = currentPath;
+					currentFile = file;
 			        	playFile(file);
 			        }
 				state = 1;
@@ -142,7 +142,6 @@ Interface::launchBrowser()
 {
 	DIR* dir;
 	struct dirent* dent;
-	vector<string> dirlist;
 	bool dirty = true;
 	bool rehash = true;
 	int first_index;
@@ -157,14 +156,14 @@ Interface::launchBrowser()
 			 * Read all directory items and place them in a vector, which
 			 * we will sort later.
 			 */
-			dirlist.clear();
+			direntries.clear(); direntry_index = 0;
 			while((dent = readdir(dir)) != NULL) {
 				if (!strcmp(dent->d_name, "."))
 					continue;
-				dirlist.push_back(dent->d_name);
+				direntries.push_back(dent->d_name);
 			}
 			closedir(dir);
-			sort(dirlist.begin(), dirlist.end());
+			sort(direntries.begin(), direntries.end());
 			rehash = false; dirty = true;
 			first_index = 0;
 		}
@@ -179,11 +178,11 @@ Interface::launchBrowser()
 			 */
 			int last_index = first_index;
 			int y = 0;
-			while (last_index < dirlist.size()) {
+			while (last_index < direntries.size()) {
 				if (y + interaction->getTextHeight() > interaction->getHeight())
 					break;
 
-				interaction->puttext(0, y, dirlist[last_index].c_str());
+				interaction->puttext(0, y, direntries[last_index].c_str());
 				y += interaction->getTextHeight();
 				last_index++;
 			}
@@ -207,16 +206,16 @@ Interface::launchBrowser()
 				return "";
 			}
 			if (y > interaction->getHeight() / 2) {
-				first_index = (first_index + (interaction->getHeight() / 10)) % dirlist.size();
+				first_index = (first_index + (interaction->getHeight() / 10)) % direntries.size();
 			} else {
-				first_index = (first_index - (interaction->getHeight() / 10)) % dirlist.size();
+				first_index = (first_index - (interaction->getHeight() / 10)) % direntries.size();
 			}
 			dirty = 1;
 		} else {
 			/* Item click! */
 			int num = y / interaction->getTextHeight() + first_index;
-			if (num >= 0 && num < dirlist.size()) {
-				if (dirlist[num] == "..") {
+			if (num >= 0 && num < direntries.size()) {
+				if (direntries[num] == "..") {
 					/* Need to go one level lower, so strip
 					 * off the last /path item */
 					currentPath = string(currentPath.begin(), currentPath.begin() + currentPath.find_last_of("/"));
@@ -228,7 +227,7 @@ Interface::launchBrowser()
 				 * We have an item - construct full path to see
 				 * if it's a file or not
 				 */
-				string path = currentPath + string("/") + dirlist[num];
+				string path = currentPath + string("/") + direntries[num];
 				struct stat fs;
 				if (stat(path.c_str(), &fs) < 0)
 					continue;
@@ -239,6 +238,7 @@ Interface::launchBrowser()
 					continue;
 				} else {
 					/* We got a file! */
+					direntry_index = num;
 					return path;
 				}
 			}
@@ -258,6 +258,10 @@ Interface::launchPlayer()
 
 	while (!interaction->mustTerminate()) {
 		interaction->yield();
+
+		if (hasTrackChanged) {
+			dirty = true; hasTrackChanged = false;
+		}
 
 		if (decoder != NULL && hasPlayerThread) {
 			playingtime = decoder->getPlayingTime();
@@ -303,10 +307,14 @@ Interface::launchPlayer()
 			/* We are at the bottom bar */
 			if (x >= 2 && x <= 12) {
 				/* Play/resume button */
-				if (isPlayerPaused)
-					cont();
-				else
-					pause();
+				if (hasPlayerThread)  {
+					if (isPlayerPaused)
+						cont();
+					else
+						pause();
+				} else if (currentFile != "") {
+					playFile(currentFile);
+				}
 				dirty = true;
 			}
 			if (x >= 14 && x <= 24) {
@@ -323,12 +331,18 @@ Interface::launchPlayer()
 	return 1;
 }
 
-static void*
+void*
 player_wrapper(void* data)
 {
 	Interface* interface = (Interface*)data;
 
-	interface->runDecoder();
+	interface->getDecoder()->run();
+	if (!interface->getDecoder()->isTerminating()) {
+		/*
+		 * Decoder was not forcefully terminated - signal the event
+		 */
+		interface->signalDecoderFinished();
+	}
 	return NULL;
 }
 
@@ -365,12 +379,16 @@ Interface::stop()
 	if (!hasPlayerThread)
 		return;
 
-
 	/* Ask the decoder thread to terminate, and wait until it is gone */
 	decoder->terminate();
 	cont();
 	pthread_join(player_thread, NULL);
 
+	delete input;
+	delete info;
+	delete decoder;
+
+	input = NULL; info = NULL; decoder = NULL;
 	hasPlayerThread = false;
 }
 
@@ -404,4 +422,22 @@ Interface::cont()
 
 	pthread_resume_np(player_thread);
 	isPlayerPaused = false;
+}
+
+void
+Interface::signalDecoderFinished()
+{
+	/* 
+	 * Try to ascend through the playlist to the next file - if there are
+	 * no more files, just give up.
+	 */
+	if (++direntry_index >= direntries.size())
+		return;
+
+	string path = playingPath + "/" + direntries[direntry_index];
+	playFile(path);
+	currentFile = path;
+
+	// We automatically changed track, so force updated if needed
+	hasTrackChanged = true;
 }

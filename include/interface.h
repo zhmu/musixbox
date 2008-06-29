@@ -1,5 +1,6 @@
 #include <pthread.h>
 #include <string>
+#include <vector>
 #include "info.h"
 #include "interaction.h"
 #include "output.h"
@@ -11,14 +12,18 @@
 
 #define INTERFACE_BROWSER_BAR_SIZE	8
 
+
 //! \brief Provides user interaction
 class Interface {
+friend	void* player_wrapper(void*);
+
 public:
 	//! \brief Constructs a new interface object
 	Interface(Interaction* i) {
 		interaction = i;
 		output = NULL; input = NULL; decoder = NULL; visualizer = NULL; info = NULL;
-		hasPlayerThread = false; player_thread = NULL;
+		hasPlayerThread = false; player_thread = NULL; currentFile = "";
+		hasTrackChanged = false;
 	}
 
 	/*! \brief Initialize interface provider
@@ -54,6 +59,12 @@ protected:
 	 */
 	void playFile(std::string fname);
 
+	//! \brief Retrieve decoder object
+	inline Decoder* getDecoder() { return decoder; }
+
+	//! \brief Called if the decoder has finished decoding
+	void signalDecoderFinished();
+
 private:
 	//! \brief Pause the player
 	void pause();
@@ -67,6 +78,9 @@ private:
 
 	//! \brief Current path of the browser
 	std::string currentPath;
+
+	//! \brief Path where the currently playing item lives
+	std::string playingPath;
 
 	//! \brief Output object
 	Output* output;
@@ -89,8 +103,20 @@ private:
 	//! \brief Is the playing thread paused?
 	bool isPlayerPaused;
 
+	//! \brief Has the playing track changed?
+	bool hasTrackChanged;
+
+	//! \brief Current file playing
+	std::string currentFile;
+
 	//! \brief Playing thread
 	pthread_t player_thread;
+
+	//! \brief Entries in the current directory
+	std::vector<std::string> direntries;
+
+	//! \brief Index to the entry we are playing
+	int direntry_index;
 };
 
 #endif /* __INTERFACE_H__ */

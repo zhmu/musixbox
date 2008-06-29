@@ -28,6 +28,9 @@ public:
 	//! \brief Get rid of the decoder
 	inline void terminate() { terminating = true; }
 
+	//! \brief Is the decoder forcefully terminating?
+	inline bool isTerminating() { return terminating; }
+
 	//! \brief Retrieve number of seconds this file is playing
 	inline int getPlayingTime() { return playingtime; }
 

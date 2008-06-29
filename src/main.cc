@@ -16,7 +16,7 @@ main(int argc, char** argv)
 	decoder = new DecoderMP3();
 	vis = new SpectrumVisualizer();
 
-	const char* file = "music.mp3";
+	const char* file = "mp3/music.mp3";
 	if (argc == 2)
 		file = argv[1];
 	if (!decoder->open(file))

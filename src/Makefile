@@ -6,4 +6,4 @@ musicd:		$(OBJS)
 		$(CXX) -o musicd $(OBJS) $(LIBS)
 
 clean:
-		rm -f musicd $(OBJS)
+		rm -f musicd *core* $(OBJS)

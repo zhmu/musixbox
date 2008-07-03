@@ -15,6 +15,7 @@
 #include "info_ogg.h"
 #include "decode_mp3.h"
 #include "decode_ogg.h"
+#include "decode_flac.h"
 #include "interface.h"
 #include "interaction.h"
 
@@ -372,12 +373,16 @@ Interface::playFile(string fname)
 	if (!strcasecmp(extension.c_str(), "ogg")) {
 		decoder = new DecoderOgg(input, output, visualizer);
 		info = new InfoOgg(decoder);
+	} else if (!strcasecmp(extension.c_str(), "flac")) {
+		decoder = new DecoderFLAC(input, output, visualizer);
+		info = NULL;
 	} else {
 		/* assume MP3 */
 		decoder = new DecoderMP3(input, output, visualizer);
 		info = new InfoMP3(decoder);
 	}
-	info->load(fname.c_str());
+	if (info != NULL)
+		info->load(fname.c_str());
 
 	pthread_create(&player_thread, NULL, player_wrapper, this);
 	hasPlayerThread = true; isPlayerPaused = false;

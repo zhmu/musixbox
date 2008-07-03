@@ -19,9 +19,6 @@ public:
 	Decoder(Input* i, Output* o, Visualizer* v);
 	~Decoder();
 
-	//! \brief Initialize processing of the input stream
-	virtual int init() { return 1; }
-
 	//! \brief Decode the input stream until the end
 	virtual int run() = 0;
 

@@ -149,8 +149,20 @@ Interface::launchBrowser()
 	while (!interaction->mustTerminate()) {
 		if (rehash) {
 			dir = opendir(currentPath.c_str());
-			if (dir == NULL)
+			if (dir == NULL) {
+				/*
+				 * Can't open folder - report this nicely.
+				 */
+				interaction->clear(0, 0, interaction->getHeight(), interaction->getWidth());
+				interaction->puttext(2, 0, "Unable to open folder");
+				interaction->puttext(2, interaction->getTextHeight(), currentPath.c_str());
+				interaction->puttext(2, interaction->getTextHeight() * 2, "<interact to continue>");
+				int x, y;
+				while (!interaction->getCoordinates(&x, &y)) {
+					interaction->yield();
+				}
 				return string("");
+			}
 
 			/*
 			 * Read all directory items and place them in a vector, which
@@ -187,7 +199,7 @@ Interface::launchBrowser()
 				last_index++;
 			}
 
-			/* Draw the ^,v and [] buttons */
+			/* Draw the ^, v and [] buttons */
 			blitImage(interaction->getWidth() - 10, 0, crossbutton);
 			blitImage(interaction->getWidth() - 10, 10, upbutton);
 			blitImage(interaction->getWidth() - 10, interaction->getHeight() - 10, downbutton);

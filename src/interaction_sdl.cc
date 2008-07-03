@@ -49,7 +49,7 @@ InteractionSDL::yield()
 {
 	SDL_Event event;
 
-	SDL_UpdateRect(screen, 0, 0, getWidth(), getHeight());
+	SDL_UpdateRect(screen, 0, 0, 0, 0);
 
 	while (SDL_PollEvent(&event)) {
 		switch(event.type) {

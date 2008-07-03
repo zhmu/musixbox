@@ -13,6 +13,7 @@
 #include "input_file.h"
 #include "info_mp3.h"
 #include "info_ogg.h"
+#include "info_flac.h"
 #include "decode_mp3.h"
 #include "decode_ogg.h"
 #include "decode_flac.h"
@@ -375,7 +376,7 @@ Interface::playFile(string fname)
 		info = new InfoOgg(decoder);
 	} else if (!strcasecmp(extension.c_str(), "flac")) {
 		decoder = new DecoderFLAC(input, output, visualizer);
-		info = NULL;
+		info = new InfoFLAC(decoder);
 	} else {
 		/* assume MP3 */
 		decoder = new DecoderMP3(input, output, visualizer);

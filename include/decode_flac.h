@@ -9,6 +9,8 @@
  *  The decoder used is libFLAC
  */
 class DecoderFLAC : public Decoder, public FLAC::Decoder::Stream {
+	friend class InfoFLAC;
+
 public:
 	DecoderFLAC(Input* i, Output* o, Visualizer* v);
 	~DecoderFLAC();
@@ -28,6 +30,15 @@ protected:
 
 	//! \brief Error callback
 	void error_callback(FLAC__StreamDecoderErrorStatus status);
+
+	inline const char* getArtist() { return artist; }
+	inline const char* getAlbum() { return album; }
+	inline const char* getTitle() { return title; }
+
+private:
+	char* artist;
+	char* album;
+	char* title;
 };
 
 #endif /* __DECODE_FLAC_H__ */

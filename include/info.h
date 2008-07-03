@@ -17,16 +17,16 @@ public:
 	virtual int load(const char* fname) = 0;
 
 	//! \brief Retrieve number of seconds this file lasts
-	inline int getTotalTime() { return totaltime; }
+	inline virtual int getTotalTime() { return totaltime; }
 
 	//! \brief Retrieve artist name
-	inline const char* getArtist() { return artist; }
+	inline virtual const char* getArtist() { return artist; }
 
 	//! \brief Retrieve album
-	inline const char* getAlbum() { return album; }
+	inline virtual const char* getAlbum() { return album; }
 
 	//! \brief Retrieve song title
-	inline const char* getTitle() { return title; }
+	inline virtual const char* getTitle() { return title; }
 	
 protected:
 	//! \brief Decoder object we belong to

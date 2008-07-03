@@ -9,12 +9,20 @@
 DecoderFLAC::DecoderFLAC(Input* i, Output* o, Visualizer* v)
 	: Decoder(i, o, v)
 {
+	artist = NULL; album = NULL; title = NULL;
+
 	set_metadata_respond(FLAC__METADATA_TYPE_VORBIS_COMMENT);
 	init();
 }
 
 DecoderFLAC::~DecoderFLAC()
 {
+	if (artist != NULL)
+		free(artist);
+	if (album != NULL)
+		free(album);
+	if (title != NULL)
+		free(title);
 }
 
 int
@@ -82,6 +90,21 @@ DecoderFLAC::metadata_callback(const FLAC__StreamMetadata* metadata)
 	}
 
 	if (metadata->type == FLAC__METADATA_TYPE_VORBIS_COMMENT) {
-		/* TODO: deal with this */
+		for (int i = 0; i < metadata->data.vorbis_comment.num_comments; i++) {
+			char* tag = (char*)metadata->data.vorbis_comment.comments[i].entry;
+			char* ptr = strchr(tag, '=');
+			if (ptr == NULL)
+				continue;
+
+			if (!strncasecmp(tag, "TITLE", ptr - tag)) {
+				title = strdup(ptr + 1);
+			}
+			if (!strncasecmp(tag, "ARTIST", ptr - tag)) {
+				artist = strdup(ptr + 1);
+			}
+			if (!strncasecmp(tag, "ALBUM", ptr - tag)) {
+				album = strdup(ptr + 1);
+			}
+		}
 	}
 }

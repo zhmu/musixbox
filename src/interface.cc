@@ -371,12 +371,10 @@ Interface::playFile(string fname)
 	string extension = string(fname.begin() + fname.find_last_of(".") + 1, fname.end());
 	if (!strcasecmp(extension.c_str(), "ogg")) {
 		decoder = new DecoderOgg(input, output, visualizer);
-		decoder->init();
 		info = new InfoOgg(decoder);
 	} else {
 		/* assume MP3 */
 		decoder = new DecoderMP3(input, output, visualizer);
-		decoder->init();
 		info = new InfoMP3(decoder);
 	}
 	info->load(fname.c_str());

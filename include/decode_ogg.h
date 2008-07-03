@@ -10,11 +10,8 @@
  */
 class DecoderOgg : public Decoder {
 public:
-	DecoderOgg(Input* i, Output* o, Visualizer* v) : Decoder(i, o, v) { }
+	DecoderOgg(Input* i, Output* o, Visualizer* v);
 	~DecoderOgg();
-
-	//! \brief Initializes decoding the Ogg Vorbis file
-	int init();
 
 	//! \brief Performs a Ogg Vorbis decoding run
 	int run();

@@ -26,12 +26,11 @@ DecoderOgg::~DecoderOgg()
 	ov_clear(&ovf);
 }
 
-int
-DecoderOgg::init() {
+DecoderOgg::DecoderOgg(Input* i, Output* o, Visualizer* v) :
+	Decoder(i, o, v)
+{
 	if (ov_open_callbacks(input, &ovf, NULL, 0, ov_input_wrapper) < 0)
-		return 0;
-
-	return 1;
+		throw NULL;
 }
 
 int

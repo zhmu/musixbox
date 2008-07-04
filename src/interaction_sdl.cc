@@ -65,6 +65,11 @@ InteractionSDL::yield()
 			               break;
 		}
 	}
+
+	/*
+	 * Do not clutter the CPU - a granularity of 100ms is enough.
+	 */
+	SDL_Delay(100);
 }
 	
 void

@@ -3,7 +3,6 @@
 #include <string.h>
 #include <mad.h>
 #include <math.h>
-#include <id3/tag.h>
 #include "decode_mp3.h"
 #include "output.h"
 

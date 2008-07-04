@@ -58,6 +58,9 @@ InteractionSDL::yield()
 			               mouseY = event.button.y;
 			               break;
 			case SDL_KEYDOWN:
+			               if (event.key.keysym.sym == SDLK_ESCAPE)
+			                 terminating++;
+			               break;
 			case SDL_QUIT: terminating++;
 			               break;
 		}

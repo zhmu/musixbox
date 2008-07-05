@@ -7,6 +7,7 @@
 #include "input_file.h"
 #include "interface.h"
 #include "interaction_sdl.h"
+#include "interaction_avr.h"
 #include "interaction_chain.h"
 #include "output_ao.h"
 #include "output_null.h"
@@ -20,6 +21,7 @@ main(int argc, char** argv)
 
 	interaction = new InteractionChain();
 	interaction->add(new InteractionSDL());
+	interaction->add(new InteractionAVR());
 	interface = new Interface(interaction);
 
 	if (!interaction->init()) {

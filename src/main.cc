@@ -7,6 +7,7 @@
 #include "input_file.h"
 #include "interface.h"
 #include "interaction_sdl.h"
+#include "interaction_chain.h"
 #include "output_ao.h"
 #include "output_null.h"
 #include "visualize_spectrum.h"
@@ -14,13 +15,17 @@
 int
 main(int argc, char** argv)
 {
-	Interaction* interaction;
+	InteractionChain* interaction;
 	Interface* interface;
 
-	interaction = new InteractionSDL();
+	interaction = new InteractionChain();
+	interaction->add(new InteractionSDL());
 	interface = new Interface(interaction);
 
-	interaction->init();
+	if (!interaction->init()) {
+		fprintf(stderr, "interaction init fail\n");
+		return 1;
+	}
 	interface->init();
 
 	interface->run();

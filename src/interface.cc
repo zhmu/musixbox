@@ -37,7 +37,8 @@ Interface::init()
 	if (!output->init())
 		return 0;
 
-	currentPath = "/geluid";
+	rootPath = "/geluid";
+	currentPath = rootPath;
 	return 1;
 } 
 
@@ -104,7 +105,11 @@ Interface::launchBrowser()
 			 */
 			direntries.clear(); direntry_index = 0;
 			while((dent = readdir(dir)) != NULL) {
+				// Never show the current directory '.'
 				if (!strcmp(dent->d_name, "."))
+					continue;
+				// Don't allow travelling go below the root path
+				if (!strcmp(dent->d_name, "..") && currentPath == rootPath)
 					continue;
 				direntries.push_back(dent->d_name);
 			}
@@ -152,10 +157,19 @@ Interface::launchBrowser()
 				/* Stop button - return to main screen */
 				return "";
 			}
+			int items_per_page = interaction->getHeight() / interaction->getTextHeight();
 			if (y > interaction->getHeight() / 2) {
-				first_index = (first_index + (interaction->getHeight() / 10)) % direntries.size();
+				if (first_index + items_per_page <= direntries.size()) {
+					first_index = (first_index + items_per_page) % direntries.size();
+				} else {
+					first_index = 0;
+				}
 			} else {
-				first_index = (first_index - (interaction->getHeight() / 10)) % direntries.size();
+				if (first_index >= items_per_page) {
+					first_index = first_index - items_per_page;
+				} else {
+					first_index = direntries.size() - items_per_page;
+				}
 			}
 			dirty = 1;
 		} else {

@@ -79,6 +79,9 @@ private:
 
 	Interaction* interaction;
 
+	//! \brief Root path where all media resides
+	std::string rootPath;
+
 	//! \brief Current path of the browser
 	std::string currentPath;
 

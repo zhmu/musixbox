@@ -18,12 +18,15 @@ class Interface {
 friend	void* player_wrapper(void*);
 
 public:
-	//! \brief Constructs a new interface object
-	Interface(Interaction* i) {
+	/*! \brief Constructs a new interface object
+	 *  \param i Interaction object to use
+	 *  \param path Root path of all media files
+	 */
+	Interface(Interaction* i, const char* path) {
 		interaction = i;
 		output = NULL; input = NULL; decoder = NULL; visualizer = NULL; info = NULL;
 		hasPlayerThread = false; player_thread = NULL; currentFile = "";
-		hasTrackChanged = false;
+		hasTrackChanged = false; rootPath = std::string(path);
 	}
 
 	/*! \brief Initialize interface provider

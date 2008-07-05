@@ -21,6 +21,9 @@ public:
 
 	//! \brief Returns the size of a text string
 	inline int getTextHeight() { return provider[0]->getTextHeight(); }
+
+	//! \brief Returns the number of interaction providers registered
+	inline int getNumProviders() { return provider.size(); }
 	
 	//! \brief Used to handle interactions
 	void yield();

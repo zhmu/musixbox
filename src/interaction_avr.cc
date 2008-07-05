@@ -8,16 +8,17 @@
 #include "font.h"
 #include "interaction_avr.h"
 
-#define DEVICE "/dev/cuaU0"
+InteractionAVR::InteractionAVR(const char* device)
+{
+	fd = open(device, O_RDWR | O_NOCTTY| O_NDELAY);
+	if (fd < 0)
+		throw NULL;
+}
 
 int
 InteractionAVR::init()
 {
 	struct termios opt;
-
-	fd = open(DEVICE, O_RDWR | O_NOCTTY| O_NDELAY);
-	if (fd < 0)
-		return 0;
 
 	tcflush(fd, TCIOFLUSH);
 

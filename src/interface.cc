@@ -37,7 +37,6 @@ Interface::init()
 	if (!output->init())
 		return 0;
 
-	rootPath = "/geluid";
 	currentPath = rootPath;
 	return 1;
 } 

@@ -6,6 +6,11 @@
 //! \brief Provides interaction using AVR, serially connected
 class InteractionAVR : public Interaction {
 public:
+	/*! \brief Constructs a new interaction provider
+	 *  \param device Serial device name
+	 */
+	InteractionAVR(const char* device);
+	 
 	//! \brief Initialize AVR interaction provider
 	int init();
 

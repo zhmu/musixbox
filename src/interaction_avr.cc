@@ -62,8 +62,7 @@ InteractionAVR::init()
 
 	/* Force a clear screen */
 	writeAVR(0xff, 0xff, 0xff);
-
-	mouseX = -1; mouseY = -1; dirty = 0;
+	dirty = 0;
 	return 1;
 }
 
@@ -122,45 +121,6 @@ InteractionAVR::putpixel(int x, int y, int c)
 }
 
 void
-InteractionAVR::puttext(int x, int y, const char* s)
-{
-	for (; *s; s++) {
-		struct CHARACTER* c = &theFont[(unsigned char)*s];
-		for (int i = 0; i < c->width; i++) {
-			for (int j = 0; j < 8 /*c->height*/; j++) {
-				unsigned char d = c->data[i * ((j / 8) + 1)];
-				if (d & (1 << j))
-					putpixel(x + i, y + j + (c->height - c->yshift), 1);
-			}
-		}
-		x += c->advance_x;
-	}
-}
-
-void
-InteractionAVR::gettextsize(const char* s, int* h, int* w)
-{
-}
-
-int
-InteractionAVR::getCoordinates(int* x, int* y)
-{
-	if (mouseX == -1 && mouseY == -1)
-		return 0;
-	*x = mouseX; *y = mouseY;
-	 mouseX = -1; mouseY = -1;
-	return 1;
-}
-
-void
-InteractionAVR::clear(int x, int y, int h, int w)
-{
-	for (int j = 0; j < h; j++)
-		for (int i = 0; i < w; i++)
-			putpixel(i + x, j + y, 0);
-}
-
-void
 InteractionAVR::writeAVR(unsigned char a, unsigned char b, unsigned char c)
 {
 	fd_set fds;
@@ -171,17 +131,12 @@ InteractionAVR::writeAVR(unsigned char a, unsigned char b, unsigned char c)
 	if (!len)
 		return;
 
-	//usleep(5500);
+	/* Wait for the acknowledgement charachter */
 	FD_ZERO(&fds);
 	FD_SET(fd, &fds);
 	if (select(fd + 1, &fds, (fd_set*)NULL, (fd_set*)NULL, NULL) < 0)
 		return;
 	if(!FD_ISSET(fd, &fds))
 		return;
-	if (read(fd, &ch, 1) <= 0)
-		return;
-	return;
-
-fail:
-	printf("can't write to port\n");
+	read(fd, &ch, 1);
 }

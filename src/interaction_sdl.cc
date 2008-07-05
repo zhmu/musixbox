@@ -26,8 +26,6 @@ InteractionSDL::init()
 
 	/* blank screen */
 	clear(0, 0, getHeight(), getWidth());
-
-	mouseX = -1; mouseY = -1;
 	return 1;
 }
 
@@ -41,8 +39,8 @@ InteractionSDL::yield()
 	while (SDL_PollEvent(&event)) {
 		switch(event.type) {
 			case SDL_MOUSEBUTTONDOWN:
-			               mouseX = event.button.x;
-			               mouseY = event.button.y;
+			               coordX = event.button.x;
+			               coordY = event.button.y;
 			               break;
 			case SDL_KEYDOWN:
 			               if (event.key.keysym.sym == SDLK_ESCAPE)
@@ -77,37 +75,6 @@ InteractionSDL::putpixel(int x, int y, int c)
 
 	p = (Uint32*)screen->pixels + y * screen->pitch/4 + x;
 	*p = color;
-}
-
-void
-InteractionSDL::puttext(int x, int y, const char* s)
-{
-	for (; *s; s++) {
-		struct CHARACTER* c = &theFont[(unsigned char)*s];
-		for (int i = 0; i < c->width; i++) {
-			for (int j = 0; j < 8 /*c->height*/; j++) {
-				unsigned char d = c->data[i * ((j / 8) + 1)];
-				if (d & (1 << j))
-					putpixel(x + i, y + j + (c->height - c->yshift), 1);
-			}
-		}
-		x += c->advance_x;
-	}
-}
-
-void
-InteractionSDL::gettextsize(const char* s, int* h, int* w)
-{
-}
-
-int
-InteractionSDL::getCoordinates(int* x, int* y)
-{
-	if (mouseX == -1 && mouseY == -1)
-		return 0;
-	*x = mouseX; *y = mouseY;
-	 mouseX = -1; mouseY = -1;
-	return 1;
 }
 
 void

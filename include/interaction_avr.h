@@ -18,17 +18,10 @@ public:
 	//! \brief Returns the width of the AVR window
 	inline int getWidth() { return 128; }
 
-	//! \brief Returns the size of a text string
-	inline int getTextHeight() { return 8; }
-	
 	//! \brief Used to handle interactions
 	void yield();
 
-	void clear(int x, int y, int h, int w);
 	void putpixel(int x, int y, int c);
-	void puttext(int x, int y, const char* s);
-	void gettextsize(const char* s, int* h, int* w);
-	int getCoordinates(int* x, int* y);
 
 protected:
 	void writeAVR(unsigned char a, unsigned char b, unsigned char c);
@@ -36,7 +29,6 @@ protected:
 private:
 	int fd;
 	int dirty;
-	int mouseX, mouseY;
 
 	//! \brief Working contents of display data
 	char* displaydata;

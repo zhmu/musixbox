@@ -28,6 +28,7 @@ InteractionSDL::init()
 	clear(0, 0, getHeight(), getWidth());
 
 	mouseX = -1; mouseY = -1;
+	return 1;
 }
 
 void

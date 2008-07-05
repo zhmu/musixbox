@@ -1,5 +1,4 @@
 #include <SDL/SDL.h>
-#include <SDL/SDL_ttf.h>
 #include "interaction.h"
 
 #ifndef __INTERACTION_SDL_H__
@@ -21,7 +20,7 @@ public:
 	inline int getWidth() { return 128; }
 
 	//! \brief Returns the size of a text string
-	inline int getTextHeight() { return 10; }
+	inline int getTextHeight() { return 8; }
 	
 	//! \brief Used to handle interactions
 	void yield();
@@ -34,7 +33,6 @@ public:
 
 private:
 	SDL_Surface* screen;
-	TTF_Font* font;
 
 	int mouseX, mouseY;
 };

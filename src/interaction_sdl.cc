@@ -1,9 +1,6 @@
 #include <SDL/SDL.h>
-#include <SDL/SDL_ttf.h>
+#include "font.h"
 #include "interaction_sdl.h"
-
-#define FONT_FILE "/usr/local/lib/X11/fonts/bitstream-vera/Vera.ttf"
-#define FONT_SIZE 8
 
 int
 InteractionSDL::init()
@@ -12,10 +9,6 @@ InteractionSDL::init()
 
 	if (SDL_Init(SDL_INIT_VIDEO) < 0) {
 		fprintf(stderr, "SDL_Init() failure: %s\n", SDL_GetError());
-		return 0;
-	}
-	if (TTF_Init() < 0) {
-		fprintf(stderr, "TTF_Init() failure: %s\n", SDL_GetError());
 		return 0;
 	}
 
@@ -27,13 +20,6 @@ InteractionSDL::init()
 	if (screen->format->BytesPerPixel != 4) {
 		printf("TODO\n");
 	}
-
-	font = TTF_OpenFont(FONT_FILE, FONT_SIZE);
-	if (font == NULL) {
-		fprintf(stderr, "TTF_OpenFont() failure: %s\n", SDL_GetError());
-		return 0;
-	}
-	TTF_SetFontStyle(font, TTF_STYLE_NORMAL);
 
         if (SDL_MUSTLOCK(screen))
                 SDL_LockSurface(screen);
@@ -100,21 +86,22 @@ InteractionSDL::putpixel(int x, int y, int c)
 void
 InteractionSDL::puttext(int x, int y, const char* s)
 {
-	SDL_Surface* text;
-	SDL_Rect rect;
-	SDL_Color textcol = { 255, 255, 255 };
-
-	text = TTF_RenderText_Solid(font, s, textcol); 
-	rect.x = x; rect.y = y;
-	rect.w = text->w; rect.h = text->h;
-	SDL_BlitSurface(text, NULL, screen, &rect);
-	SDL_FreeSurface(text);
+	for (; *s; s++) {
+		struct CHARACTER* c = &theFont[*s];
+		for (int i = 0; i < c->width; i++) {
+			for (int j = 0; j < 8 /*c->height*/; j++) {
+				unsigned char d = c->data[i * ((j / 8) + 1)];
+				if (d & (1 << j))
+					putpixel(x + i, y + j + (c->height - c->yshift), 1);
+			}
+		}
+		x += c->advance_x;
+	}
 }
 
 void
 InteractionSDL::gettextsize(const char* s, int* h, int* w)
 {
-	TTF_SizeText(font, s, w, h);
 }
 
 int

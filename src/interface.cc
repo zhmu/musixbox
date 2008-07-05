@@ -198,7 +198,7 @@ Interface::launchPlayer()
 {
 	bool dirty = true;
 	int oldplayingtime = -1, oldtotaltime = -1;
-	int playingtime, totaltime;
+	int playingtime = 0, totaltime = 0;
 	char temp[64];
 
 	while (!interaction->mustTerminate()) {

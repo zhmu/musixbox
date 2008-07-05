@@ -125,7 +125,7 @@ void
 InteractionAVR::puttext(int x, int y, const char* s)
 {
 	for (; *s; s++) {
-		struct CHARACTER* c = &theFont[*s];
+		struct CHARACTER* c = &theFont[(unsigned char)*s];
 		for (int i = 0; i < c->width; i++) {
 			for (int j = 0; j < 8 /*c->height*/; j++) {
 				unsigned char d = c->data[i * ((j / 8) + 1)];

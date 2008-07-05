@@ -76,7 +76,7 @@ main(int argc, char* argv[])
 		printf((isprint(ch) && (ch != '\\')) ? "\t// %c\n" : "\t// %u\n", ch);
 
 		if (ch != 0x20) {
-			printf("\t{ %u, %u, %u, %u, \"", slot->bitmap.rows, slot->bitmap.width, slot->bitmap_top, slot->advance.x >> 6);
+			printf("\t{ %u, %u, %i, %u, \"", slot->bitmap.rows, slot->bitmap.width, slot->bitmap_top, slot->advance.x >> 6);
 			for (int i = 0; i < slot->bitmap.width; i++) {
 				uint8_t ch = 0;
 				for (int j = 0 ; j < slot->bitmap.rows; j++) {

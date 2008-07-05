@@ -10,7 +10,7 @@
 #ifndef __INTERFACE_H__
 #define __INTERFACE_H__
 
-#define INTERFACE_BROWSER_BAR_SIZE	8
+#define INTERFACE_BROWSER_BAR_SIZE	10
 
 
 //! \brief Provides user interaction

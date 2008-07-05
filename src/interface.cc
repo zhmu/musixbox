@@ -135,9 +135,9 @@ Interface::launchBrowser()
 			}
 
 			/* Draw the ^, v and [] buttons */
-			blitImage(interaction->getWidth() - 10, 0, crossbutton);
-			blitImage(interaction->getWidth() - 10, 10, upbutton);
-			blitImage(interaction->getWidth() - 10, interaction->getHeight() - 10, downbutton);
+			blitImage(interaction->getWidth() - INTERFACE_BROWSER_BAR_SIZE, 0, crossbutton);
+			blitImage(interaction->getWidth() - INTERFACE_BROWSER_BAR_SIZE, 10, upbutton);
+			blitImage(interaction->getWidth() - INTERFACE_BROWSER_BAR_SIZE, interaction->getHeight() - 10, downbutton);
 			dirty = false;
 		}
 

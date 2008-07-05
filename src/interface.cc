@@ -8,8 +8,7 @@
 #include <algorithm>
 #include <vector>
 #include <string>
-#include "output_ao.h"
-#include "output_null.h"
+#include "output.h"
 #include "input_file.h"
 #include "info_mp3.h"
 #include "info_ogg.h"
@@ -33,10 +32,6 @@ char crossbutton[8] = { 0x81, 0x42, 0x24, 0x18, 0x18, 0x24, 0x42, 0x81 };
 int
 Interface::init()
 {
-	output = new OutputAO();
-	if (!output->init())
-		return 0;
-
 	currentPath = rootPath;
 	return 1;
 } 
@@ -45,7 +40,6 @@ void
 Interface::done()
 {
 	stop();
-	output->done();
 }
 
 void

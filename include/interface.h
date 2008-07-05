@@ -20,11 +20,12 @@ friend	void* player_wrapper(void*);
 public:
 	/*! \brief Constructs a new interface object
 	 *  \param i Interaction object to use
+	 *  \param o Output object to use
 	 *  \param path Root path of all media files
 	 */
-	Interface(Interaction* i, const char* path) {
-		interaction = i;
-		output = NULL; input = NULL; decoder = NULL; visualizer = NULL; info = NULL;
+	Interface(Interaction* i, Output* o, const char* path) {
+		interaction = i; output = o;
+		input = NULL; decoder = NULL; visualizer = NULL; info = NULL;
 		hasPlayerThread = false; player_thread = NULL; currentFile = "";
 		hasTrackChanged = false; rootPath = std::string(path);
 	}

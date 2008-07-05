@@ -70,31 +70,27 @@ InteractionAVR::init()
 void
 InteractionAVR::yield()
 {
-	if (dirty) {
-		/*
-		 * If we have outstanding updates, check whatever we believe is
-		 * on the AVR and send it updates - this eliminates the need to
-		 * let the AVR read the LCD memory, which is slow...
-		 */
-		for (int i = 0; i < (getHeight() / 8) * getWidth(); i++) {
-			if (currentDisplayData[i] != displaydata[i]) {
-				currentDisplayData[i] = displaydata[i];
-				uint8_t ic = (i % getWidth()) > 63 ? 0x40 : 0;
-				uint8_t address = i % 64;
-				uint8_t page = i / getWidth();
-				writeAVR(0x80 | ic | page,	/* ic/page */
-				         address,		/* address*/
-				         displaydata[i]);	/* data */
-			}
-		}
-
-		dirty = 0;
-	}
+	if (!dirty)
+		return;
 
 	/*
-	 * Do not clutter the CPU - a granularity of 100ms is enough.
+	 * If we have outstanding updates, check whatever we believe is
+	 * on the AVR and send it updates - this eliminates the need to
+	 * let the AVR read the LCD memory, which is slow...
 	 */
-	usleep(100);
+	for (int i = 0; i < (getHeight() / 8) * getWidth(); i++) {
+		if (currentDisplayData[i] != displaydata[i]) {
+			currentDisplayData[i] = displaydata[i];
+			uint8_t ic = (i % getWidth()) > 63 ? 0x40 : 0;
+			uint8_t address = i % 64;
+			uint8_t page = i / getWidth();
+			writeAVR(0x80 | ic | page,	/* ic/page */
+				 address,		/* address*/
+				 displaydata[i]);	/* data */
+		}
+	}
+
+	dirty = 0;
 }
 	
 void

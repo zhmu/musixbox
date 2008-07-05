@@ -65,6 +65,9 @@ protected:
 	//! \brief Called if the decoder has finished decoding
 	void signalDecoderFinished();
 
+	//! \brief Relinquish control to the operating system
+	void relinquish();
+
 private:
 	//! \brief Pause the player
 	void pause();

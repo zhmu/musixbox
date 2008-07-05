@@ -93,6 +93,7 @@ Interface::launchBrowser()
 				int x, y;
 				while (!interaction->getCoordinates(&x, &y)) {
 					interaction->yield();
+					relinquish();
 				}
 				return string("");
 			}
@@ -114,6 +115,7 @@ Interface::launchBrowser()
 		}
 
 		interaction->yield();
+		relinquish();
 
 		if (dirty) {
 			interaction->clear(0, 0, interaction->getHeight(), interaction->getWidth());
@@ -203,6 +205,7 @@ Interface::launchPlayer()
 
 	while (!interaction->mustTerminate()) {
 		interaction->yield();
+		relinquish();
 
 		if (hasTrackChanged) {
 			dirty = true; hasTrackChanged = false;
@@ -387,4 +390,14 @@ Interface::signalDecoderFinished()
 
 	// We automatically changed track, so force updated if needed
 	hasTrackChanged = true;
+}
+
+void
+Interface::relinquish()
+{
+	/*
+	 * This is used to prevent us from hogging the CPU 100% waiting for
+	 * events that are being handeled so fast no one can notice anyway :)
+	 */
+	usleep(100);
 }

@@ -25,9 +25,9 @@ InteractionAVR::init()
 	if (tcgetattr(fd, &opt) < 0)
 		return 0;
 
-	/* 4800 baud */
-	cfsetispeed(&opt, B4800);
-	cfsetospeed(&opt, B4800);
+	/* 57600 baud */
+	cfsetispeed(&opt, B57600);
+	cfsetospeed(&opt, B57600);
 
 	opt.c_cflag |= CLOCAL | CREAD;
 
@@ -50,20 +50,19 @@ InteractionAVR::init()
 	if (tcsetattr(fd, TCSANOW, &opt) < 0)
 		return 0;
 
-	displaydata = (char*)malloc((getHeight() / 8) * getWidth());
+	displaydata = (unsigned char*)malloc((getHeight() / 8) * getWidth());
 	if (displaydata == NULL)
 		return 0;
 
-	currentDisplayData = (char*)malloc((getHeight() / 8) * getWidth());
+	currentDisplayData = (unsigned char*)malloc((getHeight() / 8) * getWidth());
 	if (currentDisplayData == NULL)
 		return 0;
 
 	memset(displaydata, 0, (getHeight() / 8) * getWidth());
 	memset(currentDisplayData, 0, (getHeight() / 8) * getWidth());
 
-	/* Force a clear screen */
-	writeAVR(0xff, 0xff, 0xff);
-	dirty = 0;
+	/* We do not know what's on the LCD, so write whenever we can! */
+	dirty = 1;
 	return 1;
 }
 
@@ -74,19 +73,26 @@ InteractionAVR::yield()
 		return;
 
 	/*
-	 * If we have outstanding updates, check whatever we believe is
-	 * on the AVR and send it updates - this eliminates the need to
-	 * let the AVR read the LCD memory, which is slow...
+	 * If we have outstanding updates, write them page by page, controller
+	 * by controller. This is actually so much faster than sending updates
+	 * byte-by-byte, it's almost scary :-)
 	 */
-	for (unsigned int i = 0; i < (getHeight() / 8) * getWidth(); i++) {
-		if (currentDisplayData[i] != displaydata[i]) {
-			currentDisplayData[i] = displaydata[i];
-			uint8_t ic = (i % getWidth()) > 63 ? 0x40 : 0;
-			uint8_t address = i % 64;
-			uint8_t page = i / getWidth();
-			writeAVR(0x80 | ic | page,	/* ic/page */
-				 address,		/* address*/
-				 displaydata[i]);	/* data */
+	unsigned char* srcptr = displaydata;
+	unsigned char* dstptr = currentDisplayData;
+	unsigned char* src;
+	int isDirty;
+	for (unsigned int page = 0; page < getHeight() / 8; page++) {
+		for (unsigned char ic = 0; ic < 2; ic++) {
+			isDirty = 0; src = srcptr;
+			for (unsigned int i = 0; i < getWidth() / 2; i++) {
+				if (*srcptr != *dstptr)
+					isDirty = 1;
+				*dstptr++ = *srcptr++;
+			}
+			if (isDirty) {
+				/* need to copy this entire page over */
+				writeAVRPage(ic, page, src);
+			}
 		}
 	}
 
@@ -122,14 +128,16 @@ InteractionAVR::putpixel(unsigned int x, unsigned int y, unsigned int c)
 }
 
 void
-InteractionAVR::writeAVR(unsigned char a, unsigned char b, unsigned char c)
+InteractionAVR::writeAVRPage(unsigned char ic, unsigned char page, unsigned char* data)
 {
 	fd_set fds;
-	char ch;
-	char buf[3] = { a, b, c };
+	unsigned char a;
+	int len;
 
-	int len = write(fd, buf, 3);
-	if (!len)
+	a = 0x80 | (ic ? 0x40 : 0) | page;
+	if (!write(fd, &a, 1))
+		return;
+	if (!write(fd, data, 64))
 		return;
 
 	/* Wait for the acknowledgement charachter */
@@ -139,5 +147,5 @@ InteractionAVR::writeAVR(unsigned char a, unsigned char b, unsigned char c)
 		return;
 	if(!FD_ISSET(fd, &fds))
 		return;
-	read(fd, &ch, 1);
+	read(fd, &a, 1);
 }

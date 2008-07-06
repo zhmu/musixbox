@@ -29,17 +29,17 @@ public:
 	void putpixel(unsigned int x, unsigned int y, unsigned int c);
 
 protected:
-	void writeAVR(unsigned char a, unsigned char b, unsigned char c);
+	void writeAVRPage(unsigned char ic, unsigned char page, unsigned char* data);
 
 private:
 	int fd;
 	int dirty;
 
 	//! \brief Working contents of display data
-	char* displaydata;
+	unsigned char* displaydata;
 
 	//! \brief Current contents of display data
-	char* currentDisplayData;
+	unsigned char* currentDisplayData;
 };
 
 #endif /* __INTERACTION_AVR_H__ */

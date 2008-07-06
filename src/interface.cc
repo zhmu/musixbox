@@ -1,3 +1,4 @@
+#include "config.h"
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <dirent.h>
@@ -10,12 +11,20 @@
 #include <string>
 #include "output.h"
 #include "input_file.h"
-#include "info_mp3.h"
-#include "info_ogg.h"
-#include "info_flac.h"
+#ifdef WITH_MAD
 #include "decode_mp3.h"
+#endif
+#ifdef WITH_ID3TAG
+#include "info_mp3.h"
+#endif
+#ifdef WITH_VORBIS
 #include "decode_ogg.h"
+#include "info_ogg.h"
+#endif
+#ifdef WITH_FLAC
 #include "decode_flac.h"
+#include "info_flac.h"
+#endif
 #include "interface.h"
 #include "interaction.h"
 
@@ -312,16 +321,30 @@ Interface::playFile(string fname)
 	input = i;
 
 	string extension = string(fname.begin() + fname.find_last_of(".") + 1, fname.end());
+#ifdef WITH_VORBIS
 	if (!strcasecmp(extension.c_str(), "ogg")) {
 		decoder = new DecoderOgg(input, output, visualizer);
 		info = new InfoOgg(decoder);
-	} else if (!strcasecmp(extension.c_str(), "flac")) {
+	} else
+#endif /* WITH_VORBIS */
+#ifdef WITH_FLAC
+	if (!strcasecmp(extension.c_str(), "flac")) {
 		decoder = new DecoderFLAC(input, output, visualizer);
 		info = new InfoFLAC(decoder);
-	} else {
+	} else
+#endif /* WITH_FLAC */
+#ifdef WITH_MAD
+	{
 		/* assume MP3 */
 		decoder = new DecoderMP3(input, output, visualizer);
+#ifdef WITH_ID3TAG
 		info = new InfoMP3(decoder);
+#endif
+#else /* WITH_MAD */
+	{
+		delete input; input = NULL;
+		return;
+#endif /* !WITH_MAD */
 	}
 	if (info != NULL)
 		info->load(fname.c_str());

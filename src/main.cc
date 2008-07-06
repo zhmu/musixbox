@@ -1,27 +1,33 @@
+#include "config.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <err.h>
-#include "decode_mp3.h"
-#include "decode_ogg.h"
-#include "decode_tone.h"
-#include "input_file.h"
 #include "interface.h"
+#ifdef WITH_SDL
 #include "interaction_sdl.h"
+#endif
 #include "interaction_avr.h"
 #include "interaction_chain.h"
+#ifdef WITH_AO
 #include "output_ao.h"
+#endif
 #include "output_null.h"
-#include "visualize_spectrum.h"
 
 void
 usage()
 {
 	fprintf(stderr, "usage: musicd [-?hs] [-a device] folder\n\n");
 	fprintf(stderr, " -h, -?         this help\n");
+#ifdef WITH_SDL
 	fprintf(stderr, " -s             enable SDL interaction frontend\n");
+#endif
 	fprintf(stderr, " -a device      enable AVR interaction frontend using device\n");
 	fprintf(stderr, " -o type	 select output plugin\n");
-	fprintf(stderr, "                available are: null ao\n\n");
+	fprintf(stderr, "                available are: null");
+#ifdef WITH_AO
+	fprintf(stderr, " ao");
+#endif
+	fprintf(stderr, "\n\n");
 	fprintf(stderr, "folder is where your media files are expected to be\n");
 	exit(EXIT_SUCCESS);
 }
@@ -31,8 +37,10 @@ findOutputProvider(const char* name)
 {
 	if (!strcmp(name, "null"))
 		return new OutputNull();
+#ifdef WITH_AO
 	if (!strcmp(name, "ao"))
 		return new OutputAO();
+#endif
 	fprintf(stderr, "no such output provider '%s'\n", name);
 	usage();
 }
@@ -45,10 +53,16 @@ main(int argc, char** argv)
 	Output* output = NULL;
 	int ch;
 
-	while ((ch = getopt(argc, argv, "?hsa:o:")) != -1) {
+	while ((ch = getopt(argc, argv, "?h"
+#ifdef WITH_SDL
+"s"
+#endif
+"a:o:")) != -1) {
 		switch(ch) {
+#ifdef WITH_SDL
 			case 's': interaction->add(new InteractionSDL());
 			          break;
+#endif
 			case 'a': interaction->add(new InteractionAVR(optarg));
 			          break;
 			case 'o': output = findOutputProvider(optarg);

@@ -1,0 +1,124 @@
+AC_INIT(src/main.cc)
+
+AM_CONFIG_HEADER(include/config.h)
+AM_INIT_AUTOMAKE(musicd,0.1)
+AC_PROG_CC
+AC_PROG_CXX
+
+# this is a C++ project
+AC_LANG([C++])
+AC_REQUIRE_CPP
+
+AC_ARG_WITH(mad,
+[  --with-mad=dir              MP3 decoding using libmad],
+[
+	LDFLAGS="$LDFLAGS -L$with_mad/lib"
+	CPPFLAGS="$CPPFLAGS -I$with_mad/include"
+])
+AC_ARG_WITH(id3tag,
+[  --with-id3tag=dir           Decode MP3 tags using libid3tag],
+[
+	LDFLAGS="$LDFLAGS -L$with_id3tag/lib"
+	CPPFLAGS="$CPPFLAGS -I$with_id3tag/include"
+])
+AC_ARG_WITH(vorbis,
+[  --with-vorbis=dir           Ogg Vorbis decoding using libogg/libvorbis],
+[
+	LDFLAGS="$LDFLAGS -L$with_vorbis/lib"
+	CPPFLAGS="$CPPFLAGS -I$with_vorbis/include"
+])
+AC_ARG_WITH(flac,
+[  --with-flac=dir             FLAC decoding using libFLAC++],
+[
+	LDFLAGS="$LDFLAGS -L$with_flac/lib"
+	CPPFLAGS="$CPPFLAGS -I$with_flac/include"
+])
+AC_ARG_WITH(sdl,
+[  --with-flac=dir             Interaction using SDL], 
+[
+	LDFLAGS="$LDFLAGS -L$with_sdl/lib"
+	CPPFLAGS="$CPPFLAGS -I$with_sdl/include"
+])
+AC_ARG_WITH(ao,
+[  --with-ao=dir               Interaction using libao], 
+[
+	LDFLAGS="$LDFLAGS -L$with_ao/lib"
+	CPPFLAGS="$CPPFLAGS -I$with_ao/include"
+])
+AC_ARG_WITH(fftw,
+[  --with-fftw=dir             Use fftw3 library for spectrum analyzer],
+[
+	LDFLAGS="$LDFLAGS -L$with_fftw/lib"
+	CPPFLAGS="$CPPFLAGS -I$with_fftw/include"
+])
+
+# we need pthreads
+AC_SEARCH_LIBS([pthread_create], [pthread])
+
+# check for all libraries
+AC_CHECK_LIB([mad], [mad_stream_init], [
+	AC_DEFINE(WITH_MAD, [], [Decode using libmad])
+	LDFLAGS="$LDFLAGS -lmad"
+	AM_CONDITIONAL([MAD], [true])
+], [
+	AM_CONDITIONAL([MAD], [false])
+])
+AC_CHECK_LIB([id3tag], [id3_file_tag], [
+	AC_DEFINE(WITH_ID3TAG, [], [Decode ID3 tags using libid3tag])
+	LDFLAGS="$LDFLAGS -lid3tag"
+	AM_CONDITIONAL([ID3TAG], [true])
+], [
+	AM_CONDITIONAL([ID3TAG], [false])
+])
+AC_CHECK_LIB([vorbisfile], [ov_open_callbacks], [
+	AC_DEFINE(WITH_VORBIS, [], [Decode using libvorbis])
+	LDFLAGS="$LDFLAGS -lvorbisfile"
+	AM_CONDITIONAL([VORBIS], [true])
+], [
+	AM_CONDITIONAL([VORBIS], [false])
+])
+AC_CHECK_LIB([SDL], [SDL_Init], [
+	AC_DEFINE(WITH_SDL, [], [Interaction using SDL])
+	LDFLAGS="$LDFLAGS -lSDL"
+	AM_CONDITIONAL([SDL], [true])
+], [
+	AM_CONDITIONAL([SDL], [false])
+])
+AC_CHECK_LIB([ao], [ao_initialize], [
+	AC_DEFINE(WITH_AO, [], [Output using libao])
+	LDFLAGS="$LDFLAGS -lao"
+	AM_CONDITIONAL([AO], [true])
+], [
+	AM_CONDITIONAL([AO], [false])
+])
+AC_CHECK_LIB([fftw3], [fftw_plan_dft_r2c_1d], [
+	AC_DEFINE(WITH_FFTW, [], [Use FFT library])
+	LDFLAGS="$LDFLAGS -lfftw3"
+	AM_CONDITIONAL([FFTW], [true])
+], [
+	AM_CONDITIONAL([FFTW], [false])
+])
+
+AC_MSG_CHECKING(for whether FLAC++ is usuable)
+AC_LANG_PUSH(C++)
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <FLAC++/decoder.h>
+
+class Test : public FLAC::Decoder::Stream
+{
+protected:
+	FLAC__StreamDecoderReadStatus read_callback(FLAC__byte buffer[], size_t* bytes) { }
+	FLAC__StreamDecoderWriteStatus write_callback(const FLAC__Frame* frame, const FLAC__int32 *const buffer[]) { }
+	void error_callback(FLAC__StreamDecoderErrorStatus status) { }
+};]],
+ [[Test test;]])], [
+ AC_MSG_RESULT(yes)
+ AC_DEFINE(WITH_FLAC, [], [Decode using libFLAC++])
+ LDFLAGS="$LDFLAGS -lFLAC++"
+ AM_CONDITIONAL([FLAC], [true])
+], [
+ AC_MSG_RESULT(no)
+ AM_CONDITIONAL([FLAC], [false])
+])
+AC_LANG_POP(C++)
+
+AC_OUTPUT([Makefile src/Makefile])

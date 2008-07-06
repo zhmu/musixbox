@@ -1,5 +1,5 @@
 bin_PROGRAMS =	musicd
-AM_CFLAGS =	-Wall -Werror
+AM_CXXFLAGS =	-Wall
 
 INCLUDES =	../include
 musicd_SOURCES=	decode.cc decode_tone.cc \

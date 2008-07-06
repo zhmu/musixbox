@@ -25,7 +25,7 @@ SpectrumVisualizer::done()
 void
 SpectrumVisualizer::update(const char* input, unsigned int num)
 {
-	int i, j;
+	unsigned int i;
 	float max = 10;
 	float min = 1000;
 

@@ -17,10 +17,10 @@ public:
 	virtual void done() { }
 
 	//! \brief Returns the height of the screen
-	virtual int getHeight() = 0;
+	virtual unsigned int getHeight() = 0;
 
 	//! \brief Returns the width of the screen
-	virtual int getWidth() = 0;
+	virtual unsigned int getWidth() = 0;
 
 	//! \brief Give the interaction environment a chance to update
 	virtual void yield() { }
@@ -29,14 +29,14 @@ public:
 	virtual int mustTerminate() { return terminating; }
 
 	//! \brief Returns the size of a text string
-	virtual inline int getTextHeight() { return 8; }
+	virtual inline unsigned int getTextHeight() { return 8; }
 
 	/*! \brief Place a pixel on the interaction provider
 	 *  \param x X-position
 	 *  \param y Y-position
 	 *  \param c Color to use
 	 */
-	virtual void putpixel(int x, int y, int c) = 0;
+	virtual void putpixel(unsigned int x, unsigned int y, unsigned int c) = 0;
 
 	/*! \brief Clears part of the interaction provider
 	 *  \param x X-position
@@ -44,27 +44,27 @@ public:
 	 *  \param h Height to clear
 	 *  \param w Width to clear
 	 */
-	virtual void clear(int x, int y, int h, int w);
+	virtual void clear(unsigned int x, unsigned int y, unsigned int h, unsigned int w);
 
 	/*! \brief Place text on the interaction provider
 	 *  \param x X-position
 	 *  \param y Y-position
 	 *  \param s Text to place
 	 */
-	virtual void puttext(int x, int y, const char* s);
+	virtual void puttext(unsigned int x, unsigned int y, const char* s);
 
 	/*! \brief Returns text height and width
 	 *  \param h Height of the text
 	 *  \param w Width of the text
 	 */
-	virtual void gettextsize(const char* s, int* h, int* w);
+	virtual void gettextsize(const char* s, unsigned int* h, unsigned int* w);
 
 	/* \brief Returns interaction coordinates, if any
 	 * \param x X-coordinate
 	 * \param y Y-coordinate
 	 * \returns Non-zero if there was interaction
 	 */
-	virtual int getCoordinates(int* x, int* y);
+	virtual int getCoordinates(unsigned int* x, unsigned int* y);
 	
 protected:
 	//! \brief Determines whether we should terminate

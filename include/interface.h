@@ -126,7 +126,7 @@ private:
 	std::vector<std::string> direntries;
 
 	//! \brief Index to the entry we are playing
-	int direntry_index;
+	unsigned int direntry_index;
 };
 
 #endif /* __INTERFACE_H__ */

@@ -43,6 +43,9 @@ findOutputProvider(const char* name)
 #endif
 	fprintf(stderr, "no such output provider '%s'\n", name);
 	usage();
+
+	/* NOTREACHED */
+	return NULL;
 }
 
 int

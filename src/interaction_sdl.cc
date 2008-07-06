@@ -5,8 +5,6 @@
 int
 InteractionSDL::init()
 {
-	SDL_Rect r;
-
 	if (SDL_Init(SDL_INIT_VIDEO) < 0) {
 		fprintf(stderr, "SDL_Init() failure: %s\n", SDL_GetError());
 		return 0;
@@ -60,7 +58,7 @@ InteractionSDL::done()
 
 
 void
-InteractionSDL::putpixel(int x, int y, int c)
+InteractionSDL::putpixel(unsigned int x, unsigned int y, unsigned int c)
 {
 	Uint32 color;
 	Uint32* p;
@@ -70,7 +68,7 @@ InteractionSDL::putpixel(int x, int y, int c)
 	else
 		 color = SDL_MapRGB(screen->format, 100, 100, 100);
 
-	if (x < 0 || y < 0 || x >= getWidth() || y >= getHeight())
+	if (x >= getWidth() || y >= getHeight())
 		return;
 
 	p = (Uint32*)screen->pixels + y * screen->pitch/4 + x;
@@ -78,7 +76,7 @@ InteractionSDL::putpixel(int x, int y, int c)
 }
 
 void
-InteractionSDL::clear(int x, int y, int h, int w)
+InteractionSDL::clear(unsigned int x, unsigned int y, unsigned int h, unsigned int w)
 {
 	SDL_Rect r;
 	r.x = x; r.y = y;

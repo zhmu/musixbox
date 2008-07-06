@@ -80,7 +80,7 @@ Interface::launchBrowser()
 	struct dirent* dent;
 	bool dirty = true;
 	bool rehash = true;
-	int first_index;
+	unsigned int first_index = 0;
 
 	while (!interaction->mustTerminate()) {
 		if (rehash) {
@@ -93,7 +93,7 @@ Interface::launchBrowser()
 				interaction->puttext(2, 0, "Unable to open folder");
 				interaction->puttext(2, interaction->getTextHeight(), currentPath.c_str());
 				interaction->puttext(2, interaction->getTextHeight() * 2, "<interact to continue>");
-				int x, y;
+				unsigned int x, y;
 				while (!interaction->getCoordinates(&x, &y)) {
 					interaction->yield();
 					relinquish();
@@ -130,8 +130,8 @@ Interface::launchBrowser()
 			/*
 			 * Fill the screen until there is no more space.
 			 */
-			int last_index = first_index;
-			int y = 0;
+			unsigned int last_index = first_index;
+			unsigned int y = 0;
 			while (last_index < direntries.size()) {
 				if (y + interaction->getTextHeight() > interaction->getHeight())
 					break;
@@ -149,7 +149,7 @@ Interface::launchBrowser()
 		}
 
 		/* See if there is any interaction */
-		int x, y;
+		unsigned int x, y;
 		if (!interaction->getCoordinates(&x, &y))
 			continue;
 
@@ -159,7 +159,7 @@ Interface::launchBrowser()
 				/* Stop button - return to main screen */
 				return "";
 			}
-			int items_per_page = interaction->getHeight() / interaction->getTextHeight();
+			unsigned int items_per_page = interaction->getHeight() / interaction->getTextHeight();
 			if (y > interaction->getHeight() / 2) {
 				if (first_index + items_per_page <= direntries.size()) {
 					first_index = (first_index + items_per_page) % direntries.size();
@@ -176,7 +176,7 @@ Interface::launchBrowser()
 			dirty = 1;
 		} else {
 			/* Item click! */
-			int num = y / interaction->getTextHeight() + first_index;
+			unsigned int num = y / interaction->getTextHeight() + first_index;
 			if (num >= 0 && num < direntries.size()) {
 				if (direntries[num] == "..") {
 					/* Need to go one level lower, so strip
@@ -263,7 +263,7 @@ Interface::launchPlayer()
 		}
 
 		/* See if there is any interaction */
-		int x, y;
+		unsigned int x, y;
 		if (!interaction->getCoordinates(&x, &y))
 			continue;
 

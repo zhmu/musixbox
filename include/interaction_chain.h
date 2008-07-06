@@ -14,27 +14,27 @@ public:
 	void done();
 
 	//! \brief Returns the height of the chain window
-	inline int getHeight() { return provider[0]->getHeight(); }
+	inline unsigned int getHeight() { return provider[0]->getHeight(); }
 
 	//! \brief Returns the width of the Chain window
-	inline int getWidth() { return provider[0]->getWidth(); }
+	inline unsigned int getWidth() { return provider[0]->getWidth(); }
 
 	//! \brief Returns the size of a text string
-	inline int getTextHeight() { return provider[0]->getTextHeight(); }
+	inline unsigned int getTextHeight() { return provider[0]->getTextHeight(); }
 
 	//! \brief Returns the number of interaction providers registered
-	inline int getNumProviders() { return provider.size(); }
+	inline unsigned int getNumProviders() { return provider.size(); }
 	
 	//! \brief Used to handle interactions
 	void yield();
 
 	void add(Interaction* i);
 
-	void clear(int x, int y, int h, int w);
-	void putpixel(int x, int y, int c);
-	void puttext(int x, int y, const char* s);
-	void gettextsize(const char* s, int* h, int* w);
-	int getCoordinates(int* x, int* y);
+	void clear(unsigned int x, unsigned int y, unsigned int h, unsigned int w);
+	void putpixel(unsigned int x, unsigned int y, unsigned int c);
+	void puttext(unsigned int x, unsigned int y, const char* s);
+	void gettextsize(const char* s, unsigned int* h, unsigned int* w);
+	int getCoordinates(unsigned int* x, unsigned int* y);
 
 private:
 	std::vector<Interaction*> provider;

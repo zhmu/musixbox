@@ -14,16 +14,16 @@ public:
 	void done();
 
 	//! \brief Returns the height of the SDL window
-	inline int getHeight() { return 64; }
+	inline unsigned int getHeight() { return 64; }
 
 	//! \brief Returns the width of the SDL window
-	inline int getWidth() { return 128; }
+	inline unsigned int getWidth() { return 128; }
 	
 	//! \brief Used to handle interactions
 	void yield();
 
-	void clear(int x, int y, int h, int w);
-	void putpixel(int x, int y, int c);
+	void clear(unsigned int x, unsigned int y, unsigned int h, unsigned int w);
+	void putpixel(unsigned int x, unsigned int y, unsigned int c);
 
 private:
 	SDL_Surface* screen;

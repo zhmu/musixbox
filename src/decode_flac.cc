@@ -54,7 +54,7 @@ DecoderFLAC::write_callback(const FLAC__Frame* frame, const FLAC__int32 *const b
 
 	playingtime = frame->header.number.sample_number / frame->header.sample_rate;
 
-	for (int i = 0; i < frame->header.blocksize; i++) {
+	for (unsigned int i = 0; i < frame->header.blocksize; i++) {
 		out_buffer[4 * out    ] = (buffer[0][i]     ) & 0xff;
 		out_buffer[4 * out + 1] = (buffer[0][i] >> 8) & 0xff;
 		out_buffer[4 * out + 2] = (buffer[1][i]     ) & 0xff;
@@ -90,7 +90,7 @@ DecoderFLAC::metadata_callback(const FLAC__StreamMetadata* metadata)
 	}
 
 	if (metadata->type == FLAC__METADATA_TYPE_VORBIS_COMMENT) {
-		for (int i = 0; i < metadata->data.vorbis_comment.num_comments; i++) {
+		for (unsigned int i = 0; i < metadata->data.vorbis_comment.num_comments; i++) {
 			char* tag = (char*)metadata->data.vorbis_comment.comments[i].entry;
 			char* ptr = strchr(tag, '=');
 			if (ptr == NULL)

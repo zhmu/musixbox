@@ -18,7 +18,7 @@ DecoderMP3::scaleFrequency(mad_fixed_t s)
 }
 
 int
-DecoderMP3::convertOutput(char* buf, int* len, struct mad_header const* header, struct mad_pcm* pcm)
+DecoderMP3::convertOutput(char* buf, unsigned int* len, struct mad_header const* header, struct mad_pcm* pcm)
 {
 	unsigned int num = pcm->length;
 	mad_fixed_t const *left, *right;
@@ -56,7 +56,7 @@ DecoderMP3::convertOutput(char* buf, int* len, struct mad_header const* header, 
 int
 DecoderMP3::handleInput(struct mad_stream* stream)
 {
-	size_t len, max, saved;
+	size_t len, saved;
 	char* ptr = music_chunk;
 	char* base = music_chunk;
 
@@ -97,7 +97,7 @@ DecoderMP3::run()
 	struct mad_frame frame;
 	struct mad_synth synth;
 	struct mad_header header;
-	int buflen;
+	unsigned int buflen;
 	mad_timer_t time = mad_timer_zero;
 
 	mad_stream_init(&stream);

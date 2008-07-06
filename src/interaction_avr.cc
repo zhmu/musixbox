@@ -78,7 +78,7 @@ InteractionAVR::yield()
 	 * on the AVR and send it updates - this eliminates the need to
 	 * let the AVR read the LCD memory, which is slow...
 	 */
-	for (int i = 0; i < (getHeight() / 8) * getWidth(); i++) {
+	for (unsigned int i = 0; i < (getHeight() / 8) * getWidth(); i++) {
 		if (currentDisplayData[i] != displaydata[i]) {
 			currentDisplayData[i] = displaydata[i];
 			uint8_t ic = (i % getWidth()) > 63 ? 0x40 : 0;
@@ -108,9 +108,9 @@ InteractionAVR::done()
 
 
 void
-InteractionAVR::putpixel(int x, int y, int c)
+InteractionAVR::putpixel(unsigned int x, unsigned int y, unsigned int c)
 {
-	if (x < 0 || y < 0 || x >= getWidth() || y >= getHeight())
+	if (x >= getWidth() || y >= getHeight())
 		return;
 
 	if (c)

@@ -35,7 +35,7 @@ private:
 	 *  Once the function is finished, len is updated to contain the number
 	 *  of bytes filled in buf.
 	 */
-	int convertOutput(char* buf, int* len, struct mad_header const* header, struct mad_pcm* pcm);
+	int convertOutput(char* buf, unsigned int* len, struct mad_header const* header, struct mad_pcm* pcm);
 
 	/*! \brief Scales a 24 bit PCM value to a 16 bit PCM value
 	 *  \param s Value to scale

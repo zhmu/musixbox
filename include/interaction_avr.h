@@ -18,15 +18,15 @@ public:
 	void done();
 
 	//! \brief Returns the height of the AVR window
-	inline int getHeight() { return 64; }
+	inline unsigned int getHeight() { return 64; }
 
 	//! \brief Returns the width of the AVR window
-	inline int getWidth() { return 128; }
+	inline unsigned int getWidth() { return 128; }
 
 	//! \brief Used to handle interactions
 	void yield();
 
-	void putpixel(int x, int y, int c);
+	void putpixel(unsigned int x, unsigned int y, unsigned int c);
 
 protected:
 	void writeAVR(unsigned char a, unsigned char b, unsigned char c);

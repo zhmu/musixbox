@@ -22,7 +22,7 @@ usage()
 	fprintf(stderr, " -s             enable SDL interaction frontend\n");
 #endif
 	fprintf(stderr, " -a device      enable AVR interaction frontend using device\n");
-	fprintf(stderr, " -o type	 select output plugin\n");
+	fprintf(stderr, " -o type        select output plugin\n");
 	fprintf(stderr, "                available are: null");
 #ifdef WITH_AO
 	fprintf(stderr, " ao");

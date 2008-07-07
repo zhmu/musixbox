@@ -35,6 +35,7 @@ public:
 	void puttext(unsigned int x, unsigned int y, const char* s);
 	void gettextsize(const char* s, unsigned int* h, unsigned int* w);
 	int getCoordinates(unsigned int* x, unsigned int* y);
+	bool isScrollingOK();
 
 private:
 	std::vector<Interaction*> provider;

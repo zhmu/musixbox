@@ -28,6 +28,7 @@ public:
 		input = NULL; decoder = NULL; visualizer = NULL; info = NULL;
 		hasPlayerThread = false; player_thread = NULL; currentFile = "";
 		hasTrackChanged = false; rootPath = std::string(path);
+		scrollingEnabled = false;
 	}
 
 	/*! \brief Initialize interface provider
@@ -127,6 +128,9 @@ private:
 
 	//! \brief Index to the entry we are playing
 	unsigned int direntry_index;
+
+	//! \brief Is scrolling of text in the interface enabled
+	bool scrollingEnabled;
 };
 
 #endif /* __INTERFACE_H__ */

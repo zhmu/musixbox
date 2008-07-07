@@ -42,6 +42,7 @@ int
 Interface::init()
 {
 	currentPath = rootPath;
+	scrollingEnabled = interaction->isScrollingOK();
 	return 1;
 } 
 
@@ -218,6 +219,10 @@ Interface::launchPlayer()
 	int oldplayingtime = -1, oldtotaltime = -1;
 	int playingtime = 0, totaltime = 0;
 	char temp[64];
+	int scrolling = 0, scrollDelay = 0;
+	unsigned int artistX = 0, albumX = 0, titleX = 0;
+	unsigned int artistLength = 0, albumLength = 0, titleLength = 0;
+	int artistDirection = -1, albumDirection = -1, titleDirection = -1;
 
 	while (!interaction->mustTerminate()) {
 		interaction->yield();
@@ -232,7 +237,7 @@ Interface::launchPlayer()
 			totaltime = decoder->getTotalTime();
 		}
 
-		if (dirty) {
+		if (dirty || scrollDelay == 25) {
 			const char* s;
 
 			interaction->clear(0, 0, interaction->getHeight(), interaction->getWidth());
@@ -240,18 +245,50 @@ Interface::launchPlayer()
 			/* Basic Artist / Album / Title information */
 			s = "Unknown Artist";
 			if (info != NULL && info->getArtist() != NULL) s = info->getArtist();
-			interaction->puttext(2, 0, s);
+			interaction->puttext(artistX, 0, s);
+        		interaction->gettextsize(s, NULL, &artistLength);
 			s = "Unknown Album";
 			if (info != NULL && info->getAlbum() != NULL) s = info->getAlbum();
-			interaction->puttext(2, interaction->getTextHeight(), s);
+			interaction->puttext(albumX, interaction->getTextHeight(), s);
+        		interaction->gettextsize(s, NULL, &albumLength);
 			s = "Unknown Title";
 			if (info != NULL && info->getTitle() != NULL) s = info->getTitle();
-			interaction->puttext(2, interaction->getTextHeight() * 2, s);
+			interaction->puttext(titleX, interaction->getTextHeight() * 2, s);
+        		interaction->gettextsize(s, NULL, &titleLength);
 
 			/* Control bar */
 			blitImage(2, interaction->getHeight() - 12, (isPlayerPaused) ? pausebutton : playbutton);
 			blitImage(14, interaction->getHeight() - 12, stopbutton);
 			blitImage(26, interaction->getHeight() - 12, filebutton);
+
+			/* Check if we need to scroll the item / artist stuff */
+			if ((artistLength > interaction->getWidth() ||
+			     albumLength > interaction->getWidth() ||
+			     albumLength > interaction->getWidth()) &&
+			     scrollingEnabled)
+				scrolling = 1;
+
+			/* Have the the text scroll, if needed */
+			if (artistLength > interaction->getWidth()) {
+				artistX += artistDirection;
+				if ((artistX == 0 && artistDirection > 0) ||
+				    (artistX == interaction->getWidth() - artistLength && artistDirection < 0))
+					artistDirection = -artistDirection;
+			}
+			if (albumLength > interaction->getWidth()) {
+				albumX += albumDirection;
+				if ((albumX == 0 && albumDirection > 0) ||
+				    (albumX == interaction->getWidth() - albumLength && albumDirection < 0))
+					albumDirection = -albumDirection;
+			}
+			if (titleLength > interaction->getWidth()) {
+				titleX += titleDirection;
+				if ((titleX == 0 && titleDirection > 0) ||
+				    (titleX == interaction->getWidth() - titleLength && titleDirection < 0))
+					titleDirection = -titleDirection;
+			}
+
+			dirty = 1; scrollDelay = 0;
 		}
 
 		if (playingtime != oldplayingtime || totaltime != oldtotaltime || dirty) {
@@ -261,6 +298,10 @@ Interface::launchPlayer()
 			oldplayingtime = playingtime; oldtotaltime = totaltime;
 			dirty = false;
 		}
+
+		if (scrolling)
+			scrollDelay++;
+
 
 		/* See if there is any interaction */
 		unsigned int x, y;

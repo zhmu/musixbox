@@ -65,6 +65,9 @@ public:
 	 * \returns Non-zero if there was interaction
 	 */
 	virtual int getCoordinates(unsigned int* x, unsigned int* y);
+
+	//! \brief Is scrolling output desirable
+	virtual bool isScrollingOK() { return true; }
 	
 protected:
 	//! \brief Determines whether we should terminate

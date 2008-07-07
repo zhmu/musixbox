@@ -27,6 +27,7 @@ public:
 	void yield();
 
 	void putpixel(unsigned int x, unsigned int y, unsigned int c);
+	bool isScrollingOK() { return false; }
 
 protected:
 	void writeAVRPage(unsigned char ic, unsigned char page, unsigned char* data);

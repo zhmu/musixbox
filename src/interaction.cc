@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include "interaction.h"
 #include "font.h"
 
@@ -20,6 +21,17 @@ Interaction::puttext(unsigned int x, unsigned int y, const char* s)
 void
 Interaction::gettextsize(const char* s, unsigned int* h, unsigned int* w)
 {
+	unsigned int calch = 8 /* XXX */, calcw = 0;
+
+	for (; *s; s++) {
+		struct CHARACTER* c = &theFont[(unsigned char)*s];
+		calcw += c->advance_x;
+	}
+
+	if (h != NULL)
+		*h = calch;
+	if (w != NULL)
+		*w = calcw;
 }
 
 void

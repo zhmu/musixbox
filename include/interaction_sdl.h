@@ -24,6 +24,7 @@ public:
 
 	void clear(unsigned int x, unsigned int y, unsigned int h, unsigned int w);
 	void putpixel(unsigned int x, unsigned int y, unsigned int c);
+	bool isScrollingOK() { return true; }
 
 private:
 	SDL_Surface* screen;

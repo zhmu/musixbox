@@ -5,11 +5,15 @@
 
 //! \brief Provides interaction using AVR, serially connected
 class InteractionAVR : public Interaction {
+friend 	void* avrRecvThread(void*);
 public:
 	/*! \brief Constructs a new interaction provider
 	 *  \param device Serial device name
 	 */
 	InteractionAVR(const char* device);
+
+	//! \brief Destructs the AVR interaction provider
+	~InteractionAVR();
 	 
 	//! \brief Initialize AVR interaction provider
 	int init();
@@ -32,8 +36,15 @@ public:
 protected:
 	void writeAVRPage(unsigned char ic, unsigned char page, unsigned char* data);
 
+	//! \brief Do we have to terminate?
+	bool isTerminating() { return terminating; }
+
+	//! \brief Retrieve the file descriptor used for serial access
+	int getFD() { return fd; };
+
 private:
 	int fd;
+
 	int dirty;
 
 	//! \brief Working contents of display data
@@ -41,6 +52,15 @@ private:
 
 	//! \brief Current contents of display data
 	unsigned char* currentDisplayData;
+
+	//! \brief Have we launched the receiver thread
+	bool haveReceivingThread;
+
+	//! \brief Is the receiving thread terminating
+	bool terminating;
+
+	//! \brief Receiving thread
+	pthread_t recvThread;
 };
 
 #endif /* __INTERACTION_AVR_H__ */

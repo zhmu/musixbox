@@ -1,6 +1,7 @@
 #include <err.h>
 #include <fcntl.h>
 #include <termios.h>
+#include <pthread.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -8,12 +9,64 @@
 #include "font.h"
 #include "interaction_avr.h"
 
+void*
+avrRecvThread(void* ptr)
+{
+	InteractionAVR* avr = (InteractionAVR*)ptr;
+	fd_set fds;
+	unsigned char a;
+
+	while (!avr->isTerminating()) {
+		/*
+		 * Use the same descriptor every loop invocation - this ensures
+		 * we do not try to test for values like -1.
+		 */
+		int fd = avr->getFD();
+		if (fd < 0)
+			break;
+
+		/* wait until we get word the AVR gets data */
+		FD_ZERO(&fds);
+		FD_SET(fd, &fds);
+		if (select(fd + 1, &fds, (fd_set*)NULL, (fd_set*)NULL, NULL) < 0)
+			break;
+		if(!FD_ISSET(fd, &fds))
+			/* It was not for us this means we got interrupted by
+			 * something, so it's game over time */
+			break;
+		if (!read(avr->getFD(), &a, 1))
+			/* Where is our data? */
+			break;
+		printf("got data [%c]\n", a);
+	}
+	return NULL;
+}
+
 InteractionAVR::InteractionAVR(const char* device)
 {
+	haveReceivingThread = false;
+	terminating = false;
+
 	fd = open(device, O_RDWR | O_NOCTTY| O_NDELAY);
 	if (fd < 0)
 		throw NULL;
+
+	pthread_create(&recvThread, NULL, avrRecvThread, this);
 }
+
+InteractionAVR::~InteractionAVR()
+{
+	if (fd >= 0) {
+		close(fd);
+		fd = -1;
+	}
+
+	if (haveReceivingThread) {
+		terminating = true;
+		pthread_join(recvThread, NULL);
+	}
+}
+
 
 int
 InteractionAVR::init()
@@ -102,9 +155,6 @@ InteractionAVR::yield()
 void
 InteractionAVR::done()
 {
-	if (fd >= 0)
-		close(fd);
-
 	if (currentDisplayData == NULL)
 		free(currentDisplayData);
 
@@ -130,22 +180,11 @@ InteractionAVR::putpixel(unsigned int x, unsigned int y, unsigned int c)
 void
 InteractionAVR::writeAVRPage(unsigned char ic, unsigned char page, unsigned char* data)
 {
-	fd_set fds;
 	unsigned char a;
-	int len;
 
 	a = 0x80 | (ic ? 0x40 : 0) | page;
 	if (!write(fd, &a, 1))
 		return;
 	if (!write(fd, data, 64))
 		return;
-
-	/* Wait for the acknowledgement charachter */
-	FD_ZERO(&fds);
-	FD_SET(fd, &fds);
-	if (select(fd + 1, &fds, (fd_set*)NULL, (fd_set*)NULL, NULL) < 0)
-		return;
-	if(!FD_ISSET(fd, &fds))
-		return;
-	read(fd, &a, 1);
 }

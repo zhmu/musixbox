@@ -37,8 +37,7 @@ InteractionSDL::yield()
 	while (SDL_PollEvent(&event)) {
 		switch(event.type) {
 			case SDL_MOUSEBUTTONDOWN:
-			               coordX = event.button.x;
-			               coordY = event.button.y;
+			               setCoordinates(event.button.x, event.button.y);
 			               break;
 			case SDL_KEYDOWN:
 			               if (event.key.keysym.sym == SDLK_ESCAPE)

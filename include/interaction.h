@@ -5,7 +5,8 @@
 class Interaction {
 public:
 	Interaction() {
-		terminating = 0; coordX = -1; coordY = -1;
+		terminating = 0; coordX = 0; coordY = 0;
+		haveValidCoords = false;
 	}
 
 	/*! \brief Initialize interaction provider
@@ -62,19 +63,29 @@ public:
 	/* \brief Returns interaction coordinates, if any
 	 * \param x X-coordinate
 	 * \param y Y-coordinate
-	 * \returns Non-zero if there was interaction
+	 * \returns True if there was interaction
 	 */
-	virtual int getCoordinates(unsigned int* x, unsigned int* y);
+	virtual bool getCoordinates(unsigned int* x, unsigned int* y);
 
 	//! \brief Is scrolling output desirable
 	virtual bool isScrollingOK() { return true; }
 	
 protected:
+	/* \brief Update interaction coordinates
+	 * \param x X-coordinate
+	 * \param y Y-coordinate
+	 */
+	virtual void setCoordinates(unsigned int x, unsigned int y);
+
 	//! \brief Determines whether we should terminate
 	int terminating;
 
+private:
+	//! \brief Do we have valid X/Y coordinates?
+	bool haveValidCoords;
+
 	//! \brief X and Y coordinates
-	int coordX, coordY;
+	unsigned int coordX, coordY;
 };
 
 #endif /* __INTERACTION_H__ */

@@ -42,13 +42,20 @@ Interaction::clear(unsigned int x, unsigned int y, unsigned int h, unsigned int 
 			putpixel(i + x, j + y, 0);
 }
 
-int
+bool
 Interaction::getCoordinates(unsigned int* x, unsigned int* y)
 {
-	if (coordX == -1 && coordY == -1)
-		return 0;
-	*x = (unsigned int)coordX; *y = (unsigned int)coordY;
-	 coordX = -1; coordY = -1;
-	return 1;
+	if (!haveValidCoords)
+		return false;
+	*x = coordX; *y = coordY;
+	haveValidCoords = false;
+	return true;
+}
+
+void
+Interaction::setCoordinates(unsigned int x, unsigned int y)
+{
+	coordX = x; coordY = y;
+	haveValidCoords = true;
 }
 

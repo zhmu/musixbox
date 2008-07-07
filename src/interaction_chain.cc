@@ -32,14 +32,14 @@ InteractionChain::done()
 		provider[i]->done();
 }
 
-int
+bool
 InteractionChain::getCoordinates(unsigned int* x, unsigned int* y)
 {
 	for (unsigned int i = 0; i < provider.size(); i++) {
 		if (provider[i]->getCoordinates(x, y))
-			return 1;
+			return true;
 	}
-	return 0;
+	return false;
 }
 
 void

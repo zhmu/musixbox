@@ -5,7 +5,7 @@
 class Interaction {
 public:
 	Interaction() {
-		terminating = 0; coordX = 0; coordY = 0;
+		mustBeTerminating = false; coordX = 0; coordY = 0;
 		haveValidCoords = false;
 	}
 
@@ -27,7 +27,10 @@ public:
 	virtual void yield() { }
 
 	//! \brief Check whether the application should terminate
-	virtual int mustTerminate() { return terminating; }
+	virtual bool mustTerminate() { return mustBeTerminating; }
+
+	//! \brief Request termination
+	virtual void requestTermination() { mustBeTerminating = true; }
 
 	//! \brief Returns the size of a text string
 	virtual inline unsigned int getTextHeight() { return 8; }
@@ -78,7 +81,7 @@ protected:
 	virtual void setCoordinates(unsigned int x, unsigned int y);
 
 	//! \brief Determines whether we should terminate
-	int terminating;
+	bool mustBeTerminating;
 
 private:
 	//! \brief Do we have valid X/Y coordinates?

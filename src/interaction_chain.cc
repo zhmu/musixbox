@@ -21,7 +21,7 @@ InteractionChain::yield()
 	for (unsigned int i = 0; i < provider.size(); i++) {
 		provider[i]->yield();
 		if (provider[i]->mustTerminate())
-			terminating++;
+			requestTermination();
 	}
 }
 	

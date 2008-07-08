@@ -41,9 +41,9 @@ InteractionSDL::yield()
 			               break;
 			case SDL_KEYDOWN:
 			               if (event.key.keysym.sym == SDLK_ESCAPE)
-			                 terminating++;
+			                 requestTermination();
 			               break;
-			case SDL_QUIT: terminating++;
+			case SDL_QUIT: requestTermination();
 			               break;
 		}
 	}

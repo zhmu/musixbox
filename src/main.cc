@@ -1,4 +1,5 @@
 #include "config.h"
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <err.h>
@@ -12,6 +13,10 @@
 #include "output_ao.h"
 #endif
 #include "output_null.h"
+
+InteractionChain* interaction;
+Interface* interface;
+Output* output;
 
 void
 usage()
@@ -30,6 +35,12 @@ usage()
 	fprintf(stderr, "\n\n");
 	fprintf(stderr, "folder is where your media files are expected to be\n");
 	exit(EXIT_SUCCESS);
+}
+
+void
+sigint(int)
+{
+	interaction->requestTermination();
 }
 
 Output*
@@ -51,10 +62,11 @@ findOutputProvider(const char* name)
 int
 main(int argc, char** argv)
 {
-	InteractionChain* interaction = new InteractionChain();
-	Interface* interface;
-	Output* output = NULL;
 	int ch;
+
+	interface = NULL;
+	output = NULL;
+	interaction = new InteractionChain();
 
 	while ((ch = getopt(argc, argv, "?h"
 #ifdef WITH_SDL
@@ -103,6 +115,8 @@ main(int argc, char** argv)
 		return EXIT_FAILURE;
 	}
 	interface->init();
+
+	signal(SIGINT, sigint);
 
 	interface->run();
 

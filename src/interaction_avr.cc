@@ -14,7 +14,13 @@ avrRecvThread(void* ptr)
 {
 	InteractionAVR* avr = (InteractionAVR*)ptr;
 	fd_set fds;
-	unsigned char a;
+	int coord = 0, x, y;
+	int minX = 1000, minY = 1000, maxX = 0, maxY = 0;
+	int oldX = -1, oldY = -1;
+
+	/* Rink: this does not belong here... need to store them or something */
+	minX = 52; minY = 68;
+	maxX = 207; maxY = 176;
 
 	while (!avr->isTerminating()) {
 		/*
@@ -34,10 +40,38 @@ avrRecvThread(void* ptr)
 			/* It was not for us this means we got interrupted by
 			 * something, so it's game over time */
 			break;
+		unsigned char a;
 		if (!read(avr->getFD(), &a, 1))
-			/* Where is our data? */
 			break;
-		printf("got data [%c]\n", a);
+		if (coord > 0) {
+			coord--;
+			if (coord == 1) {
+				/* got X */
+				x = a;
+			} else {
+				/* got Y */
+				y = a;
+
+				/* dynamically adjust scaling */
+				if (x < minX) minX = x; if (x > maxX) maxX = x;
+				if (y < minY) minY = y; if (y > maxY) maxY = y;
+				x -= minX; y -= minY;
+				x = (int)((float)x * ((float)avr->getWidth()) / (float)(maxX - minX));
+				y = (int)((float)y * ((float)avr->getHeight()) / (float)(maxY - minY));
+				/* we need to invert the Y */
+				y = avr->getHeight() - y;
+
+				/*
+				 * Only report changed coordinates - otherwise, the LCD is way
+				 * too sensitive...
+				 */
+				if (oldX != x || oldY != y) {
+					avr->setCoordinates(x, y);
+					oldX = x; oldY = y;
+				}
+			}
+		} else if (a == 0x40)
+			coord = 2;
 	}
 	return NULL;
 }

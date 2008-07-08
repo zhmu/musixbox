@@ -38,7 +38,7 @@ usage()
 }
 
 void
-sigint(int)
+terminate(int)
 {
 	interaction->requestTermination();
 }
@@ -116,7 +116,8 @@ main(int argc, char** argv)
 	}
 	interface->init();
 
-	signal(SIGINT, sigint);
+	signal(SIGINT, terminate);
+	signal(SIGTERM, terminate);
 
 	interface->run();
 

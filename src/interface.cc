@@ -470,5 +470,5 @@ Interface::relinquish()
 	 * This is used to prevent us from hogging the CPU 100% waiting for
 	 * events that are being handeled so fast no one can notice anyway :)
 	 */
-	usleep(100);
+	//usleep(100);
 }

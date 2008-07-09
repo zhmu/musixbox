@@ -33,6 +33,8 @@ using namespace std;
 char playbutton[8]  = { 0xff, 0x7f, 0x3e, 0x1c, 0x08, 0x00, 0x00 ,0x00 };
 char pausebutton[8] = { 0x00, 0xff, 0xff, 0x00, 0x00, 0xff, 0xff, 0x00 };
 char stopbutton[8]  = { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
+char nextbutton[8]  = { 0xff, 0x7f, 0x3e, 0x1c, 0x08, 0x7e, 0x00, 0x00 };
+char prevbutton[8]  = { 0x00, 0x00, 0x7e, 0x08, 0x1c, 0x3e, 0x7f, 0xff };
 char filebutton[8]  = { 0x40, 0x60, 0x7f, 0x01, 0x01, 0x01, 0xe1, 0x7f };
 char upbutton[8]    = { 0x08, 0x04, 0x02, 0x7f, 0x7f, 0x02, 0x04, 0x08 };
 char downbutton[8]  = { 0x08, 0x10, 0x20, 0x7f, 0x7f, 0x20, 0x10, 0x08 };
@@ -259,7 +261,9 @@ Interface::launchPlayer()
 			/* Control bar */
 			blitImage(2, interaction->getHeight() - 12, (isPlayerPaused) ? pausebutton : playbutton);
 			blitImage(14, interaction->getHeight() - 12, stopbutton);
-			blitImage(26, interaction->getHeight() - 12, filebutton);
+			blitImage(26, interaction->getHeight() - 12, prevbutton);
+			blitImage(38, interaction->getHeight() - 12, nextbutton);
+			blitImage(50, interaction->getHeight() - 12, filebutton);
 
 			/* Check if we need to scroll the item / artist stuff */
 			if ((artistLength > interaction->getWidth() ||
@@ -327,6 +331,14 @@ Interface::launchPlayer()
 				stop();
 			}
 			if (x >= 26 && x <= 36) {
+				/* Previous button */ 
+				prev();
+			}
+			if (x >= 38 && x <= 48) {
+				/* Next button */ 
+				next();
+			}
+			if (x >= 50 && x <= 60) {
 				/* File button - go to new state */
 				return 0;
 			}
@@ -443,6 +455,33 @@ Interface::cont()
 
 	pthread_resume_np(player_thread);
 	isPlayerPaused = false;
+}
+
+void
+Interface::prev()
+{
+	/* 
+	 * Try to descend through the playlist to the next file - if there are
+	 * no more files, just give up.
+	 */
+	if (--direntry_index >= direntries.size())
+		return;
+
+	string path = playingPath + "/" + direntries[direntry_index];
+	playFile(path);
+	currentFile = path;
+
+	// We automatically changed track, so force updated if needed
+	hasTrackChanged = true;
+}
+
+void
+Interface::next()
+{
+	if (isPlayerPaused || !hasPlayerThread)
+		return;
+	
+	signalDecoderFinished();
 }
 
 void

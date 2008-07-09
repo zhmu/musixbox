@@ -19,7 +19,6 @@ OutputAO::init()
 	if (output_dev == NULL)
 		return 0;
 
-
 	return 1;
 }
 

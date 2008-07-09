@@ -80,6 +80,12 @@ private:
 	//! \brief Continue playing
 	void cont();
 
+	//! \brief Play the previous song
+	void prev();
+
+	//! \brief Play the next song
+ 	void next();
+
 	void blitImage(int x, int y, char* img);
 
 	Interaction* interaction;

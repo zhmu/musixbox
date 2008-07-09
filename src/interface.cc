@@ -460,6 +460,9 @@ Interface::cont()
 void
 Interface::prev()
 {
+	if (isPlayerPaused || !hasPlayerThread)
+		return;
+
 	/* 
 	 * Try to descend through the playlist to the next file - if there are
 	 * no more files, just give up.
@@ -481,7 +484,19 @@ Interface::next()
 	if (isPlayerPaused || !hasPlayerThread)
 		return;
 	
-	signalDecoderFinished();
+	/* 
+	 * Try to ascend through the playlist to the next file - if there are
+	 * no more files, just give up.
+	 */
+	if (++direntry_index >= direntries.size())
+		return;
+
+	string path = playingPath + "/" + direntries[direntry_index];
+	playFile(path);
+	currentFile = path;
+
+	// We automatically changed track, so force updated if needed
+	hasTrackChanged = true;
 }
 
 void

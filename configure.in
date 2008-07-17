@@ -34,7 +34,7 @@ AC_ARG_WITH(flac,
 	CPPFLAGS="$CPPFLAGS -I$with_flac/include"
 ])
 AC_ARG_WITH(sdl,
-[  --with-flac=dir             Interaction using SDL], 
+[  --with-sdl=dir              Interaction using SDL], 
 [
 	LDFLAGS="$LDFLAGS -L$with_sdl/lib"
 	CPPFLAGS="$CPPFLAGS -I$with_sdl/include"

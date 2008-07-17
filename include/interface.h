@@ -88,6 +88,13 @@ private:
 
 	void blitImage(int x, int y, char* img);
 
+	/*! \brief Set a new volume level
+ 	 *  \param mixer The mixer device to set
+ 	 *  \param volume New volume to set
+ 	 *  \return 0 on succes, otherwise 1
+ 	 */ 
+	int setVolume(const char *mixer, int volume);
+
 	Interaction* interaction;
 
 	//! \brief Root path where all media resides
@@ -137,6 +144,7 @@ private:
 
 	//! \brief Is scrolling of text in the interface enabled
 	bool scrollingEnabled;
+
 };
 
 #endif /* __INTERFACE_H__ */

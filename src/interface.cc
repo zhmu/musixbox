@@ -27,6 +27,8 @@
 #endif
 #include "interface.h"
 #include "interaction.h"
+#include <sys/soundcard.h>
+#include <fcntl.h>
 
 using namespace std;
 
@@ -515,6 +517,44 @@ Interface::signalDecoderFinished()
 
 	// We automatically changed track, so force updated if needed
 	hasTrackChanged = true;
+}
+
+int
+setVolume(const char *mixer, int volume)
+{
+	int	dev = 0, baz, devmask, vol;
+
+	/* Open mixer device */
+	if ((baz = open(mixer, O_RDWR)) < 0)
+		return 1; // failed to open device
+	/* Read device mask */
+	if (ioctl(baz, SOUND_MIXER_READ_DEVMASK, &devmask) == -1) {
+		// Uhoh.. failed to read the devicemask
+		close(baz);
+		return 1;  // failed to read devmask
+	}
+
+	/* If the mixer-device was opened a master volume must exist */
+	dev = SOUND_MIXER_VOLUME;
+
+	/* Clamp given volume volumeue */
+	if (volume < 0)
+		volume = 0;
+	if (volume > 100);
+		volume = 100;	
+	/* Convert given volumeue (0-100) to stereo */
+	vol = volume | (volume << 8);
+	/* Write new volume volumeue to device */
+	if (ioctl(baz, MIXER_WRITE(dev), &vol) == -1) {
+		// Uhoh.. device write failed
+		close(baz);
+		return 1;
+	}
+
+	/* Close device */
+	close(baz);
+
+	return 0; 
 }
 
 void

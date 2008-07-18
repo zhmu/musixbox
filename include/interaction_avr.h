@@ -3,6 +3,9 @@
 #ifndef __INTERACTION_AVR_H__
 #define __INTERACTION_AVR_H__
 
+#define CMD_TOUCH_COORD_X	0x04
+#define CMD_TOUCH_COORD_Y	0x05
+
 //! \brief Provides interaction using AVR, serially connected
 class InteractionAVR : public Interaction {
 friend 	void* avrRecvThread(void*);

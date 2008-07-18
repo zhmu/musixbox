@@ -32,15 +32,17 @@
 
 using namespace std;
 
-char playbutton[8]  = { 0xff, 0x7f, 0x3e, 0x1c, 0x08, 0x00, 0x00 ,0x00 };
-char pausebutton[8] = { 0x00, 0xff, 0xff, 0x00, 0x00, 0xff, 0xff, 0x00 };
-char stopbutton[8]  = { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
-char nextbutton[8]  = { 0xff, 0x7f, 0x3e, 0x1c, 0x08, 0x7e, 0x00, 0x00 };
-char prevbutton[8]  = { 0x00, 0x00, 0x7e, 0x08, 0x1c, 0x3e, 0x7f, 0xff };
-char filebutton[8]  = { 0x40, 0x60, 0x7f, 0x01, 0x01, 0x01, 0xe1, 0x7f };
-char upbutton[8]    = { 0x08, 0x04, 0x02, 0x7f, 0x7f, 0x02, 0x04, 0x08 };
-char downbutton[8]  = { 0x08, 0x10, 0x20, 0x7f, 0x7f, 0x20, 0x10, 0x08 };
-char crossbutton[8] = { 0x81, 0x42, 0x24, 0x18, 0x18, 0x24, 0x42, 0x81 };
+char playbutton[8]    = { 0xff, 0x7f, 0x3e, 0x1c, 0x08, 0x00, 0x00 ,0x00 };
+char pausebutton[8]   = { 0x00, 0xff, 0xff, 0x00, 0x00, 0xff, 0xff, 0x00 };
+char stopbutton[8]    = { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
+char nextbutton[8]    = { 0xff, 0x7f, 0x3e, 0x1c, 0x08, 0x7e, 0x00, 0x00 };
+char prevbutton[8]    = { 0x00, 0x00, 0x7e, 0x08, 0x1c, 0x3e, 0x7f, 0xff };
+char filebutton[8]    = { 0x40, 0x60, 0x7f, 0x01, 0x01, 0x01, 0xe1, 0x7f };
+char upbutton[8]      = { 0x08, 0x04, 0x02, 0x7f, 0x7f, 0x02, 0x04, 0x08 };
+char downbutton[8]    = { 0x08, 0x10, 0x20, 0x7f, 0x7f, 0x20, 0x10, 0x08 };
+char crossbutton[8]   = { 0x81, 0x42, 0x24, 0x18, 0x18, 0x24, 0x42, 0x81 };
+char volupbutton[8]   = { 0x18, 0x18, 0x18, 0xff, 0xff, 0x18, 0x18, 0x18 };
+char voldownbutton[8] = { 0x18, 0x18, 0x18, 0x18, 0x18, 0x18, 0x18, 0x18,};
 
 int
 Interface::init()
@@ -227,6 +229,7 @@ Interface::launchPlayer()
 	unsigned int artistX = 0, albumX = 0, titleX = 0;
 	unsigned int artistLength = 0, albumLength = 0, titleLength = 0;
 	int artistDirection = -1, albumDirection = -1, titleDirection = -1;
+	int volume = 0;
 
 	while (!interaction->mustTerminate()) {
 		interaction->yield();
@@ -266,6 +269,8 @@ Interface::launchPlayer()
 			blitImage(26, interaction->getHeight() - 12, prevbutton);
 			blitImage(38, interaction->getHeight() - 12, nextbutton);
 			blitImage(50, interaction->getHeight() - 12, filebutton);
+			blitImage(62, interaction->getHeight() - 12, volupbutton);
+			blitImage(74, interaction->getHeight() - 12, voldownbutton);
 
 			/* Check if we need to scroll the item / artist stuff */
 			if ((artistLength > interaction->getWidth() ||
@@ -344,6 +349,16 @@ Interface::launchPlayer()
 				/* File button - go to new state */
 				return 0;
 			}
+			if (x >= 62 && x <= 72) {
+				/* Volume up button */
+				getVolume(volume, devMixer);
+				setVolume(volume+4, devMixer);
+			}
+			if (x >= 74 && x <= 84) {
+				/* Volume down button */
+				getVolume(volume, devMixer);
+				setVolume(volume-4, devMixer);
+			}	
 		}
 	}
 
@@ -520,12 +535,12 @@ Interface::signalDecoderFinished()
 }
 
 int
-setVolume(const char *mixer, int volume)
+Interface::setVolume(int volume, std::string mixer)
 {
 	int	dev = 0, baz, devmask, vol;
 
 	/* Open mixer device */
-	if ((baz = open(mixer, O_RDWR)) < 0)
+	if ((baz = open(mixer.c_str(), O_RDWR)) < 0)
 		return 1; // failed to open device
 	/* Read device mask */
 	if (ioctl(baz, SOUND_MIXER_READ_DEVMASK, &devmask) == -1) {
@@ -540,11 +555,11 @@ setVolume(const char *mixer, int volume)
 	/* Clamp given volume volumeue */
 	if (volume < 0)
 		volume = 0;
-	if (volume > 100);
+	if (volume > 100)
 		volume = 100;	
 	/* Convert given volumeue (0-100) to stereo */
 	vol = volume | (volume << 8);
-	/* Write new volume volumeue to device */
+	/* Write new volume value to device */
 	if (ioctl(baz, MIXER_WRITE(dev), &vol) == -1) {
 		// Uhoh.. device write failed
 		close(baz);
@@ -553,6 +568,39 @@ setVolume(const char *mixer, int volume)
 
 	/* Close device */
 	close(baz);
+
+	return 0; 
+}
+
+int
+Interface::getVolume(int& volume, std::string mixer)
+{
+	int	dev = 0, baz, devmask, vol;
+
+	/* Open mixer device */
+	if ((baz = open(mixer.c_str(), O_RDWR)) < 0)
+		return 1; // failed to open device
+	/* Read device mask */
+	if (ioctl(baz, SOUND_MIXER_READ_DEVMASK, &devmask) == -1) {
+		// Uhoh.. failed to read the devicemask
+		close(baz);
+		return 1;  // failed to read devmask
+	}
+
+	/* If the mixer-device was opened a master volume must exist */
+	dev = SOUND_MIXER_VOLUME;
+
+	/* Read current volume to device */
+	if (ioctl(baz, MIXER_READ(dev), &vol) == -1) {
+		// Uhoh.. device read failed
+		close(baz);
+		return 1;
+	}
+
+	/* Close device */
+	close(baz);
+
+	volume = (vol >> 8) & 0x7f;
 
 	return 0; 
 }

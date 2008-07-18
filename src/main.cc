@@ -27,6 +27,7 @@ usage()
 	fprintf(stderr, " -s             enable SDL interaction frontend\n");
 #endif
 	fprintf(stderr, " -a device      enable AVR interaction frontend using device\n");
+	fprintf(stderr, " -m device      specify mixer device, defaults to /dev/mixer0\n");
 	fprintf(stderr, " -o type        select output plugin\n");
 	fprintf(stderr, "                available are: null");
 #ifdef WITH_AO
@@ -63,6 +64,7 @@ int
 main(int argc, char** argv)
 {
 	int ch;
+	std::string mixer = "/dev/mixer0";
 
 	interface = NULL;
 	output = NULL;
@@ -72,7 +74,8 @@ main(int argc, char** argv)
 #ifdef WITH_SDL
 "s"
 #endif
-"a:o:")) != -1) {
+"a:o:"
+"m:")) != -1) {
 		switch(ch) {
 #ifdef WITH_SDL
 			case 's': interaction->add(new InteractionSDL());
@@ -82,6 +85,8 @@ main(int argc, char** argv)
 			          break;
 			case 'o': output = findOutputProvider(optarg);
 			          break;
+			case 'm': mixer = std::string(optarg); 
+						 break;
 			case 'h':
 			case '?': usage();
 			          /* NOTREACHED */
@@ -108,7 +113,7 @@ main(int argc, char** argv)
 		return EXIT_FAILURE;
 	}
 
-	interface = new Interface(interaction, output, argv[0]);
+	interface = new Interface(interaction, output, argv[0], mixer);
 
 	if (!interaction->init()) {
 		fprintf(stderr, "interaction init fail\n");

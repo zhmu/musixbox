@@ -23,11 +23,11 @@ public:
 	 *  \param o Output object to use
 	 *  \param path Root path of all media files
 	 */
-	Interface(Interaction* i, Output* o, const char* path) {
+	Interface(Interaction* i, Output* o, const char* path, std::string mixer = "/dev/mixer0") {
 		interaction = i; output = o;
 		input = NULL; decoder = NULL; visualizer = NULL; info = NULL;
 		hasPlayerThread = false; player_thread = NULL; currentFile = "";
-		hasTrackChanged = false; rootPath = std::string(path);
+		hasTrackChanged = false; rootPath = std::string(path); devMixer = mixer;
 		scrollingEnabled = false;
 	}
 
@@ -93,7 +93,15 @@ private:
  	 *  \param volume New volume to set
  	 *  \return 0 on succes, otherwise 1
  	 */ 
-	int setVolume(const char *mixer, int volume);
+	int setVolume(int volume, std::string = "/dev/mixer0");
+
+	/*! \brief Get the current volume level
+ 	 *  of the mastervolume control
+ 	 *  \param volume The current volume level
+ 	 *  \param mixer The mixer device to read from
+ 	 *  \return 0 on succes, otherwise 1
+ 	 */
+	int getVolume(int& volume, std::string = "/dev/mixer0");
 
 	Interaction* interaction;
 
@@ -145,6 +153,8 @@ private:
 	//! \brief Is scrolling of text in the interface enabled
 	bool scrollingEnabled;
 
+	//! \brief Mixer device used for volume control
+	std::string devMixer;
 };
 
 #endif /* __INTERFACE_H__ */

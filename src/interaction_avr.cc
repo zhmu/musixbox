@@ -14,9 +14,11 @@ avrRecvThread(void* ptr)
 {
 	InteractionAVR* avr = (InteractionAVR*)ptr;
 	fd_set fds;
-	int coord = 0, x, y;
+	bool touched = false;
+	int x = -1, y = -1;
 	int minX = 1000, minY = 1000, maxX = 0, maxY = 0;
 	int oldX = -1, oldY = -1;
+	unsigned char cmd = '0', buf[10];
 
 	/* Rink: this does not belong here... need to store them or something */
 	minX = 52; minY = 68;
@@ -40,38 +42,59 @@ avrRecvThread(void* ptr)
 			/* It was not for us this means we got interrupted by
 			 * something, so it's game over time */
 			break;
-		unsigned char a;
-		if (!read(avr->getFD(), &a, 1))
+
+		/* Retreive command */
+		if (!(read(avr->getFD(), &cmd, 1)))
 			break;
-		if (coord > 0) {
-			coord--;
-			if (coord == 1) {
-				/* got X */
-				x = a;
-			} else {
-				/* got Y */
-				y = a;
 
-				/* dynamically adjust scaling */
-				if (x < minX) minX = x; if (x > maxX) maxX = x;
-				if (y < minY) minY = y; if (y > maxY) maxY = y;
-				x -= minX; y -= minY;
-				x = (int)((float)x * ((float)avr->getWidth()) / (float)(maxX - minX));
-				y = (int)((float)y * ((float)avr->getHeight()) / (float)(maxY - minY));
-				/* we need to invert the Y */
-				y = avr->getHeight() - y;
+		/* Retreive data for command type */
+		switch (cmd) {
+			/* TODO: generalize reading with readavr(buf, nr_bytes) */
+			case CMD_TOUCH_COORD_X: 	
+							/* Read data, 1 byte into buf */
+							if (!(read(avr->getFD(), &cmd, 1))) 
+								x = -1;
+							else 
+								x = cmd;
+							break;
+			case CMD_TOUCH_COORD_Y:
+							/* Read data, 1 byte into buf */
+							if (!(read(avr->getFD(), &cmd, 1))) {
+								break;
+							}
+							else {
+								y = cmd;
+								touched = (x != -1);	
+							}
+							break;
+			default:		break;
+		}	
 
-				/*
-				 * Only report changed coordinates - otherwise, the LCD is way
-				 * too sensitive...
-				 */
-				if (oldX != x || oldY != y) {
-					avr->setCoordinates(x, y);
-					oldX = x; oldY = y;
-				}
+		/* Process coordinate set? */	
+		if (touched) {
+			touched = false;
+
+			/* dynamically adjust scaling */
+			if (x < minX) minX = x; if (x > maxX) maxX = x;
+			if (y < minY) minY = y; if (y > maxY) maxY = y;
+			x -= minX; y -= minY;
+			x = (int)((float)x * ((float)avr->getWidth()) / (float)(maxX - minX));
+			y = (int)((float)y * ((float)avr->getHeight()) / (float)(maxY - minY));
+			/* we need to invert the Y */
+			y = avr->getHeight() - y;
+
+			/*
+			 * Only report changed coordinates - otherwise, the LCD is way
+			 * too sensitive...
+			 */
+			if (oldX != x || oldY != y) {
+				avr->setCoordinates(x, y);
+				oldX = x; oldY = y;
+				//fprintf(stderr, "x,y: %i, %i\n", x,y);
 			}
-		} else if (a == 0x40)
-			coord = 2;
+			
+		}
+		
 	}
 	return NULL;
 }

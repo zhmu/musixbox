@@ -20,9 +20,15 @@ avrRecvThread(void* ptr)
 	int oldX = -1, oldY = -1;
 	unsigned char cmd = '0', buf[10];
 
+#if 0
 	/* Rink: this does not belong here... need to store them or something */
 	minX = 52; minY = 68;
 	maxX = 207; maxY = 176;
+#else
+	/* Dwight: this does not belong here... need to store them or something */
+	minX = 116; minY = 156;
+	maxX = 852; maxY = 852;
+#endif
 
 	while (!avr->isTerminating()) {
 		/*
@@ -55,15 +61,23 @@ avrRecvThread(void* ptr)
 							if (!(read(avr->getFD(), &cmd, 1))) 
 								x = -1;
 							else 
-								x = cmd;
+								x = cmd; // lowbyte
+							/* Read data, 1 byte into buf */
+							if (!(read(avr->getFD(), &cmd, 1))) 
+								x = -1;
+							else 
+								x |= (cmd<<8); // highbyte
 							break;
 			case CMD_TOUCH_COORD_Y:
 							/* Read data, 1 byte into buf */
-							if (!(read(avr->getFD(), &cmd, 1))) {
+							if (!(read(avr->getFD(), &cmd, 1))) 
 								break;
-							}
+							else
+								y = cmd; // lowbyte
+							if (!(read(avr->getFD(), &cmd, 1))) 
+								break;
 							else {
-								y = cmd;
+								y |= (cmd<<8);
 								touched = (x != -1);	
 							}
 							break;
@@ -90,7 +104,7 @@ avrRecvThread(void* ptr)
 			if (oldX != x || oldY != y) {
 				avr->setCoordinates(x, y);
 				oldX = x; oldY = y;
-				//fprintf(stderr, "x,y: %i, %i\n", x,y);
+				fprintf(stderr, "display's x,y: %i, %i\n", x,y);
 			}
 			
 		}

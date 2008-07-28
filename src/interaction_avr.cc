@@ -14,11 +14,14 @@ avrRecvThread(void* ptr)
 {
 	InteractionAVR* avr = (InteractionAVR*)ptr;
 	fd_set fds;
-	bool touched = false;
+	bool touched = false, ready = false;
 	int x = -1, y = -1;
 	int minX = 1000, minY = 1000, maxX = 0, maxY = 0;
 	int oldX = -1, oldY = -1;
-	unsigned char cmd = '0', buf[10];
+	int reading = 0; // What are we going to read?
+	unsigned char cmd = '0'; 
+	unsigned char data = '0';
+	int dp = -1; /* Datapart we have to read next */
 
 #if 0
 	/* Rink: this does not belong here... need to store them or something */
@@ -26,8 +29,8 @@ avrRecvThread(void* ptr)
 	maxX = 207; maxY = 176;
 #else
 	/* Dwight: this does not belong here... need to store them or something */
-	minX = 116; minY = 156;
-	maxX = 852; maxY = 852;
+	minX = 113; minY = 170;
+	maxX = 930; maxY = 853;
 #endif
 
 	while (!avr->isTerminating()) {
@@ -36,54 +39,67 @@ avrRecvThread(void* ptr)
 		 * we do not try to test for values like -1.
 		 */
 		int fd = avr->getFD();
-		if (fd < 0)
+		if (fd < 0) 
 			break;
 
 		/* wait until we get word the AVR gets data */
 		FD_ZERO(&fds);
 		FD_SET(fd, &fds);
-		if (select(fd + 1, &fds, (fd_set*)NULL, (fd_set*)NULL, NULL) < 0)
+		if (select(fd + 1, &fds, (fd_set*)NULL, (fd_set*)NULL, NULL) < 0) 
 			break;
-		if(!FD_ISSET(fd, &fds))
+		
+		if(!FD_ISSET(fd, &fds)) 
 			/* It was not for us this means we got interrupted by
 			 * something, so it's game over time */
 			break;
 
-		/* Retreive command */
-		if (!(read(avr->getFD(), &cmd, 1)))
+		/* Read next command */
+		if (cmd == '0') {
+			if (!(read(avr->getFD(), &cmd, 1))) {
+				break;
+			}
+			else {
+				if (cmd == CMD_TOUCH_COORDS) {
+					dp = 1; // start with x lowbyte
+				}
+				/* Wait for the next byte to be reported */
+				continue;
+			}
+		}
+
+		/* Read data, datapart selected on dp */
+		if (!(read(avr->getFD(), &data, 1))) 
 			break;
+		
+		/* Data read was succesfull, store data */
+		switch (dp) {
+			/* Touchscreen coordinate storage */
+			case 1: /* We received the lowbyte of the X-coordinate */
+				x = data; // x-lowbyte
+				dp++; // goto x-highbyte
+				break;
+			case 2: /* We received the highbyte of the X-coordinate */
+				x |= (data<<8); // x-highbyte
+				dp++; // goto y-lowbyte
+				break;
+			case 3: /* We received the lowbyte of the Y-coordinate */
+				y = data; //y-lowbyte
+				dp++; // goto y-highbyte
+				break;
+			case 4: /* We received the highbyte of the Y-coordinate */
+				y |= (data<<8); // y-highbyte
+				dp = -1; cmd = '0'; // get next command
+				touched = true;
+				//fprintf(stderr, "avr's x,y: %i, %i\n", x,y);
+				break;
 
-		/* Retreive data for command type */
-		switch (cmd) {
-			/* TODO: generalize reading with readavr(buf, nr_bytes) */
-			case CMD_TOUCH_COORD_X: 	
-							/* Read data, 1 byte into buf */
-							if (!(read(avr->getFD(), &cmd, 1))) 
-								x = -1;
-							else 
-								x = cmd; // lowbyte
-							/* Read data, 1 byte into buf */
-							if (!(read(avr->getFD(), &cmd, 1))) 
-								x = -1;
-							else 
-								x |= (cmd<<8); // highbyte
-							break;
-			case CMD_TOUCH_COORD_Y:
-							/* Read data, 1 byte into buf */
-							if (!(read(avr->getFD(), &cmd, 1))) 
-								break;
-							else
-								y = cmd; // lowbyte
-							if (!(read(avr->getFD(), &cmd, 1))) 
-								break;
-							else {
-								y |= (cmd<<8);
-								touched = (x != -1);	
-							}
-							break;
-			default:		break;
-		}	
+			/* Unknown data part */
+			default: fprintf(stderr, "Unknown data part\n");
+		}
 
+		/* Check validity */
+		if ((x < 0) || (y < 0)) touched = false;
+		
 		/* Process coordinate set? */	
 		if (touched) {
 			touched = false;
@@ -108,7 +124,6 @@ avrRecvThread(void* ptr)
 			}
 			
 		}
-		
 	}
 	return NULL;
 }

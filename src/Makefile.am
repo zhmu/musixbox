@@ -6,7 +6,9 @@ musicd_SOURCES=	decode.cc decode_tone.cc \
 		font.cc info.cc input_file.cc \
 		interaction.cc interaction_chain.cc \
 		interface.cc main.cc \
-		interaction_avr.cc
+		interaction_avr.cc \
+		formBrowser.cc formPlayer.cc
+musicd_LDADD=	../lib/ui/libui.a
 
 if MAD
 musicd_SOURCES+=	decode_mp3.cc

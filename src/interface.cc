@@ -27,28 +27,15 @@
 #endif
 #include "interface.h"
 #include "interaction.h"
-#include <sys/soundcard.h>
-#include <fcntl.h>
+#include "formBrowser.h"
+#include "formPlayer.h"
 
 using namespace std;
-
-char playbutton[8]    = { 0xff, 0x7f, 0x3e, 0x1c, 0x08, 0x00, 0x00 ,0x00 };
-char pausebutton[8]   = { 0x00, 0xff, 0xff, 0x00, 0x00, 0xff, 0xff, 0x00 };
-char stopbutton[8]    = { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
-char nextbutton[8]    = { 0xff, 0x7f, 0x3e, 0x1c, 0x08, 0x7e, 0x00, 0x00 };
-char prevbutton[8]    = { 0x00, 0x00, 0x7e, 0x08, 0x1c, 0x3e, 0x7f, 0xff };
-char filebutton[8]    = { 0x40, 0x60, 0x7f, 0x01, 0x01, 0x01, 0xe1, 0x7f };
-char upbutton[8]      = { 0x08, 0x04, 0x02, 0x7f, 0x7f, 0x02, 0x04, 0x08 };
-char downbutton[8]    = { 0x08, 0x10, 0x20, 0x7f, 0x7f, 0x20, 0x10, 0x08 };
-char crossbutton[8]   = { 0x81, 0x42, 0x24, 0x18, 0x18, 0x24, 0x42, 0x81 };
-char volupbutton[8]   = { 0x18, 0x18, 0x18, 0xff, 0xff, 0x18, 0x18, 0x18 };
-char voldownbutton[8] = { 0x18, 0x18, 0x18, 0x18, 0x18, 0x18, 0x18, 0x18,};
 
 int
 Interface::init()
 {
-	currentPath = rootPath;
-	scrollingEnabled = interaction->isScrollingOK();
+	browser = new formBrowser(interaction, rootPath);
 	return 1;
 } 
 
@@ -62,307 +49,24 @@ void
 Interface::run()
 {
 	int state = 0;
-	string file;
 
 	while (!interaction->mustTerminate()) {
 		switch(state) {
-			case 0: file = launchBrowser();
-			        if (file != "") {
-					playingPath = currentPath;
-					currentFile = file;
-			        	playFile(file);
+			case 0: /* browser form */
+		                browser->run();
+		                if (browser->getSelectedFile() != "") {
+	                                currentFile = browser->getSelectedFile();
+			        	playFile();
 			        }
 				state = 1;
 			        break;
-			case 1: state = launchPlayer();
+			case 1: /* player form */
+				formPlayer fp(interaction, this);
+				fp.run();
+				state = 0;
 			        break;
 		}
 	}
-}
-
-string
-Interface::launchBrowser()
-{
-	DIR* dir;
-	struct dirent* dent;
-	bool dirty = true;
-	bool rehash = true;
-	unsigned int first_index = 0;
-
-	while (!interaction->mustTerminate()) {
-		if (rehash) {
-			dir = opendir(currentPath.c_str());
-			if (dir == NULL) {
-				/*
-				 * Can't open folder - report this nicely.
-				 */
-				interaction->clear(0, 0, interaction->getHeight(), interaction->getWidth());
-				interaction->puttext(2, 0, "Unable to open folder");
-				interaction->puttext(2, interaction->getTextHeight(), currentPath.c_str());
-				interaction->puttext(2, interaction->getTextHeight() * 2, "<interact to continue>");
-				unsigned int x, y;
-				while (!interaction->getCoordinates(&x, &y)) {
-					interaction->yield();
-					relinquish();
-				}
-				return string("");
-			}
-
-			/*
-			 * Read all directory items and place them in a vector, which
-			 * we will sort later.
-			 */
-			direntries.clear(); direntry_index = 0;
-			while((dent = readdir(dir)) != NULL) {
-				// Never show the current directory '.'
-				if (!strcmp(dent->d_name, "."))
-					continue;
-				// Don't allow travelling go below the root path
-				if (!strcmp(dent->d_name, "..") && currentPath == rootPath)
-					continue;
-				direntries.push_back(dent->d_name);
-			}
-			closedir(dir);
-			sort(direntries.begin(), direntries.end());
-			rehash = false; dirty = true;
-			first_index = 0;
-		}
-
-		interaction->yield();
-		relinquish();
-
-		if (dirty) {
-			interaction->clear(0, 0, interaction->getHeight(), interaction->getWidth());
-
-			/*
-			 * Fill the screen until there is no more space.
-			 */
-			unsigned int last_index = first_index;
-			unsigned int y = 0;
-			while (last_index < direntries.size()) {
-				if (y + interaction->getTextHeight() > interaction->getHeight())
-					break;
-
-				interaction->puttext(0, y, direntries[last_index].c_str());
-				y += interaction->getTextHeight();
-				last_index++;
-			}
-
-			/* Draw the ^, v and [] buttons */
-			blitImage(interaction->getWidth() - INTERFACE_BROWSER_BAR_SIZE, 0, crossbutton);
-			blitImage(interaction->getWidth() - INTERFACE_BROWSER_BAR_SIZE, 10, upbutton);
-			blitImage(interaction->getWidth() - INTERFACE_BROWSER_BAR_SIZE, interaction->getHeight() - 10, downbutton);
-			dirty = false;
-		}
-
-		/* See if there is any interaction */
-		unsigned int x, y;
-		if (!interaction->getCoordinates(&x, &y))
-			continue;
-
-		/* Left bar click? */
-		if (x > interaction->getWidth() - INTERFACE_BROWSER_BAR_SIZE) {
-			if (y <= 10) {
-				/* Stop button - return to main screen */
-				return "";
-			}
-			unsigned int items_per_page = interaction->getHeight() / interaction->getTextHeight();
-			if (y > interaction->getHeight() / 2) {
-				if (first_index + items_per_page <= direntries.size()) {
-					first_index = (first_index + items_per_page) % direntries.size();
-				} else {
-					first_index = 0;
-				}
-			} else {
-				if (first_index >= items_per_page) {
-					first_index = first_index - items_per_page;
-				} else {
-					first_index = direntries.size() - items_per_page;
-				}
-			}
-			dirty = 1;
-		} else {
-			/* Item click! */
-			unsigned int num = y / interaction->getTextHeight() + first_index;
-			if (num >= 0 && num < direntries.size()) {
-				if (direntries[num] == "..") {
-					/* Need to go one level lower, so strip
-					 * off the last /path item */
-					currentPath = string(currentPath.begin(), currentPath.begin() + currentPath.find_last_of("/"));
-					rehash = true;
-					continue;
-				}
-
-				/*
-				 * We have an item - construct full path to see
-				 * if it's a file or not
-				 */
-				string path = currentPath + string("/") + direntries[num];
-				struct stat fs;
-				if (stat(path.c_str(), &fs) < 0)
-					continue;
-				if (S_ISDIR(fs.st_mode)) {
-					/* It's a path, so enter it */
-					currentPath = path;
-					rehash = true;
-					continue;
-				} else {
-					/* We got a file! */
-					direntry_index = num;
-					return path;
-				}
-			}
-		}
-	}
-
-	return "";
-}
-
-int
-Interface::launchPlayer()
-{
-	bool dirty = true;
-	int oldplayingtime = -1, oldtotaltime = -1;
-	int playingtime = 0, totaltime = 0;
-	char temp[64];
-	int scrolling = 0, scrollDelay = 0;
-	unsigned int artistX = 0, albumX = 0, titleX = 0;
-	unsigned int artistLength = 0, albumLength = 0, titleLength = 0;
-	int artistDirection = -1, albumDirection = -1, titleDirection = -1;
-	int volume = 0;
-
-	while (!interaction->mustTerminate()) {
-		interaction->yield();
-		relinquish();
-
-		if (hasTrackChanged) {
-			dirty = true; hasTrackChanged = false;
-		}
-
-		if (decoder != NULL && hasPlayerThread) {
-			playingtime = decoder->getPlayingTime();
-			totaltime = decoder->getTotalTime();
-		}
-
-		if (dirty || scrollDelay == 25) {
-			const char* s;
-
-			interaction->clear(0, 0, interaction->getHeight(), interaction->getWidth());
-
-			/* Basic Artist / Album / Title information */
-			s = "Unknown Artist";
-			if (info != NULL && info->getArtist() != NULL) s = info->getArtist();
-			interaction->puttext(artistX, 0, s);
-        		interaction->gettextsize(s, NULL, &artistLength);
-			s = "Unknown Album";
-			if (info != NULL && info->getAlbum() != NULL) s = info->getAlbum();
-			interaction->puttext(albumX, interaction->getTextHeight(), s);
-        		interaction->gettextsize(s, NULL, &albumLength);
-			s = "Unknown Title";
-			if (info != NULL && info->getTitle() != NULL) s = info->getTitle();
-			interaction->puttext(titleX, interaction->getTextHeight() * 2, s);
-        		interaction->gettextsize(s, NULL, &titleLength);
-
-			/* Control bar */
-			blitImage(2, interaction->getHeight() - 12, (isPlayerPaused) ? pausebutton : playbutton);
-			blitImage(14, interaction->getHeight() - 12, stopbutton);
-			blitImage(26, interaction->getHeight() - 12, prevbutton);
-			blitImage(38, interaction->getHeight() - 12, nextbutton);
-			blitImage(50, interaction->getHeight() - 12, filebutton);
-			blitImage(62, interaction->getHeight() - 12, volupbutton);
-			blitImage(74, interaction->getHeight() - 12, voldownbutton);
-
-			/* Check if we need to scroll the item / artist stuff */
-			if ((artistLength > interaction->getWidth() ||
-			     albumLength > interaction->getWidth() ||
-			     albumLength > interaction->getWidth()) &&
-			     scrollingEnabled)
-				scrolling = 1;
-
-			/* Have the the text scroll, if needed */
-			if (artistLength > interaction->getWidth()) {
-				artistX += artistDirection;
-				if ((artistX == 0 && artistDirection > 0) ||
-				    (artistX == interaction->getWidth() - artistLength && artistDirection < 0))
-					artistDirection = -artistDirection;
-			}
-			if (albumLength > interaction->getWidth()) {
-				albumX += albumDirection;
-				if ((albumX == 0 && albumDirection > 0) ||
-				    (albumX == interaction->getWidth() - albumLength && albumDirection < 0))
-					albumDirection = -albumDirection;
-			}
-			if (titleLength > interaction->getWidth()) {
-				titleX += titleDirection;
-				if ((titleX == 0 && titleDirection > 0) ||
-				    (titleX == interaction->getWidth() - titleLength && titleDirection < 0))
-					titleDirection = -titleDirection;
-			}
-
-			dirty = 1; scrollDelay = 0;
-		}
-
-		if (playingtime != oldplayingtime || totaltime != oldtotaltime || dirty) {
-			interaction->clear(2, interaction->getTextHeight() * 3, interaction->getTextHeight(), interaction->getWidth());
-			sprintf(temp, "%u:%02u / %u:%02u", playingtime / 60, playingtime % 60, totaltime / 60, totaltime % 60);
-			interaction->puttext(2, interaction->getTextHeight() * 3, temp);
-			oldplayingtime = playingtime; oldtotaltime = totaltime;
-			dirty = false;
-		}
-
-		if (scrolling)
-			scrollDelay++;
-
-
-		/* See if there is any interaction */
-		unsigned int x, y;
-		if (!interaction->getCoordinates(&x, &y))
-			continue;
-
-		if (y > interaction->getHeight() - 12) {
-			/* We are at the bottom bar */
-			if (x >= 2 && x <= 12) {
-				/* Play/resume button */
-				if (hasPlayerThread)  {
-					if (isPlayerPaused)
-						cont();
-					else
-						pause();
-				} else if (currentFile != "") {
-					playFile(currentFile);
-				}
-				dirty = true;
-			}
-			if (x >= 14 && x <= 24) {
-				/* Stop button */
-				stop();
-			}
-			if (x >= 26 && x <= 36) {
-				/* Previous button */ 
-				prev();
-			}
-			if (x >= 38 && x <= 48) {
-				/* Next button */ 
-				next();
-			}
-			if (x >= 50 && x <= 60) {
-				/* File button - go to new state */
-				return 0;
-			}
-			if (x >= 62 && x <= 72) {
-				/* Volume up button */
-				getVolume(volume, devMixer);
-				setVolume(volume+4, devMixer);
-			}
-			if (x >= 74 && x <= 84) {
-				/* Volume down button */
-				getVolume(volume, devMixer);
-				setVolume(volume-4, devMixer);
-			}	
-		}
-	}
-
-	return 1;
 }
 
 void*
@@ -373,24 +77,27 @@ player_wrapper(void* data)
 	interface->getDecoder()->run();
 	if (!interface->getDecoder()->isTerminating()) {
 		/*
-		 * Decoder was not forcefully terminated - signal the event
+		 * Decoder was not forcefully terminated - play next track
 		 */
-		interface->signalDecoderFinished();
+		interface->next();
 	}
 	return NULL;
 }
 
 void
-Interface::playFile(string fname)
+Interface::playFile()
 {
 	stop();
 
+	if (currentFile == "")
+		return;
+
 	InputFile* i = new InputFile();
-	if (!i->open(fname.c_str()))
+	if (!i->open(currentFile.c_str()))
 		return;
 	input = i;
 
-	string extension = string(fname.begin() + fname.find_last_of(".") + 1, fname.end());
+	string extension = string(currentFile.begin() + currentFile.find_last_of(".") + 1, currentFile.end());
 #ifdef WITH_VORBIS
 	if (!strcasecmp(extension.c_str(), "ogg")) {
 		decoder = new DecoderOgg(input, output, visualizer);
@@ -417,16 +124,16 @@ Interface::playFile(string fname)
 #endif /* !WITH_MAD */
 	}
 	if (info != NULL)
-		info->load(fname.c_str());
+		info->load(currentFile.c_str());
 
 	pthread_create(&player_thread, NULL, player_wrapper, this);
-	hasPlayerThread = true; isPlayerPaused = false;
+	havePlayerThread = true; playerPaused = false;
 }
 
 void
 Interface::stop()
 {
-	if (!hasPlayerThread)
+	if (!havePlayerThread)
 		return;
 
 	/* Ask the decoder thread to terminate, and wait until it is gone */
@@ -434,175 +141,52 @@ Interface::stop()
 	cont();
 	pthread_join(player_thread, NULL);
 
-	delete input;
-	delete info;
-	delete decoder;
+	Input* oldInput = input; Info* oldInfo = info; Decoder* oldDecoder = decoder;
 
 	input = NULL; info = NULL; decoder = NULL;
-	hasPlayerThread = false;
-}
 
-void
-Interface::blitImage(int x, int y, char* img)
-{
-	int i, j;
+	delete oldInput;
+	delete oldInfo;
+	delete oldDecoder;
 
-	for (i = 0; i < 8; i++) {
-		for (j = 0; j < 8; j++) {
-			interaction->putpixel(i + x, j + y, (img[i] & (1 << j)) ? 1 : 0);
-		}
-	}
+	havePlayerThread = false;
 }
 
 void
 Interface::pause()
 {
-	if (isPlayerPaused || !hasPlayerThread)
+	if (playerPaused || !havePlayerThread)
 		return;
 
 	pthread_suspend_np(player_thread);
-	isPlayerPaused = true;
+	playerPaused = true;
 }
 
 void
 Interface::cont()
 {
-	if (!isPlayerPaused || !hasPlayerThread)
+	if (!playerPaused || !havePlayerThread)
 		return;
 
 	pthread_resume_np(player_thread);
-	isPlayerPaused = false;
-}
-
-void
-Interface::prev()
-{
-	if (isPlayerPaused || !hasPlayerThread)
-		return;
-
-	/* 
-	 * Try to descend through the playlist to the next file - if there are
-	 * no more files, just give up.
-	 */
-	if (--direntry_index >= direntries.size())
-		return;
-
-	string path = playingPath + "/" + direntries[direntry_index];
-	playFile(path);
-	currentFile = path;
-
-	// We automatically changed track, so force updated if needed
-	hasTrackChanged = true;
+	playerPaused = false;
 }
 
 void
 Interface::next()
 {
-	if (isPlayerPaused || !hasPlayerThread)
-		return;
-	
-	/* 
-	 * Try to ascend through the playlist to the next file - if there are
-	 * no more files, just give up.
-	 */
-	if (++direntry_index >= direntries.size())
+	if (!browser->getNextFile(currentFile))
 		return;
 
-	string path = playingPath + "/" + direntries[direntry_index];
-	playFile(path);
-	currentFile = path;
-
-	// We automatically changed track, so force updated if needed
-	hasTrackChanged = true;
+	playFile();
 }
 
 void
-Interface::signalDecoderFinished()
-{
-	/* 
-	 * Try to ascend through the playlist to the next file - if there are
-	 * no more files, just give up.
-	 */
-	if (++direntry_index >= direntries.size())
+Interface::prev() {
+	if (!browser->getPreviousFile(currentFile))
 		return;
 
-	string path = playingPath + "/" + direntries[direntry_index];
-	playFile(path);
-	currentFile = path;
-
-	// We automatically changed track, so force updated if needed
-	hasTrackChanged = true;
-}
-
-int
-Interface::setVolume(int volume, std::string mixer)
-{
-	int	dev = 0, baz, devmask, vol;
-
-	/* Open mixer device */
-	if ((baz = open(mixer.c_str(), O_RDWR)) < 0)
-		return 1; // failed to open device
-	/* Read device mask */
-	if (ioctl(baz, SOUND_MIXER_READ_DEVMASK, &devmask) == -1) {
-		// Uhoh.. failed to read the devicemask
-		close(baz);
-		return 1;  // failed to read devmask
-	}
-
-	/* If the mixer-device was opened a master volume must exist */
-	dev = SOUND_MIXER_VOLUME;
-
-	/* Clamp given volume volumeue */
-	if (volume < 0)
-		volume = 0;
-	if (volume > 100)
-		volume = 100;	
-	/* Convert given volumeue (0-100) to stereo */
-	vol = volume | (volume << 8);
-	/* Write new volume value to device */
-	if (ioctl(baz, MIXER_WRITE(dev), &vol) == -1) {
-		// Uhoh.. device write failed
-		close(baz);
-		return 1;
-	}
-
-	/* Close device */
-	close(baz);
-
-	return 0; 
-}
-
-int
-Interface::getVolume(int& volume, std::string mixer)
-{
-	int	dev = 0, baz, devmask, vol;
-
-	/* Open mixer device */
-	if ((baz = open(mixer.c_str(), O_RDWR)) < 0)
-		return 1; // failed to open device
-	/* Read device mask */
-	if (ioctl(baz, SOUND_MIXER_READ_DEVMASK, &devmask) == -1) {
-		// Uhoh.. failed to read the devicemask
-		close(baz);
-		return 1;  // failed to read devmask
-	}
-
-	/* If the mixer-device was opened a master volume must exist */
-	dev = SOUND_MIXER_VOLUME;
-
-	/* Read current volume to device */
-	if (ioctl(baz, MIXER_READ(dev), &vol) == -1) {
-		// Uhoh.. device read failed
-		close(baz);
-		return 1;
-	}
-
-	/* Close device */
-	close(baz);
-
-	volume = (vol >> 8) & 0x7f;
-
-	return 0; 
+	playFile();
 }
 
 void

@@ -113,7 +113,7 @@ main(int argc, char** argv)
 		return EXIT_FAILURE;
 	}
 
-	interface = new Interface(interaction, output, argv[0], mixer);
+	interface = new Interface(interaction, output, argv[0]);
 
 	if (!interaction->init()) {
 		fprintf(stderr, "interaction init fail\n");

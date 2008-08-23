@@ -30,6 +30,8 @@ private:
 	Image* bFile;
 	Image* bPrev;
 	Image* bNext;
+	Image* bVolUp;
+	Image* bVolDn;
 };
 
 #endif /* __FORMPLAYER_H__ */

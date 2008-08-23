@@ -9,6 +9,8 @@ char stopbutton[8]  = { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
 char filebutton[8]  = { 0x40, 0x60, 0x7f, 0x01, 0x01, 0x01, 0xe1, 0x7f };
 char nextbutton[8]  = { 0xff, 0x7f, 0x3e, 0x1c, 0x08, 0x7e, 0x00, 0x00 };
 char prevbutton[8]  = { 0x00, 0x00, 0x7e, 0x08, 0x1c, 0x3e, 0x7f, 0xff };
+char volupbutton[8] = { 0x18, 0x18, 0x18, 0xff, 0xff, 0x18, 0x18, 0x18 };
+char voldnbutton[8] = { 0x18, 0x18, 0x18, 0x18, 0x18, 0x18, 0x18, 0x18 };
 
 formPlayer::formPlayer(Interaction* in, Interface* iface)
 	: Form(in)
@@ -25,12 +27,14 @@ formPlayer::formPlayer(Interaction* in, Interface* iface)
 	                    interaction->getWidth(), interaction->getTextHeight());
 	add(lArtist); add(lAlbum); add(lTitle); add(lPlayingTime);
 
-	bPlay = new Image( 2, interaction->getHeight() - 12, 8, 8, playbutton);
-	bStop = new Image(14, interaction->getHeight() - 12, 8, 8, stopbutton);
-	bNext = new Image(26, interaction->getHeight() - 12, 8, 8, nextbutton);
-	bPrev = new Image(38, interaction->getHeight() - 12, 8, 8, prevbutton);
-	bFile = new Image(50, interaction->getHeight() - 12, 8, 8, filebutton);
-	add(bPlay); add(bStop); add(bNext); add(bPrev); add(bFile);
+	bPlay  = new Image( 2, interaction->getHeight() - 12, 8, 8, playbutton);
+	bStop  = new Image(14, interaction->getHeight() - 12, 8, 8, stopbutton);
+	bNext  = new Image(26, interaction->getHeight() - 12, 8, 8, nextbutton);
+	bPrev  = new Image(38, interaction->getHeight() - 12, 8, 8, prevbutton);
+	bFile  = new Image(50, interaction->getHeight() - 12, 8, 8, filebutton);
+	bVolUp = new Image(62, interaction->getHeight() - 12, 8, 8, volupbutton);
+	bVolDn = new Image(74, interaction->getHeight() - 12, 8, 8, voldnbutton);
+	add(bPlay); add(bStop); add(bNext); add(bPrev); add(bFile); add(bVolUp); add(bVolDn);
 }
 
 void
@@ -99,6 +103,20 @@ formPlayer::interact(Control* control)
 
 	if (control == bFile) {
 		close();
+		return;
+	}
+
+	if ((control == bVolUp || control == bVolDn) && interface->getMixer() != NULL) {
+		int volume = interface->getMixer()->getVolume();
+		if (control == bVolDn) {
+			if (volume > 4)
+				volume -= 4;
+			else
+				volume = 0;
+		} else {
+			volume += 4;
+		}
+		interface->getMixer()->setVolume(volume);
 		return;
 	}
 }

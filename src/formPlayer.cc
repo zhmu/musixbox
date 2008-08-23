@@ -29,8 +29,8 @@ formPlayer::formPlayer(Interaction* in, Interface* iface)
 
 	bPlay  = new Image( 2, interaction->getHeight() - 12, 8, 8, playbutton);
 	bStop  = new Image(14, interaction->getHeight() - 12, 8, 8, stopbutton);
-	bNext  = new Image(26, interaction->getHeight() - 12, 8, 8, nextbutton);
-	bPrev  = new Image(38, interaction->getHeight() - 12, 8, 8, prevbutton);
+	bPrev  = new Image(26, interaction->getHeight() - 12, 8, 8, prevbutton);
+	bNext  = new Image(38, interaction->getHeight() - 12, 8, 8, nextbutton);
 	bFile  = new Image(50, interaction->getHeight() - 12, 8, 8, filebutton);
 	bVolUp = new Image(62, interaction->getHeight() - 12, 8, 8, volupbutton);
 	bVolDn = new Image(74, interaction->getHeight() - 12, 8, 8, voldnbutton);

@@ -6,6 +6,7 @@
 #include "output.h"
 #include "visualize.h"
 #include "decode.h"
+#include "mixer.h"
 
 #ifndef __INTERFACE_H__
 #define __INTERFACE_H__
@@ -24,9 +25,10 @@ public:
 	 *  \param i Interaction object to use
 	 *  \param o Output object to use
 	 *  \param path Root path of all media files
+	 *  \param m Mixer object to use
 	 */
-	Interface(Interaction* i, Output* o, const char* path) {
-		interaction = i; output = o;
+	Interface(Interaction* i, Output* o, const char* path, Mixer* m) {
+		interaction = i; output = o; mixer = m;
 		input = NULL; decoder = NULL; visualizer = NULL; info = NULL;
 		havePlayerThread = false; player_thread = NULL; currentFile = "";
 		rootPath = std::string(path);
@@ -55,6 +57,9 @@ protected:
 
 	//! \brief Retrieve decoder object
 	inline Decoder* getDecoder() { return decoder; }
+
+	//! \brief Retrieve mixer object
+	inline Mixer* getMixer() { return mixer; }
 
 	//! \brief Retrieve info object
 	inline Info* getInfo() { return info; }
@@ -99,8 +104,11 @@ private:
 	//! \brief Visualization object
 	Visualizer* visualizer;
 
-	//! \brief Informatiom object
+	//! \brief Information object
 	Info* info;
+
+	//! \brief Mixer object
+	Mixer* mixer;
 
 	//! \brief Do we have a playing thread?
 	bool havePlayerThread;

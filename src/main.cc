@@ -13,10 +13,12 @@
 #include "output_ao.h"
 #endif
 #include "output_null.h"
+#include "mixer_oss.h"
 
 InteractionChain* interaction;
 Interface* interface;
 Output* output;
+Mixer* mixer;
 
 void
 usage()
@@ -64,10 +66,11 @@ int
 main(int argc, char** argv)
 {
 	int ch;
-	std::string mixer = "/dev/mixer0";
+	std::string mixdev = "/dev/mixer0";
 
 	interface = NULL;
 	output = NULL;
+	mixer = NULL;
 	interaction = new InteractionChain();
 
 	while ((ch = getopt(argc, argv, "?h"
@@ -85,8 +88,8 @@ main(int argc, char** argv)
 			          break;
 			case 'o': output = findOutputProvider(optarg);
 			          break;
-			case 'm': mixer = std::string(optarg); 
-						 break;
+			case 'm': mixdev = std::string(optarg); 
+			          break;
 			case 'h':
 			case '?': usage();
 			          /* NOTREACHED */
@@ -112,8 +115,8 @@ main(int argc, char** argv)
 		fprintf(stderr, "fatal: output provider didn't initialize correctly\n");
 		return EXIT_FAILURE;
 	}
-
-	interface = new Interface(interaction, output, argv[0]);
+	mixer = new MixerOSS(mixdev);
+	interface = new Interface(interaction, output, argv[0], mixer);
 
 	if (!interaction->init()) {
 		fprintf(stderr, "interaction init fail\n");

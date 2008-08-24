@@ -27,23 +27,13 @@ public:
 	 *  \param path Root path of all media files
 	 *  \param m Mixer object to use
 	 */
-	Interface(Interaction* i, Output* o, const char* path, Mixer* m) {
-		interaction = i; output = o; mixer = m;
-		input = NULL; decoder = NULL; visualizer = NULL; info = NULL;
-		havePlayerThread = false; player_thread = NULL; currentFile = "";
-		rootPath = std::string(path);
-	}
+	Interface(Interaction* i, Output* o, const char* path, Mixer* m);
 
-	/*! \brief Initialize interface provider
-	 *  \return Non-zero on success
-	 */
-	int init();
+	//! \brief Destructs the interface object
+	~Interface();
 
 	//! \brief Run the interface 
 	void run();
-
-	//! \brief Deinitialize interaction provider
-	void done();
 
 	//! \brief Start the decoder
 	void runDecoder() { decoder->run(); }

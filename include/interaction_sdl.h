@@ -7,11 +7,11 @@
 //! \brief Provides interaction using SDL and 
 class InteractionSDL : public Interaction {
 public:
-	//! \brief Initialize SDL interaction provider
-	int init();
+	//! \brief Initialize the interaction provider
+	InteractionSDL();
 
-	//! \brief Deinitialize SDL interaction provider
-	void done();
+	//! \brief Deinitialize the interaction provider
+	~InteractionSDL();
 
 	//! \brief Returns the height of the SDL window
 	inline unsigned int getHeight() { return 64; }

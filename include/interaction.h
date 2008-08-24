@@ -9,14 +9,6 @@ public:
 		haveValidCoords = false;
 	}
 
-	/*! \brief Initialize interaction provider
-	 *  \return Non-zero on success
-	 */
-	virtual int init() { return 1; }
-
-	//! \brief Deinitialize interaction provider
-	virtual void done() { }
-
 	//! \brief Returns the height of the screen
 	virtual unsigned int getHeight() = 0;
 

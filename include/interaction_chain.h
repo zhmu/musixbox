@@ -7,12 +7,6 @@
 //! \brief Provides interaction using a chain of other providers
 class InteractionChain : public Interaction {
 public:
-	//! \brief Initialize Chain interaction provider
-	int init();
-
-	//! \brief Deinitialize Chain interaction provider
-	void done();
-
 	//! \brief Returns the height of the chain window
 	inline unsigned int getHeight() { return provider[0]->getHeight(); }
 

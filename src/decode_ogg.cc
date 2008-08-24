@@ -3,6 +3,7 @@
 #include <string.h>
 #include <ogg/ogg.h>
 #include <vorbis/vorbisfile.h>
+#include "exceptions.h"
 #include "decode_ogg.h"
 #include "input.h"
 #include "output.h"
@@ -30,7 +31,7 @@ DecoderOgg::DecoderOgg(Input* i, Output* o, Visualizer* v) :
 	Decoder(i, o, v)
 {
 	if (ov_open_callbacks(input, &ovf, NULL, 0, ov_input_wrapper) < 0)
-		throw NULL;
+		throw DecoderException("ov_open_callbacks() failed");
 }
 
 int

@@ -4,14 +4,6 @@
 //! \brief Abstract class to provide audio output
 class Output {
 public:
-	/*! \brief Initialize the output device
-	 *  \return Non-zero on success
-	 */
-	virtual int init() { return 1; };
-
-	//! \brief Deinitialize the output device
-	virtual void done() { };
-
 	/*! \brief Plays a buffer
 	 *  \param buf Buffer to play
 	 *  \param len Number of bytes to play

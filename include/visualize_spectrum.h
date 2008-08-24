@@ -11,14 +11,14 @@
  */
 class SpectrumVisualizer : public Visualizer {
 public:
-	//! \brief Initialize the spectrum analyzer
-	int init();
+	//! \brief Construct a new FFT visualizer object
+	SpectrumVisualizer();
+
+	//! \brief Deinitialize the visualizer object
+	~SpectrumVisualizer();
 
 	//! \brief Update the spectrum analyzer based on current audio output
 	void update(const char* audio, unsigned int num);
-
-	//! \brief Deinitialize the spectrum analyzer
-	void done();
 
 private:
 	double* in;

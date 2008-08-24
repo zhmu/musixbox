@@ -32,16 +32,16 @@
 
 using namespace std;
 
-int
-Interface::init()
-{
-	browser = new formBrowser(interaction, rootPath);
-	return 1;
-} 
+Interface::Interface(Interaction* i, Output* o, const char* path, Mixer* m) {
+	interaction = i; output = o; mixer = m;
+	input = NULL; decoder = NULL; visualizer = NULL; info = NULL;
+	havePlayerThread = false; player_thread = NULL; currentFile = "";
+	rootPath = std::string(path);
 
-void
-Interface::done()
-{
+	browser = new formBrowser(interaction, rootPath);
+}
+
+Interface::~Interface() {
 	stop();
 }
 

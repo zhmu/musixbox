@@ -1,3 +1,4 @@
+#include "exceptions.h"
 #include "formPlayer.h"
 #include "interface.h"
 
@@ -107,16 +108,20 @@ formPlayer::interact(Control* control)
 	}
 
 	if ((control == bVolUp || control == bVolDn) && interface->getMixer() != NULL) {
-		int volume = interface->getMixer()->getVolume();
-		if (control == bVolDn) {
-			if (volume > 4)
-				volume -= 4;
-			else
-				volume = 0;
-		} else {
-			volume += 4;
+		try {
+			int volume = interface->getMixer()->getVolume();
+			if (control == bVolDn) {
+				if (volume > 4)
+					volume -= 4;
+				else
+					volume = 0;
+			} else {
+				volume += 4;
+			}
+			interface->getMixer()->setVolume(volume);
+		} catch (MixerException& e) {
+			fprintf(stderr, "Warning: mixer failure: %s", e.what());
 		}
-		interface->getMixer()->setVolume(volume);
 		return;
 	}
 }

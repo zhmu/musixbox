@@ -5,19 +5,15 @@
 
 #define MAX_VIS_SIZE	1152
 
-int
-SpectrumVisualizer::init()
+SpectrumVisualizer::SpectrumVisualizer()
 {
 	in = (double*)fftw_malloc(sizeof(double) * MAX_VIS_SIZE);
 	out = (fftw_complex*)fftw_malloc(sizeof(fftw_complex) * MAX_VIS_SIZE);
 
 	p = fftw_plan_dft_r2c_1d(MAX_VIS_SIZE, in, out, 0);
-
-	return 1;
 }
 
-void
-SpectrumVisualizer::done()
+SpectrumVisualizer::~SpectrumVisualizer()
 {
 	fftw_destroy_plan(p);
 	fftw_free(in); fftw_free(out);

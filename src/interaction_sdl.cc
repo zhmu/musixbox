@@ -1,31 +1,31 @@
 #include <SDL/SDL.h>
+#include <exceptions.h>
 #include "font.h"
 #include "interaction_sdl.h"
 
-int
-InteractionSDL::init()
+InteractionSDL::InteractionSDL() : Interaction()
 {
-	if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-		fprintf(stderr, "SDL_Init() failure: %s\n", SDL_GetError());
-		return 0;
-	}
+	if (SDL_Init(SDL_INIT_VIDEO) < 0)
+		throw InteractionException(std::string("SDL_Init() failure: ") + SDL_GetError());
 
 	screen = SDL_SetVideoMode(getWidth(), getHeight(), 32, SDL_SWSURFACE);
-	if (screen == NULL) {
-		fprintf(stderr, "SDL_SetVideoMode() failure: %s\n", SDL_GetError());
-		return 0;
-	}
-	if (screen->format->BytesPerPixel != 4) {
-		printf("TODO\n");
-	}
+	if (screen == NULL)
+		throw InteractionException(std::string("SDL_SetVideoMode() failure: ") + SDL_GetError());
+	if (screen->format->BytesPerPixel != 4)
+		throw InteractionException(std::string("FIXME: SDL non-32-bit pixels are not yet supported"));
 
         if (SDL_MUSTLOCK(screen))
                 SDL_LockSurface(screen);
 
 	/* blank screen */
 	clear(0, 0, getHeight(), getWidth());
-	return 1;
 }
+	
+InteractionSDL::~InteractionSDL()
+{
+	SDL_Quit();
+}
+
 
 void
 InteractionSDL::yield()
@@ -48,13 +48,6 @@ InteractionSDL::yield()
 		}
 	}
 }
-	
-void
-InteractionSDL::done()
-{
-	SDL_Quit();
-}
-
 
 void
 InteractionSDL::putpixel(unsigned int x, unsigned int y, unsigned int c)

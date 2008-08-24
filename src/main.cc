@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <err.h>
+#include "exceptions.h"
 #include "interface.h"
 #ifdef WITH_SDL
 #include "interaction_sdl.h"
@@ -73,7 +74,8 @@ main(int argc, char** argv)
 	mixer = NULL;
 	interaction = new InteractionChain();
 
-	while ((ch = getopt(argc, argv, "?h"
+	try {
+		while ((ch = getopt(argc, argv, "?h"
 #ifdef WITH_SDL
 "s"
 #endif
@@ -93,45 +95,35 @@ main(int argc, char** argv)
 			case 'h':
 			case '?': usage();
 			          /* NOTREACHED */
+			}
 		}
-	}
-	argc -= optind;
-	argv += optind;
-	if (argc != 1) {
-		fprintf(stderr, "error: no media path given\n");
-		usage();
-	}
+		argc -= optind;
+		argv += optind;
+		if (argc != 1) {
+			fprintf(stderr, "error: no media path given\n");
+			usage();
+		}
 
-	if (interaction->getNumProviders() == 0) {
-		fprintf(stderr, "fatal: no interaction providers, aborting\n");
+		if (interaction->getNumProviders() == 0) {
+			fprintf(stderr, "fatal: no interaction providers, aborting\n");
+			return EXIT_FAILURE;
+		}
+
+		if (output == NULL) {
+			fprintf(stderr, "fatal: no output provider, aborting\n");
+			return EXIT_FAILURE;
+		}
+		mixer = new MixerOSS(mixdev);
+		interface = new Interface(interaction, output, argv[0], mixer);
+
+		signal(SIGINT, terminate);
+		signal(SIGTERM, terminate);
+
+		interface->run();
+	} catch (MusixBoxException& e) {
+		fprintf(stderr, "%s\n", e.what());
 		return EXIT_FAILURE;
 	}
-
-	if (output == NULL) {
-		fprintf(stderr, "fatal: no output provider, aborting\n");
-		return EXIT_FAILURE;
-	}
-	if (!output->init()) {
-		fprintf(stderr, "fatal: output provider didn't initialize correctly\n");
-		return EXIT_FAILURE;
-	}
-	mixer = new MixerOSS(mixdev);
-	interface = new Interface(interaction, output, argv[0], mixer);
-
-	if (!interaction->init()) {
-		fprintf(stderr, "interaction init fail\n");
-		return EXIT_FAILURE;
-	}
-	interface->init();
-
-	signal(SIGINT, terminate);
-	signal(SIGTERM, terminate);
-
-	interface->run();
-
-	interface->done();
-	interaction->done();
-	output->done();
 	
 	return EXIT_SUCCESS;
 }

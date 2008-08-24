@@ -6,15 +6,6 @@ InteractionChain::add(Interaction* i)
 	provider.push_back(i);
 }
 
-int
-InteractionChain::init()
-{
-	for (unsigned int i = 0; i < provider.size(); i++)
-		if (!provider[i]->init())
-			return 0;
-	return 1;
-}
-
 void
 InteractionChain::yield()
 {
@@ -23,13 +14,6 @@ InteractionChain::yield()
 		if (provider[i]->mustTerminate())
 			requestTermination();
 	}
-}
-	
-void
-InteractionChain::done()
-{
-	for (unsigned int i = 0; i < provider.size(); i++)
-		provider[i]->done();
 }
 
 bool

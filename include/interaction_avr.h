@@ -18,12 +18,6 @@ public:
 
 	//! \brief Destructs the AVR interaction provider
 	~InteractionAVR();
-	 
-	//! \brief Initialize AVR interaction provider
-	int init();
-
-	//! \brief Deinitialize AVR interaction provider
-	void done();
 
 	//! \brief Returns the height of the AVR window
 	inline unsigned int getHeight() { return 64; }

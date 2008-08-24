@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
+#include "exceptions.h"
 #include "font.h"
 #include "interaction_avr.h"
 
@@ -130,39 +131,19 @@ avrRecvThread(void* ptr)
 
 InteractionAVR::InteractionAVR(const char* device)
 {
+	struct termios opt;
+
 	haveReceivingThread = false;
 	terminating = false;
 
 	fd = open(device, O_RDWR | O_NOCTTY| O_NDELAY);
 	if (fd < 0)
-		throw NULL;
-
-	pthread_create(&recvThread, NULL, avrRecvThread, this);
-}
-
-InteractionAVR::~InteractionAVR()
-{
-	if (fd >= 0) {
-		close(fd);
-		fd = -1;
-	}
-
-	if (haveReceivingThread) {
-		terminating = true;
-		pthread_join(recvThread, NULL);
-	}
-}
-
-
-int
-InteractionAVR::init()
-{
-	struct termios opt;
+		throw InteractionException(std::string("Unable to open device ") + device);
 
 	tcflush(fd, TCIOFLUSH);
 
 	if (tcgetattr(fd, &opt) < 0)
-		return 0;
+		throw InteractionException(std::string("tcgetattr() failure for ") + device);
 
 	/* 57600 baud */
 	cfsetispeed(&opt, B57600);
@@ -187,23 +168,44 @@ InteractionAVR::init()
 	opt.c_cc[VMIN] = 60;
 
 	if (tcsetattr(fd, TCSANOW, &opt) < 0)
-		return 0;
+		throw InteractionException(std::string("tcsetattr() failure for ") + device);
+
+	pthread_create(&recvThread, NULL, avrRecvThread, this);
 
 	displaydata = (unsigned char*)malloc((getHeight() / 8) * getWidth());
 	if (displaydata == NULL)
-		return 0;
+		throw InteractionException(std::string("Out of memory"));
 
 	currentDisplayData = (unsigned char*)malloc((getHeight() / 8) * getWidth());
 	if (currentDisplayData == NULL)
-		return 0;
+		throw InteractionException(std::string("Out of memory"));
 
 	memset(displaydata, 0, (getHeight() / 8) * getWidth());
 	memset(currentDisplayData, 0, (getHeight() / 8) * getWidth());
 
 	/* We do not know what's on the LCD, so write whenever we can! */
 	dirty = 1;
-	return 1;
 }
+
+InteractionAVR::~InteractionAVR()
+{
+	if (fd >= 0) {
+		close(fd);
+		fd = -1;
+	}
+
+	if (haveReceivingThread) {
+		terminating = true;
+		pthread_join(recvThread, NULL);
+	}
+
+	if (currentDisplayData == NULL)
+		free(currentDisplayData);
+
+	if (displaydata == NULL)
+		free(displaydata);
+}
+
 
 void
 InteractionAVR::yield()
@@ -237,17 +239,6 @@ InteractionAVR::yield()
 
 	dirty = 0;
 }
-	
-void
-InteractionAVR::done()
-{
-	if (currentDisplayData == NULL)
-		free(currentDisplayData);
-
-	if (displaydata == NULL)
-		free(displaydata);
-}
-
 
 void
 InteractionAVR::putpixel(unsigned int x, unsigned int y, unsigned int c)

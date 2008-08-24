@@ -7,18 +7,14 @@
 //! \brief Output using libao
 class OutputAO : public Output {
 public:
-	OutputAO() : Output() {
-		output_dev = NULL;
-	}
-
-	/*! \brief Initializes the libao library
+	/*! \brief Construct the libao library output provider
 	 *
 	 *  The first output device is used.
 	 */
-	int init();
+	OutputAO();
 
 	//! \brief Deinitializes the libao library
-	void done();
+	~OutputAO();
 
 	/*! \brief Plays the assorted buffer
 	 *  \param buf Buffer to play

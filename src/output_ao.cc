@@ -1,11 +1,13 @@
 #include <ao/ao.h>
+#include "exceptions.h"
 #include "output_ao.h"
 
-int
-OutputAO::init()
+OutputAO::OutputAO() : Output()
 {
 	int drvid;
 	ao_sample_format format;
+
+	output_dev = NULL;
 
 	ao_initialize();
 
@@ -17,9 +19,7 @@ OutputAO::init()
 	format.byte_format = AO_FMT_LITTLE;
 	output_dev = ao_open_live(drvid, &format, NULL);
 	if (output_dev == NULL)
-		return 0;
-
-	return 1;
+		throw OutputException("ao_open_live() failed to initialize");
 }
 
 void
@@ -28,8 +28,7 @@ OutputAO::play(char* buf, size_t len)
 	ao_play(output_dev, buf, len);
 }
 
-void
-OutputAO::done()
+OutputAO::~OutputAO()
 {
 	ao_close(output_dev);
 	ao_shutdown();

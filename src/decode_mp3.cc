@@ -109,7 +109,8 @@ DecoderMP3::run()
 	mad_stream_options(&stream, 0);
 
 	/*
-	 * Scan the entire file until we find a header we can understand. 
+	 * Scan the entire file until we find a header we can understand,
+	 * followed by some frame we can parse.
 	 */
 	do {
 		if (!terminating && !handleInput(&stream))
@@ -120,9 +121,24 @@ DecoderMP3::run()
 				continue;
 			break;
 		}
-		/* We found a header - stop here */
+
+		if (mad_frame_decode(&frame, &stream) == -1) {
+			if (!MAD_RECOVERABLE(stream.error))
+				break;
+			continue;
+		}
+
 		break;
 	} while (1);
+
+	/*
+	 * OK, based on the (estimated) number of frames in the file and
+	 * the framerate of this frame, we have an indication how long the
+	 * track is. Note: this will yield utter nonsense for VBR files.
+	 */
+	totaltime = 
+		((input->getLength() - input->getCurrentPosition()) * 8) /
+		frame.header.bitrate;
 
 	if (!MAD_RECOVERABLE(stream.error))
 		goto fail;

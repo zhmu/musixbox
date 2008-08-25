@@ -4,6 +4,7 @@
 #include <mad.h>
 #include <math.h>
 #include "decode_mp3.h"
+#include "exceptions.h"
 #include "output.h"
 
 signed int
@@ -83,6 +84,8 @@ DecoderMP3::handleInput(struct mad_stream* stream)
 DecoderMP3::DecoderMP3(Input* i, Output* o, Visualizer* v) : Decoder(i, o, v)
 {
 	music_chunk = (char*)malloc(CHUNK_SIZE);
+	if (music_chunk == NULL)
+		throw DecoderException(std::string("DecodeMP3: out of memory"));
 }
 
 DecoderMP3::~DecoderMP3()
@@ -120,7 +123,7 @@ DecoderMP3::run()
 		/* We found a header - stop here */
 		break;
 	} while (1);
-	
+
 	if (!MAD_RECOVERABLE(stream.error))
 		goto fail;
 

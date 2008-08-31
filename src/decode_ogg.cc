@@ -58,7 +58,7 @@ DecoderOgg::DecoderOgg(Input* i, Output* o, Visualizer* v) :
 	Decoder(i, o, v)
 {
 	if (ov_open_callbacks(input, &ovf, NULL, 0, ov_input_wrapper) < 0)
-		throw DecoderException("ov_open_callbacks() failed");
+		throw DecoderException(std::string("ov_open_callbacks() failed"));
 }
 
 int

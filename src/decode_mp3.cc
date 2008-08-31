@@ -101,6 +101,7 @@ DecoderMP3::run()
 	struct mad_synth synth;
 	unsigned int buflen;
 	mad_timer_t time = mad_timer_zero;
+	size_t firstFrameOffset = 0;
 
 	mad_stream_init(&stream);
 	mad_frame_init(&frame);
@@ -115,6 +116,7 @@ DecoderMP3::run()
 		if (!terminating && !handleInput(&stream))
 			goto fail;
 
+		firstFrameOffset = input->getCurrentPosition();
 		if (mad_frame_decode(&frame, &stream) == -1) {
 			if (!MAD_RECOVERABLE(stream.error))
 				break;
@@ -127,7 +129,10 @@ DecoderMP3::run()
 	/*
 	 * OK, based on the (estimated) number of frames in the file and
 	 * the framerate of this frame, we have an indication how long the
-	 * track is. Note: this will yield utter nonsense for VBR files.
+	 * track is.
+	 * 
+	 * Note: this will yield utter nonsense for VBR files, which is why we
+	 *       look for Xing tags later on.
 	 */
 	totaltime = 
 		((input->getLength() - input->getCurrentPosition()) * 8) /
@@ -136,6 +141,11 @@ DecoderMP3::run()
 	if (!MAD_RECOVERABLE(stream.error))
 		goto fail;
 
+	/*
+	 * There may be a Xing tag lingering. If the file in question is VBR, it is our
+	 * only way of obtaining the exact song length.
+	 */
+	parseXingTag(&stream, &frame);
 	do {
 		if (!terminating && !handleInput(&stream))
 			goto fail;
@@ -168,4 +178,52 @@ fail:
 	free (music_chunk);
 
 	return 1;
+}
+
+void
+DecoderMP3::parseXingTag(struct mad_stream* stream, struct mad_frame* frame)
+{
+	unsigned int bitlen = stream->anc_bitlen;
+	struct mad_bitptr ptr = stream->anc_ptr;
+	unsigned int xing_frames = 0;
+	unsigned int dummy;
+
+	if (bitlen < 32)
+		return;
+
+	unsigned int magic = mad_bit_read(&ptr, 32); bitlen -= 32;
+	if (magic != XING_MAGIC)
+		return;
+
+	/* We got a XING tag! */
+	unsigned int xing_flags = mad_bit_read(&ptr, 32); bitlen -= 32;
+	if (xing_flags & XING_FLAG_FRAMES) {
+		if (bitlen < 32)
+			return;
+		xing_frames = mad_bit_read(&ptr, 32); bitlen -= 32;
+	}
+	if (xing_flags & XING_FLAG_BYTES) {
+		if (bitlen < 32)
+			return;
+		dummy = mad_bit_read(&ptr, 32); bitlen -= 32;
+	}
+	if (xing_flags & XING_FLAG_TOC) {
+		if (bitlen < 800)
+			return;
+		/* Skip the table of contents */
+		for (int i = 0; i < 100; i++)
+			dummy = mad_bit_read(&ptr, 8);
+		bitlen -= 800;
+	}
+	if (xing_flags & XING_FLAG_SCALE) {
+		if (bitlen < 32)
+			return;
+		dummy = mad_bit_read(&ptr, 32); bitlen -= 32;
+	}
+
+	/*
+	 * Using only the number of frames, we can calculate the exact song length.
+	 */
+	totaltime = (int)(((double)xing_frames * 
+		((frame->header.flags & MAD_FLAG_LSF_EXT) ? 576 : 1152)) / frame->header.samplerate);
 }

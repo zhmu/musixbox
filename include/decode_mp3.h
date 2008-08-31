@@ -6,6 +6,12 @@
 
 #define CHUNK_SIZE	4096
 
+#define XING_MAGIC		(uint32_t)(('X' << 24 | 'i' << 16 | 'n' << 8 | 'g'))
+#define XING_FLAG_FRAMES	0x0001
+#define XING_FLAG_BYTES		0x0002
+#define XING_FLAG_TOC		0x0004
+#define XING_FLAG_SCALE		0x0008
+
 /*! \brief Handles decoding of MP3 files
  *
  *  The decoder used is libmad.  
@@ -43,6 +49,9 @@ private:
 	 *  \todo The scaling algorithm is very poor and should be fixed  
 	 */
 	signed int scaleFrequency(mad_fixed_t s);
+
+	//! \brief Attempts to decode a Xing tag
+	void parseXingTag(struct mad_stream* stream, struct mad_frame* frame);
 
 	//! \brief Temporary chunk used to ensure unprocessed data is not overwritten
 	char* music_chunk;

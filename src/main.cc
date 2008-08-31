@@ -24,7 +24,7 @@ Mixer* mixer;
 void
 usage()
 {
-	fprintf(stderr, "usage: musicd [-?hs] [-a device] folder\n\n");
+	fprintf(stderr, "usage: musixbox [-?hs] [-a device] folder\n\n");
 	fprintf(stderr, " -h, -?         this help\n");
 #ifdef WITH_SDL
 	fprintf(stderr, " -s             enable SDL interaction frontend\n");

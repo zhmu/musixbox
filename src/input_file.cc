@@ -34,3 +34,10 @@ InputFile::getCurrentPosition()
 {
 	return ftell(f);
 }
+
+bool
+InputFile::seek(size_t offset)
+{
+	fseek(f, offset, SEEK_SET);
+	return true;
+}

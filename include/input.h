@@ -16,6 +16,14 @@ public:
 	 */
 	virtual size_t getLength() { return 0; }
 
+	/*! \brief Seek to an offset within the input stream
+	 *  \param offset Offset to seek to, in bytes
+	 *  \return true on success, false is the seek failed
+	 *
+	 *  offset is always relative to the beginning of the file.
+	 */
+	virtual bool seek(size_t offset) { return false; }
+
 	/*! \brief Retrieve current position in input stream
 	 *  \return Current byte position, or 0 if this is unknown
 	 */

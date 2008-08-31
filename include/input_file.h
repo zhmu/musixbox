@@ -22,6 +22,12 @@ public:
 	 *  \return Number of bytes read
 	 */
 	size_t read(char* buffer, size_t len);
+	
+	/*! \brief Seek to an offset within the input stream
+	 *  \param offset Offset to seek to, in bytes
+	 *  \return true on success, false is the seek failed
+	 */
+	bool seek(size_t offset);
 
 	//! \brief Returns the length of the file, in bytes
 	size_t getLength();

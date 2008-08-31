@@ -36,6 +36,9 @@
 /* Decode using libmad */
 #undef WITH_MAD
 
+/* Decode using libmikmod */
+#undef WITH_MIKMOD
+
 /* Interaction using SDL */
 #undef WITH_SDL
 

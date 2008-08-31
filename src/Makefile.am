@@ -32,3 +32,6 @@ endif
 if FFTW
 musixbox_SOURCES+=	visualize_spectrum.cc
 endif
+if MIKMOD
+musixbox_SOURCES+=	decode_module.cc info_module.cc
+endif

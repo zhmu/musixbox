@@ -25,6 +25,10 @@
 #include "decode_flac.h"
 #include "info_flac.h"
 #endif
+#ifdef WITH_MIKMOD
+#include "decode_module.h"
+#include "info_module.h"
+#endif
 #include "interface.h"
 #include "interaction.h"
 #include "formBrowser.h"
@@ -110,6 +114,12 @@ Interface::playFile()
 		info = new InfoFLAC(decoder);
 	} else
 #endif /* WITH_FLAC */
+#ifdef WITH_MIKMOD
+	if (!strcasecmp(extension.c_str(), "mod")) {
+		decoder = new DecoderModule(input, output, visualizer);
+		info = new InfoModule(decoder);
+	} else
+#endif /* WITH_MIKMOD */
 #ifdef WITH_MAD
 	{
 		/* assume MP3 */

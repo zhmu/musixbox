@@ -52,6 +52,12 @@ AC_ARG_WITH(fftw,
 	LDFLAGS="$LDFLAGS -L$with_fftw/lib"
 	CPPFLAGS="$CPPFLAGS -I$with_fftw/include"
 ])
+AC_ARG_WITH(mikmod,
+[  --with-mikmod=dir           Amiga module decoding using libmikmod],
+[
+	LDFLAGS="$LDFLAGS -L$with_mikmod/lib"
+	CPPFLAGS="$CPPFLAGS -I$with_mikmod/include"
+])
 
 # we need pthreads
 AC_SEARCH_LIBS([pthread_create], [pthread])
@@ -98,6 +104,13 @@ AC_CHECK_LIB([fftw3], [fftw_plan_dft_r2c_1d], [
 	AM_CONDITIONAL([FFTW], [true])
 ], [
 	AM_CONDITIONAL([FFTW], [false])
+])
+AC_CHECK_LIB([mikmod], [MikMod_Init], [
+	AC_DEFINE(WITH_MIKMOD, [], [Decode using libmikmod])
+	LDFLAGS="$LDFLAGS -lmikmod"
+	AM_CONDITIONAL([MIKMOD], [true])
+], [
+	AM_CONDITIONAL([MIKMOD], [false])
 ])
 
 AC_MSG_CHECKING(for whether FLAC++ is usuable)

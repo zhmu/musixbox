@@ -62,6 +62,8 @@ DecoderFLAC::write_callback(const FLAC__Frame* frame, const FLAC__int32 *const b
 		out_buffer[4 * out + 3] = (buffer[1][i] >> 8) & 0xff;
 		out++;
 		if (out == DECODER_OUTBUF_SIZE / 4) {
+			if (visualizer != NULL)
+				visualizer->update(out_buffer, out * 4);
 			output->play(out_buffer, out * 4);
 			out = 0;
 		}

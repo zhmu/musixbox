@@ -95,8 +95,12 @@ void
 MBX_Update()
 {
 	char* buf = DecoderModuleDecoder->getBuffer();
-	DecoderModuleDecoder->output->play(buf,
-		VC_WriteBytes((SBYTE*)buf, DECODER_MODULE_BUFFER_SIZE));
+	unsigned int len = VC_WriteBytes((SBYTE*)buf, DECODER_MODULE_BUFFER_SIZE);
+
+	if (DecoderModuleDecoder->visualizer != NULL)
+		DecoderModuleDecoder->visualizer->update(buf, len);
+	DecoderModuleDecoder->output->play(buf, len);
+		
 }
 
 /*

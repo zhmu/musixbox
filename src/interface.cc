@@ -29,6 +29,10 @@
 #include "decode_module.h"
 #include "info_module.h"
 #endif
+#ifdef WITH_SIDPLAY2
+#include "decode_sid.h"
+#include "info_sid.h"
+#endif
 #include "interface.h"
 #include "interaction.h"
 #include "formBrowser.h"
@@ -120,6 +124,12 @@ Interface::playFile()
 		info = new InfoModule(decoder);
 	} else
 #endif /* WITH_MIKMOD */
+#ifdef WITH_SIDPLAY2
+	if (!strcasecmp(extension.c_str(), "sid")) {
+		decoder = new DecoderSID(input, output, visualizer);
+		info = new InfoSID(decoder);
+	} else
+#endif /* WITH_SIDPLAY2 */
 #ifdef WITH_MAD
 	{
 		/* assume MP3 */

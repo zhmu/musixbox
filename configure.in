@@ -58,6 +58,12 @@ AC_ARG_WITH(mikmod,
 	LDFLAGS="$LDFLAGS -L$with_mikmod/lib"
 	CPPFLAGS="$CPPFLAGS -I$with_mikmod/include"
 ])
+AC_ARG_WITH(sidplay2,
+[  --with-sidplay2=dir         SID decoding using libsidplay2],
+[
+	LDFLAGS="$LDFLAGS -L$with_sidplay2/lib -L$with_sidplay2/lib/sidplay/builders"
+	CPPFLAGS="$CPPFLAGS -I$with_sidplay2/include"
+])
 
 # we need pthreads
 AC_SEARCH_LIBS([pthread_create], [pthread])
@@ -132,6 +138,24 @@ protected:
 ], [
  AC_MSG_RESULT(no)
  AM_CONDITIONAL([FLAC], [false])
+])
+AC_LANG_POP(C++)
+
+AC_MSG_CHECKING(for whether libsidplay2 is usuable)
+AC_LANG_PUSH(C++)
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <sidplay/sidplay2.h>
+
+class Test : public sidplay2
+{
+};]],
+ [[Test test;]])], [
+ AC_MSG_RESULT(yes)
+ AC_DEFINE(WITH_SIDPLAY2, [], [Decode using libsidplay2])
+ LDFLAGS="$LDFLAGS -lsidplay2 -lresid-builder"
+ AM_CONDITIONAL([SIDPLAY2], [true])
+], [
+ AC_MSG_RESULT(no)
+ AM_CONDITIONAL([SIDPLAY2], [false])
 ])
 AC_LANG_POP(C++)
 

@@ -35,3 +35,6 @@ endif
 if MIKMOD
 musixbox_SOURCES+=	decode_module.cc info_module.cc
 endif
+if SIDPLAY2
+musixbox_SOURCES+=	decode_sid.cc info_sid.cc
+endif

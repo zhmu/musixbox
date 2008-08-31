@@ -42,5 +42,8 @@
 /* Interaction using SDL */
 #undef WITH_SDL
 
+/* Decode using libsidplay2 */
+#undef WITH_SIDPLAY2
+
 /* Decode using libvorbis */
 #undef WITH_VORBIS

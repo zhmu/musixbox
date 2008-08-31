@@ -65,8 +65,8 @@ formPlayer::update()
 	if (info != NULL && info->getTitle() != NULL) s = info->getTitle();
 	lTitle->setText(s);
 
-	char temp[64 /* XXX */];
-	sprintf(temp, "%u:%02u / %u:%02u", playingTime / 60, playingTime % 60, totalTime / 60, totalTime % 60);
+	char temp[64];
+	snprintf(temp, sizeof(temp), "%u:%02u / %u:%02u", playingTime / 60, playingTime % 60, totalTime / 60, totalTime % 60);
 	lPlayingTime->setText(temp);
 }
 

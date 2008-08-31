@@ -99,7 +99,6 @@ DecoderMP3::run()
 	struct mad_stream stream;
 	struct mad_frame frame;
 	struct mad_synth synth;
-	struct mad_header header;
 	unsigned int buflen;
 	mad_timer_t time = mad_timer_zero;
 
@@ -115,12 +114,6 @@ DecoderMP3::run()
 	do {
 		if (!terminating && !handleInput(&stream))
 			goto fail;
-
-		if (mad_header_decode(&header, &stream) < 0) {
-			if (MAD_RECOVERABLE(stream.error))
-				continue;
-			break;
-		}
 
 		if (mad_frame_decode(&frame, &stream) == -1) {
 			if (!MAD_RECOVERABLE(stream.error))

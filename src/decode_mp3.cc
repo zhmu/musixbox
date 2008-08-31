@@ -108,7 +108,7 @@ DecoderMP3::run()
 	mad_stream_options(&stream, 0);
 
 	/*
-	 * Scan the entire file until we find a header we can understand,
+	 * Scan the entire file until we find a frame we can understand,
 	 * followed by some frame we can parse.
 	 */
 	do {

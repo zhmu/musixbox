@@ -144,15 +144,22 @@ AC_LANG_POP(C++)
 AC_MSG_CHECKING(for whether libsidplay2 is usuable)
 AC_LANG_PUSH(C++)
 AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <sidplay/sidplay2.h>
+#include <sidplay/builders/resid.h>
 
 class Test : public sidplay2
 {
+public:
+	Test() {
+		ReSIDBuilder* rs = new ReSIDBuilder("ReSID");
+	}
 };]],
  [[Test test;]])], [
  AC_MSG_RESULT(yes)
- AC_DEFINE(WITH_SIDPLAY2, [], [Decode using libsidplay2])
- LDFLAGS="$LDFLAGS -lsidplay2 -lresid-builder"
- AM_CONDITIONAL([SIDPLAY2], [true])
+# AC_DEFINE(WITH_SIDPLAY2, [], [Decode using libsidplay2])
+# LDFLAGS="$LDFLAGS -lsidplay2 -lresid-builder"
+# AM_CONDITIONAL([SIDPLAY2], [true])
+# XXX, until I figure out why this fails...
+ AM_CONDITIONAL([SIDPLAY2], [false])
 ], [
  AC_MSG_RESULT(no)
  AM_CONDITIONAL([SIDPLAY2], [false])

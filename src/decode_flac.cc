@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "decode_flac.h"
+#include "exceptions.h"
 #include "input.h"
 #include "output.h"
 #include "visualize.h"
@@ -74,7 +75,13 @@ DecoderFLAC::write_callback(const FLAC__Frame* frame, const FLAC__int32 *const b
 void
 DecoderFLAC::error_callback(FLAC__StreamDecoderErrorStatus status)
 {
-	/* TODO: deal with errors in some way */
+	switch(status) {
+		         case FLAC__STREAM_DECODER_ERROR_STATUS_LOST_SYNC: throw DecoderException(std::string("DecoderFLAC: Synchronization lost"));
+		        case FLAC__STREAM_DECODER_ERROR_STATUS_BAD_HEADER: throw DecoderException(std::string("DecoderFLAC: Corrupted header encountered"));
+		case FLAC__STREAM_DECODER_ERROR_STATUS_FRAME_CRC_MISMATCH: throw DecoderException(std::string("DecoderFLAC: CRC error"));
+		case FLAC__STREAM_DECODER_ERROR_STATUS_UNPARSEABLE_STREAM: throw DecoderException(std::string("DecoderFLAC: Unparsable stream"));
+	}
+	throw DecoderException(std::string("DecoderFLAC: unknown error"));
 }
 
 void

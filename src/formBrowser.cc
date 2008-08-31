@@ -66,7 +66,17 @@ formBrowser::update()
 		closedir(dir);
 		sort(direntries.begin(), direntries.end());
 		rehash = false;
-		first_index = 0;
+
+		/*
+		 * Attempt to look up the visiting page number - if it's not there, just
+		 * default to the top.
+		 */
+		map<string, unsigned int>::iterator it = cachedIndexMap.find(currentPath);
+		if(it != cachedIndexMap.end()) {
+			first_index = it->second;
+		} else {
+			first_index = 0;
+		}
 	}
 
 	/*
@@ -95,6 +105,7 @@ formBrowser::interact(Control* control)
 {
 	if (control == bLeave) {
 		/* Stop button - return to main screen */
+		cachedIndexMap[currentPath] = first_index;
 		selectedFile = "";
 		close();
 		return;
@@ -136,6 +147,10 @@ formBrowser::interact(Control* control)
 	struct stat fs;
 	if (stat(path.c_str(), &fs) < 0)
 		return;
+
+	/* Rememember on which page we were in the current path */
+	cachedIndexMap[currentPath] = first_index;
+
 	if (S_ISDIR(fs.st_mode)) {
 		/* It's a path, so enter it */
 		currentPath = path;

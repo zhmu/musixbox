@@ -1,3 +1,5 @@
+#include <map>
+#include <string>
 #include "ui/form.h"
 #include "ui/image.h"
 #include "ui/label.h"
@@ -32,6 +34,9 @@ private:
 	std::string rootPath;
 	std::string selectedFile;
 	std::string selectedPath;
+
+	//! \brief Map used to store per folder which page we were displaying
+	std::map<std::string, unsigned int> cachedIndexMap;
 };
 
 #endif /* __FORMBROWSER_H__ */

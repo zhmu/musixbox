@@ -8,7 +8,7 @@ musixbox_SOURCES=	decode.cc decode_tone.cc \
 		interface.cc main.cc \
 		interaction_avr.cc \
 		formBrowser.cc formPlayer.cc \
-		mixer_oss.cc
+		mixer_oss.cc output_swmix.cc
 musixbox_LDADD=	../lib/ui/libui.a
 
 if MAD

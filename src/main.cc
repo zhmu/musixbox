@@ -13,8 +13,10 @@
 #ifdef WITH_AO
 #include "output_ao.h"
 #endif
+#include "output_swmixer.h"
 #include "output_null.h"
 #include "mixer_oss.h"
+#include "mixer_sw.h"
 
 InteractionChain* interaction;
 Interface* interface;
@@ -115,8 +117,13 @@ main(int argc, char** argv)
 			fprintf(stderr, "fatal: no output provider, aborting\n");
 			return EXIT_FAILURE;
 		}
-		if (!strcmp(mixer, "soft")) {
-			mixer = new MixerSoft(output);
+		if (mixdev == "soft") {
+			/*
+			 * Use the software mixer output and provider on the
+ 			 * current output plugin
+			 */
+			output = new OutputSWMixer(output);
+			mixer = new MixerSW((OutputSWMixer*)output);
 		} else {
 			mixer = new MixerOSS(mixdev);
 		}

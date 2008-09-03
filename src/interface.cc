@@ -36,6 +36,7 @@
 #ifdef WITH_CURL
 #include "input_remote.h"
 #endif
+#include "exceptions.h"
 #include "interface.h"
 #include "interaction.h"
 #include "formBrowser.h"
@@ -43,11 +44,16 @@
 
 using namespace std;
 
-Interface::Interface(Interaction* i, Output* o, const char* path, Mixer* m) {
+Interface::Interface(Interaction* i, Output* o, Mixer* m, const char* path, const char* resource)
+{
 	interaction = i; output = o; mixer = m;
 	input = NULL; decoder = NULL; visualizer = NULL; info = NULL;
-	havePlayerThread = false; player_thread = NULL; currentFile = "";
+	havePlayerThread = false; player_thread = NULL;
 	rootPath = std::string(path);
+	if (resource != NULL)
+		currentFile = std::string(resource);
+	else
+		currentFile = "";
 
 	browser = new formBrowser(interaction, rootPath);
 }
@@ -60,6 +66,16 @@ void
 Interface::run()
 {
 	int state = 0;
+
+	/* If a current file was passed, play it immediately */
+	if (currentFile != "") {
+		try {
+			playFile();
+			state = 1;
+		} catch (MusixBoxException& e) {
+			fprintf(stderr, "musixbox: unable to play initial file: %s\n", e.what());
+		}
+	}
 
 	while (!interaction->mustTerminate()) {
 		switch(state) {

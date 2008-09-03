@@ -24,7 +24,7 @@ Mixer* mixer;
 void
 usage()
 {
-	fprintf(stderr, "usage: musixbox [-?hs] [-a device] folder\n\n");
+	fprintf(stderr, "usage: musixbox [-?hs] [-a device] folder [resource]\n\n");
 	fprintf(stderr, " -h, -?         this help\n");
 #ifdef WITH_SDL
 	fprintf(stderr, " -s             enable SDL interaction frontend\n");
@@ -38,6 +38,7 @@ usage()
 #endif
 	fprintf(stderr, "\n\n");
 	fprintf(stderr, "folder is where your media files are expected to be\n");
+	fprintf(stderr, "resource is optional; if specified, musixbox will immediately begin to play it\n");
 	exit(EXIT_SUCCESS);
 }
 
@@ -99,7 +100,7 @@ main(int argc, char** argv)
 		}
 		argc -= optind;
 		argv += optind;
-		if (argc != 1) {
+		if (argc < 1) {
 			fprintf(stderr, "error: no media path given\n");
 			usage();
 		}
@@ -114,7 +115,7 @@ main(int argc, char** argv)
 			return EXIT_FAILURE;
 		}
 		mixer = new MixerOSS(mixdev);
-		interface = new Interface(interaction, output, argv[0], mixer);
+		interface = new Interface(interaction, output, mixer, argv[0], (argc > 1) ? argv[1] : NULL);
 
 		signal(SIGINT, terminate);
 		signal(SIGTERM, terminate);

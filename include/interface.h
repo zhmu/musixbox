@@ -24,10 +24,11 @@ public:
 	/*! \brief Constructs a new interface object
 	 *  \param i Interaction object to use
 	 *  \param o Output object to use
-	 *  \param path Root path of all media files
 	 *  \param m Mixer object to use
+	 *  \param path Root path of all media files
+	 *  \param resource Resource to play, or NULL
 	 */
-	Interface(Interaction* i, Output* o, const char* path, Mixer* m);
+	Interface(Interaction* i, Output* o, Mixer* m, const char* path, const char* resource);
 
 	//! \brief Destructs the interface object
 	~Interface();

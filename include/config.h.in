@@ -24,6 +24,9 @@
 /* Output using libao */
 #undef WITH_AO
 
+/* Remote fetching using libcurl */
+#undef WITH_CURL
+
 /* Use FFT library */
 #undef WITH_FFTW
 

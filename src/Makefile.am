@@ -38,3 +38,6 @@ endif
 if SIDPLAY2
 musixbox_SOURCES+=	decode_sid.cc info_sid.cc
 endif
+if CURL
+musixbox_SOURCES+=	input_remote.cc
+endif

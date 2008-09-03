@@ -33,6 +33,9 @@
 #include "decode_sid.h"
 #include "info_sid.h"
 #endif
+#ifdef WITH_CURL
+#include "input_remote.h"
+#endif
 #include "interface.h"
 #include "interaction.h"
 #include "formBrowser.h"
@@ -99,7 +102,17 @@ Interface::playFile()
 
 	if (currentFile == "")
 		return;
-	input = new InputFile(currentFile);
+
+#ifdef WITH_CURL
+	/*
+	 * If we find :// in the filename and CURL is available, assume we
+	 * are playing a stream.
+	 */
+	if (currentFile.find("://") != std::string::npos) {
+		input = new InputRemote(currentFile);
+	} else
+#endif
+		input = new InputFile(currentFile);
 
 	string extension = string(currentFile.begin() + currentFile.find_last_of(".") + 1, currentFile.end());
 #ifdef WITH_VORBIS

@@ -64,6 +64,12 @@ AC_ARG_WITH(sidplay2,
 	LDFLAGS="$LDFLAGS -L$with_sidplay2/lib -L$with_sidplay2/lib/sidplay/builders"
 	CPPFLAGS="$CPPFLAGS -I$with_sidplay2/include"
 ])
+AC_ARG_WITH(curl,
+[  --with-curl=dir             Remote fetching using libcurl],
+[
+	LDFLAGS="$LDFLAGS -L$with_curl/lib"
+	CPPFLAGS="$CPPFLAGS -I$with_curl/include"
+])
 
 # we need pthreads
 AC_SEARCH_LIBS([pthread_create], [pthread])
@@ -117,6 +123,13 @@ AC_CHECK_LIB([mikmod], [MikMod_Init], [
 	AM_CONDITIONAL([MIKMOD], [true])
 ], [
 	AM_CONDITIONAL([MIKMOD], [false])
+])
+AC_CHECK_LIB([curl], [curl_global_init], [
+	AC_DEFINE(WITH_CURL, [], [Remote fetching using libcurl])
+	LDFLAGS="$LDFLAGS -lcurl"
+	AM_CONDITIONAL([CURL], [true])
+], [
+	AM_CONDITIONAL([CURL], [false])
 ])
 
 AC_MSG_CHECKING(for whether FLAC++ is usuable)

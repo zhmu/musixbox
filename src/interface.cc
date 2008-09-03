@@ -191,6 +191,11 @@ Interface::cont()
 void
 Interface::next()
 {
+	/*
+	 * If anything, ensure the decoder is gone - otherwise, the object
+	 * will just linger on... */
+	stop();
+
 	if (!browser->getNextFile(currentFile))
 		return;
 

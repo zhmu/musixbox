@@ -77,14 +77,12 @@ int
 DecoderSID::run()
 {
 	while (!terminating) {
-
-	if (visualizer != NULL)
 		unsigned int len = player.play(buffer, DECODE_SID_BUFFER_LENGTH);
 
 		if (visualizer != NULL)
-			visualizer->update(buf, len);
+			visualizer->update(buffer, len);
 
-		output->play(buf, len);
+		output->play(buffer, len);
 
 		playingtime = player.time() / player.timebase();
 	}

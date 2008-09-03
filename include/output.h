@@ -8,7 +8,9 @@ public:
 	 *  \param buf Buffer to play
 	 *  \param len Number of bytes to play
 	 *
-	 *  The buffer is expected to contain 16 bit PCM stereo data.
+	 *  The buffer is expected to contain signed 16 bit PCM stereo data,
+	 *  which may be manipulated by the output plugin as it deems
+	 *  necessary.
 	 */
 	virtual void play(char* buf, size_t len) = 0;
 };

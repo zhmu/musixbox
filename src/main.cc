@@ -31,6 +31,7 @@ usage()
 #endif
 	fprintf(stderr, " -a device      enable AVR interaction frontend using device\n");
 	fprintf(stderr, " -m device      specify mixer device, defaults to /dev/mixer0\n");
+	fprintf(stderr, "                use 'soft' for the software mixer\n");
 	fprintf(stderr, " -o type        select output plugin\n");
 	fprintf(stderr, "                available are: null");
 #ifdef WITH_AO
@@ -114,7 +115,11 @@ main(int argc, char** argv)
 			fprintf(stderr, "fatal: no output provider, aborting\n");
 			return EXIT_FAILURE;
 		}
-		mixer = new MixerOSS(mixdev);
+		if (!strcmp(mixer, "soft")) {
+			mixer = new MixerSoft(output);
+		} else {
+			mixer = new MixerOSS(mixdev);
+		}
 		interface = new Interface(interaction, output, mixer, argv[0], (argc > 1) ? argv[1] : NULL);
 
 		signal(SIGINT, terminate);

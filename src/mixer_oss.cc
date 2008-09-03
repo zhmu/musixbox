@@ -5,7 +5,7 @@
 #include "mixer_oss.h"
 
 MixerOSS::MixerOSS(std::string device)
-	 : Mixer(device)
+	 : Mixer()
 {
 	fd = open(device.c_str(), O_RDWR);
 	if (fd < 0)

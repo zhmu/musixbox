@@ -1,19 +1,18 @@
 #include <stdio.h>
+#include "exceptions.h"
 #include "input_file.h"
 
-int
-InputFile::open(const char* fname)
+InputFile::InputFile(std::string resource) :
+	Input(resource)
 {
-	f = fopen(fname, "rb");
+	f = fopen(resource.c_str(), "rb");
 	if (f == NULL)
-		return 0;
+		throw InputException(std::string("Unable to open file ") + resource);
 
 	fseek(f, 0, SEEK_END);length = ftell(f); rewind(f);
-	return 1;
 }
 
-void
-InputFile::close()
+InputFile::~InputFile()
 {
 	fclose(f);
 }

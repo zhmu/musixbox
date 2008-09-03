@@ -43,6 +43,12 @@ public:
 	InteractionException(const std::string errstr) : MusixBoxException(errstr) { }
 };
 
+//! \brief Exception class used by input providers
+class InputException : public MusixBoxException {
+public:
+	InputException(const std::string errstr) : MusixBoxException(errstr) { }
+};
+
 //! \brief Exception class used by output providers
 class OutputException : public MusixBoxException {
 public:

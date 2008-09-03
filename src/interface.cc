@@ -99,11 +99,7 @@ Interface::playFile()
 
 	if (currentFile == "")
 		return;
-
-	InputFile* i = new InputFile();
-	if (!i->open(currentFile.c_str()))
-		return;
-	input = i;
+	input = new InputFile(currentFile);
 
 	string extension = string(currentFile.begin() + currentFile.find_last_of(".") + 1, currentFile.end());
 #ifdef WITH_VORBIS

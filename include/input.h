@@ -1,9 +1,19 @@
+#include <string>
+
 #ifndef __INPUT_H__
 #define __INPUT_H__
 
 //! \brief Abstract class to provide stream input
 class Input {
 public:
+	/*! \brief Constructs the input stream object
+	 *  \param resource Resource to open
+	 */
+	inline Input(std::string resource) { }
+
+	//! \brief Destructs the input stream object
+	inline virtual ~Input() { }
+
 	/*! \brief Read data from the stream
 	 *  \param buffer Output buffer to place data in
 	 *  \param len Number of bytes to read

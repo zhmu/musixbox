@@ -7,14 +7,13 @@
 //! \brief Handles streaming input from a file
 class InputFile : public Input {
 public:
-	/*! \brief Opens a file on disk
+	/*! \brief Constructs an input stream from a file
 	 *  \param fname File name to open
-	 *  \return Non-zero on success
 	 */
-	int open(const char* fname);
+	InputFile(std::string fname);
 
-	//! \brief Closes a previously-opened file
-	void close();
+	//! \brief Destructs the input stream provider
+	~InputFile();
 
 	/*! \brief Reads a chunk from the file
 	 *  \param buffer Output buffer

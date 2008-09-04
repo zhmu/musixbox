@@ -17,7 +17,7 @@
 class Decoder {
 public:
 	Decoder(Input* i, Output* o, Visualizer* v);
-	~Decoder();
+	virtual ~Decoder();
 
 	//! \brief Decode the input stream until the end
 	virtual int run() = 0;

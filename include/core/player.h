@@ -40,7 +40,7 @@ public:
 	 *  The input, decoder and information objects will automatically be
 	 *  deleted.
 	 */
-	~Player();
+	virtual ~Player();
 
 	//! \brief Start playing
 	void play();

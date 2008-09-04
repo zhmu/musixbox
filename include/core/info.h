@@ -11,7 +11,7 @@
 class Info {
 public:
 	Info(Decoder* d);
-	~Info();
+	virtual ~Info();
 
 	//! \brief Process an input file
 	virtual int load(const char* fname) = 0;

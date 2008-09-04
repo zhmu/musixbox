@@ -61,5 +61,10 @@ public:
 	VisualizeException(const std::string errstr) : MusixBoxException(errstr) { }
 };
 
+//! \brief Exception class used by folder providers
+class FolderException : public MusixBoxException {
+public:
+	FolderException(const std::string errstr) : MusixBoxException(errstr) { }
+};
 
 #endif /* __EXCEPTIONS_H__ */

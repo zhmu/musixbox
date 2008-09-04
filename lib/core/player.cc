@@ -1,3 +1,4 @@
+#include <pthread.h>
 #include <pthread_np.h>
 #include "decoderfactory.h"
 #include "player.h"

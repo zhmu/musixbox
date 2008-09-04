@@ -59,7 +59,15 @@ DecoderFactory::construct(std::string resource, Output* output, Visualizer* visu
 	} else
 #endif /* WITH_FLAC */
 #ifdef WITH_MIKMOD
-	if (!strcasecmp(extension.c_str(), "mod")) {
+	if (!strcasecmp(extension.c_str(), "669")  || !strcasecmp(extension.c_str(), "amf") ||
+	    !strcasecmp(extension.c_str(), "apun") || !strcasecmp(extension.c_str(), "dsm") ||
+	    !strcasecmp(extension.c_str(), "far")  || !strcasecmp(extension.c_str(), "gdm") ||
+	    !strcasecmp(extension.c_str(), "it")   || !strcasecmp(extension.c_str(), "imf") ||
+	    !strcasecmp(extension.c_str(), "mod")  || !strcasecmp(extension.c_str(), "med") ||
+	    !strcasecmp(extension.c_str(), "mtm")  || !strcasecmp(extension.c_str(), "okt") ||
+	    !strcasecmp(extension.c_str(), "s3m")  || !strcasecmp(extension.c_str(), "stm") ||
+	    !strcasecmp(extension.c_str(), "stx")  || !strcasecmp(extension.c_str(), "ult") ||
+	    !strcasecmp(extension.c_str(), "uni")  || !strcasecmp(extension.c_str(), "xm")) {
 		*decoder = new DecoderModule(*input, output, visualizer);
 		*info = new InfoModule(*decoder);
 	} else

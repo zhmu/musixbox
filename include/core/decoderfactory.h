@@ -7,6 +7,7 @@
 #ifndef __DECODERFACTORY_H__
 #define __DECODERFACTORY_H__
 
+//! \brief Static class that aids in constructing appropriate decoder and info objects
 class DecoderFactory {
 public:
 	/*! \brief Constructs a decoder, input provider and information object based on a resource

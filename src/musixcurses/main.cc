@@ -1,7 +1,5 @@
 #include "config.h"
 #include <curses.h>
-#include <pthread.h>
-#include <pthread_np.h>
 #include <signal.h>
 #include <stdlib.h>
 #include <string>
@@ -12,7 +10,7 @@
 #ifdef WITH_AO
 #include "core/output_ao.h"
 #endif
-#include "core/decoderfactory.h"
+#include "core/player.h"
 #include "core/exceptions.h"
 
 #define PAIR_STATUS		1
@@ -26,26 +24,13 @@ WINDOW* winBrowser;
 WINDOW* winInfo;
 
 Folder*		folder;
-Decoder*	decoder = NULL;
-Input*		input = NULL;
 Output*		output = NULL;
 Visualizer*	visualizer = NULL;
-Info*		info = NULL;
-
-pthread_t	player_thread;
-bool		havePlayerThread = false;
-bool		playerPaused = false;
+Player*		player = NULL;
 
 unsigned int	browser_first_item = 0;
 unsigned int	browser_sel_item   = 0;
 unsigned int	browser_lines      = 0;
-
-void*
-player_wrapper(void* data)
-{
-	decoder->run();
-	return NULL;
-}
 
 void
 fillStatus()
@@ -53,10 +38,12 @@ fillStatus()
 	unsigned int playingTime = 0, totalTime = 0;
 	const char* s;
 	char temp[64];
+	Info* info = NULL;
 
-	if (decoder != NULL) {
-		playingTime = decoder->getPlayingTime();
-		totalTime = decoder->getTotalTime();
+	if (player != NULL) {
+		playingTime = player->getPlayingTime();
+		totalTime = player->getTotalTime();
+		info = player->getInfo();
 	}
 
 	/*
@@ -183,48 +170,16 @@ init()
 }
 
 void
-stop()
-{
-	if (!havePlayerThread)
-		return;
-
-	/* Ask the decoder thread to terminate and wait until it is gone */
-	decoder->terminate();
-	pthread_join(player_thread, NULL);
-
-	havePlayerThread = false;
-}
-
-void
-pauseplayer()
-{
-	if (playerPaused || !havePlayerThread)
-		return;
-
-	pthread_suspend_np(player_thread);
-	playerPaused = true;
-}
-
-void
-contplayer()
-{
-	if (!playerPaused || !havePlayerThread)
-		return;
-
-	pthread_resume_np(player_thread);
-	playerPaused = false;
-}
-
-void
 playFile()
 {
-	contplayer();
-	stop();
+	if (player != NULL) {
+		player->stop();
+		delete player;
+	}
 
-	DecoderFactory::construct(folder->getFullPath(folder->getEntries()[browser_sel_item]), output, visualizer, &input, &decoder, &info);
+	player = new Player(folder->getFullPath(folder->getEntries()[browser_sel_item]), output, visualizer);
+	player->play();
 
-	pthread_create(&player_thread, NULL, player_wrapper, NULL);
-	havePlayerThread = true; playerPaused = false;
 	fillStatus();
 }
 
@@ -292,10 +247,11 @@ handleInput(int c)
 			fillBrowser();
 			break;
 		case ' ': /* space */
-			if (playerPaused)
-				contplayer();
-			else
-				pauseplayer();
+			if (player != NULL)
+				if (player->isPaused())
+					player->cont();
+				else
+					player->pause();
 			break;
 	}
 }
@@ -304,7 +260,10 @@ void
 cleanup()
 {
 	/* if music is playing, get rid of it */
-	stop();
+	if (player != NULL) {
+		player->stop();
+		delete player;
+	}
 
 	/* deinitialize curses, this makes our terminal happy again */
 	delwin(winStatus);
@@ -325,7 +284,6 @@ main(int argc, char** argv)
 	output = new OutputAO();
 
 	init();
-
 
 	/*
 	 * Handle input until the user hammers F10.

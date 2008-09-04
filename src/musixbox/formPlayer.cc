@@ -41,18 +41,21 @@ formPlayer::formPlayer(Interaction* in, Interface* iface)
 void
 formPlayer::update()
 {
-	Decoder* decoder = interface->getDecoder();
-	Info* info = interface->getInfo();
+	Info* info = NULL;
+	bool isPaused = false;
 
-	if (decoder != NULL) {
-		playingTime = decoder->getPlayingTime();
-		totalTime = decoder->getTotalTime();
+	if (interface->getPlayer() != NULL) {
+		playingTime = interface->getPlayer()->getPlayingTime();
+		totalTime = interface->getPlayer()->getTotalTime();
+		info = interface->getPlayer()->getInfo();
+		isPaused = interface->getPlayer()->isPaused();
 	} else {
 		playingTime = 0;
 		totalTime = 0;
+		info = NULL;
 	}
 
-	bPlay->setImage(interface->isPlayerPaused() ? pausebutton : playbutton);
+	bPlay->setImage(isPaused ? pausebutton : playbutton);
 
 	const char* s;
 	s = "Unknown Artist";
@@ -74,12 +77,12 @@ void
 formPlayer::interact(Control* control)
 {
 	if (control == bPlay) {
-		if (interface->isPlayerThread()) {
+		if (interface->getPlayer() != NULL) {
 			/* we are currently playing or paused */
-			if (interface->isPlayerPaused()) {
-				interface->cont();
+			if (interface->getPlayer()->isPaused()) {
+				interface->getPlayer()->cont();
 			} else {
-				interface->pause();
+				interface->getPlayer()->pause();
 			}
 		} else {
 			interface->playFile();
@@ -88,7 +91,8 @@ formPlayer::interact(Control* control)
 	}
 
 	if (control == bStop) {
-		interface->stop();
+		if (interface->getPlayer() != NULL)
+			interface->getPlayer()->stop();
 		return;
 	}
 

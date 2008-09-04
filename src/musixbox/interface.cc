@@ -21,9 +21,7 @@ using namespace std;
 
 Interface::Interface(Interaction* i, Output* o, Mixer* m, Folder* f, const char* resource)
 {
-	interaction = i; output = o; mixer = m; folder = f;
-	input = NULL; decoder = NULL; visualizer = NULL; info = NULL;
-	havePlayerThread = false; player_thread = NULL;
+	interaction = i; output = o; mixer = m; folder = f; visualizer = NULL; player = NULL;
 	if (resource != NULL)
 		currentFile = std::string(resource);
 	else
@@ -33,7 +31,10 @@ Interface::Interface(Interaction* i, Output* o, Mixer* m, Folder* f, const char*
 }
 
 Interface::~Interface() {
-	stop();
+	if (player != NULL) {
+		player->stop();
+		delete player;
+	}
 }
 
 void
@@ -70,85 +71,25 @@ Interface::run()
 	}
 }
 
-void*
-player_wrapper(void* data)
-{
-	Interface* interface = (Interface*)data;
-
-	interface->getDecoder()->run();
-	if (!interface->getDecoder()->isTerminating()) {
-		/*
-		 * Decoder was not forcefully terminated - play next track
-		 */
-		interface->next();
-	}
-	return NULL;
-}
-
 void
 Interface::playFile()
 {
-	stop();
+	if (player != NULL) {
+		player->stop();
+		delete player;
+		player = NULL;
+	}
 
 	if (currentFile == "")
 		return;
 
-	DecoderFactory::construct(currentFile, output, visualizer, &input, &decoder, &info);
-
-	pthread_create(&player_thread, NULL, player_wrapper, this);
-	havePlayerThread = true; playerPaused = false;
-}
-
-void
-Interface::stop()
-{
-	if (!havePlayerThread)
-		return;
-
-	/* Ask the decoder thread to terminate, and wait until it is gone */
-	decoder->terminate();
-	cont();
-	pthread_join(player_thread, NULL);
-
-	Input* oldInput = input; Info* oldInfo = info; Decoder* oldDecoder = decoder;
-
-	input = NULL; info = NULL; decoder = NULL;
-
-	delete oldInput;
-	delete oldInfo;
-	delete oldDecoder;
-
-	havePlayerThread = false;
-}
-
-void
-Interface::pause()
-{
-	if (playerPaused || !havePlayerThread)
-		return;
-
-	pthread_suspend_np(player_thread);
-	playerPaused = true;
-}
-
-void
-Interface::cont()
-{
-	if (!playerPaused || !havePlayerThread)
-		return;
-
-	pthread_resume_np(player_thread);
-	playerPaused = false;
+	player = new BoxPlayer(currentFile, output, visualizer, this);
+	player->play();
 }
 
 void
 Interface::next()
 {
-	/*
-	 * If anything, ensure the decoder is gone - otherwise, the object
-	 * will just linger on... */
-	stop();
-
 	if (!browser->getNextFile(currentFile))
 		return;
 
@@ -161,6 +102,13 @@ Interface::prev() {
 		return;
 
 	playFile();
+}
+
+void
+Interface::trackDone()
+{
+	/* The current track finished - let's try the next one */
+	next();
 }
 
 void

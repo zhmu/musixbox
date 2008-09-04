@@ -1,4 +1,3 @@
-#include <pthread.h>
 #include <string>
 #include <vector>
 #include "core/folder.h"
@@ -8,6 +7,7 @@
 #include "core/decode.h"
 #include "core/mixer.h"
 #include "interaction.h"
+#include "boxplayer.h"
 
 #ifndef __INTERFACE_H__
 #define __INTERFACE_H__
@@ -18,7 +18,6 @@ class formBrowser;
 
 //! \brief Provides user interaction
 class Interface {
-friend	void* player_wrapper(void*);
 friend  class formPlayer;
 
 public:
@@ -37,24 +36,18 @@ public:
 	//! \brief Run the interface 
 	void run();
 
-	//! \brief Start the decoder
-	void runDecoder() { decoder->run(); }
+	//! \brief Called if the current track finished playing
+	void trackDone();
 
 protected:
-	//! \brief Stops playing
-	void stop();
-
 	//! \brief Plays the current file
 	void playFile();
-
-	//! \brief Retrieve decoder object
-	inline Decoder* getDecoder() { return decoder; }
 
 	//! \brief Retrieve mixer object
 	inline Mixer* getMixer() { return mixer; }
 
-	//! \brief Retrieve info object
-	inline Info* getInfo() { return info; }
+	//! \brief Tretrieve player object
+	Player* getPlayer() { return player; }
 
 	//! \brief Play next track
 	void next();
@@ -65,19 +58,7 @@ protected:
 	//! \brief Relinquish control to the operating system
 	void relinquish();
 
-	//! \brief Is the player paused?
-	bool isPlayerPaused() { return playerPaused; }
-
-	//! \brief Is there a play thread around?
-	bool isPlayerThread() { return havePlayerThread; }
-
 private:
-	//! \brief Pause the player
-	void pause();
-
-	//! \brief Continue playing
-	void cont();
-
 	//! \brief Interaction object we are using
 	Interaction* interaction;
 
@@ -87,32 +68,17 @@ private:
 	//! \brief Output object
 	Output* output;
 
-	//! \brief Input object
-	Input* input;
-
-	//! \brief Decoder object
-	Decoder* decoder;
-
 	//! \brief Visualization object
 	Visualizer* visualizer;
-
-	//! \brief Information object
-	Info* info;
 
 	//! \brief Mixer object
 	Mixer* mixer;
 
-	//! \brief Do we have a playing thread?
-	bool havePlayerThread;
-
-	//! \brief Is the playing thread paused?
-	bool playerPaused;
+	//! \brief Player object
+	Player* player;
 
 	//! \brief Current file playing
 	std::string currentFile;
-
-	//! \brief Playing thread
-	pthread_t player_thread;
 
 	//! \brief Browser form
 	formBrowser* browser;

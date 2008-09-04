@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include <err.h>
 #include "exceptions.h"
+#include "folder.h"
+#include "folder_fs.h"
 #include "interface.h"
 #ifdef WITH_SDL
 #include "interaction_sdl.h"
@@ -22,6 +24,7 @@ InteractionChain* interaction;
 Interface* interface;
 Output* output;
 Mixer* mixer;
+Folder* folder;
 
 void
 usage()
@@ -127,7 +130,8 @@ main(int argc, char** argv)
 		} else {
 			mixer = new MixerOSS(mixdev);
 		}
-		interface = new Interface(interaction, output, mixer, argv[0], (argc > 1) ? argv[1] : NULL);
+		folder = new FolderFS(argv[0]);
+		interface = new Interface(interaction, output, mixer, folder, (argc > 1) ? argv[1] : NULL);
 
 		signal(SIGINT, terminate);
 		signal(SIGTERM, terminate);

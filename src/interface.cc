@@ -44,18 +44,17 @@
 
 using namespace std;
 
-Interface::Interface(Interaction* i, Output* o, Mixer* m, const char* path, const char* resource)
+Interface::Interface(Interaction* i, Output* o, Mixer* m, Folder* f, const char* resource)
 {
-	interaction = i; output = o; mixer = m;
+	interaction = i; output = o; mixer = m; folder = f;
 	input = NULL; decoder = NULL; visualizer = NULL; info = NULL;
 	havePlayerThread = false; player_thread = NULL;
-	rootPath = std::string(path);
 	if (resource != NULL)
 		currentFile = std::string(resource);
 	else
 		currentFile = "";
 
-	browser = new formBrowser(interaction, rootPath);
+	browser = new formBrowser(interaction, folder);
 }
 
 Interface::~Interface() {

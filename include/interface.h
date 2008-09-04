@@ -1,6 +1,7 @@
 #include <pthread.h>
 #include <string>
 #include <vector>
+#include "folder.h"
 #include "info.h"
 #include "interaction.h"
 #include "output.h"
@@ -25,10 +26,10 @@ public:
 	 *  \param i Interaction object to use
 	 *  \param o Output object to use
 	 *  \param m Mixer object to use
-	 *  \param path Root path of all media files
+	 *  \param f Folder containing media to browse
 	 *  \param resource Resource to play, or NULL
 	 */
-	Interface(Interaction* i, Output* o, Mixer* m, const char* path, const char* resource);
+	Interface(Interaction* i, Output* o, Mixer* m, Folder* f, const char* resource);
 
 	//! \brief Destructs the interface object
 	~Interface();
@@ -80,8 +81,8 @@ private:
 	//! \brief Interaction object we are using
 	Interaction* interaction;
 
-	//! \brief Root path where all media resides
-	std::string rootPath;
+	//! \brief Folder where all media resides
+	Folder* folder;
 
 	//! \brief Output object
 	Output* output;

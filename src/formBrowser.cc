@@ -1,6 +1,3 @@
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <dirent.h>
 #include "formBrowser.h"
 
 using namespace std;
@@ -9,7 +6,7 @@ static char upbutton[8]    = { 0x08, 0x04, 0x02, 0x7f, 0x7f, 0x02, 0x04, 0x08 };
 static char downbutton[8]  = { 0x08, 0x10, 0x20, 0x7f, 0x7f, 0x20, 0x10, 0x08 };
 static char crossbutton[8] = { 0x81, 0x42, 0x24, 0x18, 0x18, 0x24, 0x42, 0x81 };
 
-formBrowser::formBrowser(Interaction* in, std::string path)
+formBrowser::formBrowser(Interaction* in, Folder* f)
 	: Form(in)
 {
 	for (unsigned int i = 0; i < interaction->getHeight() / interaction->getTextHeight(); i++) {
@@ -25,58 +22,27 @@ formBrowser::formBrowser(Interaction* in, std::string path)
 	bDown = new Image(interaction->getWidth() - 8, interaction->getHeight() - 8, 8, 8, downbutton);
 	add(bLeave); add(bUp); add(bDown);
 
-	rootPath = path; selectedFile = "";
-	currentPath = string(rootPath);
-
-	rehash = true;
+	folder = f; rehash = true;
+	selectedPath = folder->getPath();
 }
 
 void
 formBrowser::update()
 {
-	DIR* dir;
-	struct dirent* dent;
-
 	if (rehash) {
-		dir = opendir(currentPath.c_str());
-		if (dir == NULL) {
-			/*
-			 * Can't open folder - report this nicely.
-			 */	
-			dirlabel[0]->setText("Unable to open folder");
-			dirlabel[1]->setText(currentPath);
-			dirlabel[2]->setText("<interact to continue>");
-			return;
-		}
-
-		/*
-		 * Read all directory items and place them in a vector, which
-		 * we will sort later.
-		 */
-		direntries.clear(); direntry_index = 0;
-		while((dent = readdir(dir)) != NULL) {
-			// Never show the current directory '.'
-			if (!strcmp(dent->d_name, "."))
-				continue;
-			// Don't allow travelling below the root path
-			if (!strcmp(dent->d_name, "..") && currentPath == rootPath)
-				continue;
-			direntries.push_back(dent->d_name);
-		}
-		closedir(dir);
-		sort(direntries.begin(), direntries.end());
-		rehash = false;
-
 		/*
 		 * Attempt to look up the visiting page number - if it's not there, just
 		 * default to the top.
 		 */
-		map<string, unsigned int>::iterator it = cachedIndexMap.find(currentPath);
+		map<string, unsigned int>::iterator it = cachedIndexMap.find(folder->getPath());
+
 		if(it != cachedIndexMap.end()) {
 			first_index = it->second;
 		} else {
 			first_index = 0;
 		}
+
+		rehash = false;
 	}
 
 	/*
@@ -84,11 +50,11 @@ formBrowser::update()
 	 */
 	unsigned int last_index = first_index;
 	unsigned int index = 0;
-	while (last_index < direntries.size()) {
+	while (last_index < folder->getEntries().size()) {
 		if (index * interaction->getTextHeight() >= interaction->getHeight())
 			break;
 
-		dirlabel[index++]->setText(direntries[last_index++]);
+		dirlabel[index++]->setText(folder->getEntries()[last_index++]);
 	}
 
 	/*
@@ -105,7 +71,7 @@ formBrowser::interact(Control* control)
 {
 	if (control == bLeave) {
 		/* Stop button - return to main screen */
-		cachedIndexMap[currentPath] = first_index;
+		cachedIndexMap[folder->getPath()] = first_index;
 		selectedFile = "";
 		close();
 		return;
@@ -114,8 +80,8 @@ formBrowser::interact(Control* control)
 	if (control == bUp || control == bDown) {
 		unsigned int items_per_page = interaction->getHeight() / interaction->getTextHeight();
 		if (control == bDown) {
-			if (first_index + items_per_page <= direntries.size()) {
-				first_index = (first_index + items_per_page) % direntries.size();
+			if (first_index + items_per_page <= folder->getEntries().size()) {
+				first_index = (first_index + items_per_page) % folder->getEntries().size();
 			} else {
 				first_index = 0;
 			}
@@ -123,7 +89,7 @@ formBrowser::interact(Control* control)
 			if (first_index >= items_per_page) {
 				first_index = first_index - items_per_page;
 			} else {
-				first_index = direntries.size() - items_per_page;
+				first_index = folder->getEntries().size() - items_per_page;
 			}
 		}
 		return;
@@ -132,36 +98,25 @@ formBrowser::interact(Control* control)
 	/* If we got here, it must have been an item */
 	Label* l = reinterpret_cast<Label*>(control);
 	if (l->getText() == "..") {
-		/* Need to go one level lower, so strip
-		 * off the last /path item */
-		currentPath = string(currentPath.begin(), currentPath.begin() + currentPath.find_last_of("/"));
+		/* Need to go one level lower */
+		folder->goUp();
 		rehash = true;
 		return;
 	}
 
-	/*
-	 * We have an item - construct full path to see
-	 * if it's a file or not
-	 */
-	string path = currentPath + string("/") + l->getText();
-	struct stat fs;
-	if (stat(path.c_str(), &fs) < 0)
-		return;
-
 	/* Rememember on which page we were in the current path */
-	cachedIndexMap[currentPath] = first_index;
-
-	if (S_ISDIR(fs.st_mode)) {
+	cachedIndexMap[folder->getPath()] = first_index;
+	if (folder->isFolder(l->getText())) {
 		/* It's a path, so enter it */
-		currentPath = path;
+		folder->select(l->getText());
 		rehash = true;
 		return;
 	}
 
 	/* We got a file! */
 	direntry_index = *(reinterpret_cast<int*> (l->getData()));
-	selectedPath = currentPath;
-	selectedFile = path;
+	selectedPath = folder->getPath();
+	selectedFile = folder->getFullPath(l->getText());
 	close();
 }
 
@@ -172,10 +127,10 @@ formBrowser::getNextFile(std::string& file)
 	 * Try to ascend through the directory vector to the next file - if
 	 * there are no more files, just give up.
          */
-        if (++direntry_index >= direntries.size())
+        if (++direntry_index >= folder->getEntries().size())
                 return false;
 
-	file = selectedPath + "/" + direntries[direntry_index];
+	file = selectedPath + "/" + folder->getEntries()[direntry_index];
 	return true;
 }
 
@@ -185,6 +140,6 @@ formBrowser::getPreviousFile(std::string& file)
         if (direntry_index <= 0)
                 return false;
 
-	file = selectedPath + "/" + direntries[--direntry_index];
+	file = selectedPath + "/" + folder->getEntries()[--direntry_index];
 	return true;
 }

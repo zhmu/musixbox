@@ -1,5 +1,6 @@
 #include <map>
 #include <string>
+#include "folder.h"
 #include "ui/form.h"
 #include "ui/image.h"
 #include "ui/label.h"
@@ -9,7 +10,7 @@
 
 class formBrowser : public Form {
 public:
-	formBrowser(Interaction* in, std::string path);
+	formBrowser(Interaction* in, Folder* f);
 
 	std::string getSelectedFile() { return selectedFile; }
 	bool getNextFile(std::string& file);
@@ -20,18 +21,17 @@ protected:
 	void interact(Control* control);
 
 private:
+	std::vector<Label*> dirlabel;
 	Image* bDown;
 	Image* bUp;
 	Image* bLeave;
 
-	std::vector<Label*> dirlabel;
-	std::vector<std::string> direntries;
+	Folder* folder;
+
 	unsigned int direntry_index;
 	unsigned int first_index;
 
 	bool dirty, rehash;
-	std::string currentPath;
-	std::string rootPath;
 	std::string selectedFile;
 	std::string selectedPath;
 

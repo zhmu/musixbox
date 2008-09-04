@@ -83,11 +83,12 @@ fillBrowser()
 	 * Ensure that whatever is selected fits on the screen by adjusting the
 	 * scroll position as needed.
 	 */
-	if (browser_sel_item < browser_first_item) {
-		browser_first_item = browser_sel_item - (browser_lines / 2);
-	}
-	if (browser_sel_item > browser_first_item + browser_lines) {
-		browser_first_item = browser_sel_item - (browser_lines / 2);
+	if (browser_sel_item < browser_first_item ||
+	   browser_sel_item > browser_first_item + browser_lines) {
+		if (browser_lines / 2 <= browser_sel_item)
+			browser_first_item = browser_sel_item - (browser_lines / 2);
+		else
+			browser_first_item = 0;
 	}
 
 	/*

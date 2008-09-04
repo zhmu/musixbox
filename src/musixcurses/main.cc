@@ -9,36 +9,10 @@
 #include "core/folder.h"
 #include "core/folder_fs.h"
 #include "core/output.h"
-#include "core/input_file.h"
 #ifdef WITH_AO
 #include "core/output_ao.h"
 #endif
-#include "core/output_null.h"
-#ifdef WITH_MAD
-#include "core/decode_mp3.h"
-#endif
-#ifdef WITH_ID3TAG
-#include "core/info_mp3.h"
-#endif
-#ifdef WITH_VORBIS
-#include "core/decode_ogg.h"
-#include "core/info_ogg.h"
-#endif
-#ifdef WITH_FLAC
-#include "core/decode_flac.h"
-#include "core/info_flac.h"
-#endif
-#ifdef WITH_MIKMOD
-#include "core/decode_module.h"
-#include "core/info_module.h"
-#endif
-#ifdef WITH_SIDPLAY2
-#include "core/decode_sid.h"
-#include "core/info_sid.h"
-#endif
-#ifdef WITH_CURL
-#include "core/input_remote.h"
-#endif
+#include "core/decoderfactory.h"
 #include "core/exceptions.h"
 
 #define PAIR_STATUS		1
@@ -226,62 +200,10 @@ contplayer()
 void
 playFile()
 {
-	string currentFile = folder->getFullPath(folder->getEntries()[browser_sel_item]);
-
 	contplayer();
 	stop();
 
-#ifdef WITH_CURL
-	/*
-	 * If we find :// in the filename and CURL is available, assume we
-	 * are playing a stream.
-	 */
-	if (currentFile.find("://") != std::string::npos) {
-		input = new InputRemote(currentFile);
-	} else
-#endif
-		input = new InputFile(currentFile);
-
-	string extension = string(currentFile.begin() + currentFile.find_last_of(".") + 1, currentFile.end());
-#ifdef WITH_VORBIS
-	if (!strcasecmp(extension.c_str(), "ogg")) {
-		decoder = new DecoderOgg(input, output, visualizer);
-		info = new InfoOgg(decoder);
-	} else
-#endif /* WITH_VORBIS */
-#ifdef WITH_FLAC
-	if (!strcasecmp(extension.c_str(), "flac")) {
-		decoder = new DecoderFLAC(input, output, visualizer);
-		info = new InfoFLAC(decoder);
-	} else
-#endif /* WITH_FLAC */
-#ifdef WITH_MIKMOD
-	if (!strcasecmp(extension.c_str(), "mod")) {
-		decoder = new DecoderModule(input, output, visualizer);
-		info = new InfoModule(decoder);
-	} else
-#endif /* WITH_MIKMOD */
-#ifdef WITH_SIDPLAY2
-	if (!strcasecmp(extension.c_str(), "sid")) {
-		decoder = new DecoderSID(input, output, visualizer);
-		info = new InfoSID(decoder);
-	} else
-#endif /* WITH_SIDPLAY2 */
-#ifdef WITH_MAD
-	{
-		/* assume MP3 */
-		decoder = new DecoderMP3(input, output, visualizer);
-#ifdef WITH_ID3TAG
-		info = new InfoMP3(decoder);
-#endif
-#else /* WITH_MAD */
-	{
-		delete input; input = NULL;
-		return;
-#endif /* !WITH_MAD */
-	}
-	if (info != NULL)
-		info->load(currentFile.c_str());
+	DecoderFactory::construct(folder->getFullPath(folder->getEntries()[browser_sel_item]), output, visualizer, &input, &decoder, &info);
 
 	pthread_create(&player_thread, NULL, player_wrapper, NULL);
 	havePlayerThread = true; playerPaused = false;

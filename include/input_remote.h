@@ -66,6 +66,9 @@ protected:
 
 	//! \brief Are we done yet?
 	bool completed;
+
+	//! \brief Do we have to terminate
+	bool terminating;
 };
 
 #endif /* __INPUT_REMOTE_H__ */

@@ -79,6 +79,10 @@ remote_process_data(void* buffer, size_t size, size_t nmemb, void* userp)
 	/* Wake up the reader */
 	pthread_cond_signal(&input->cv_data_available);
 	pthread_mutex_unlock(&input->mtx_data);
+
+	/* If we need to terminate, do it */
+	if (input->terminating)
+		return CURLE_WRITE_ERROR;
 	return MIN(size * nmemb, INPUT_REMOTE_CACHESIZE);
 }
 
@@ -112,7 +116,7 @@ InputRemote::InputRemote(std::string resource) :
 		throw InputException(std::string("InputRemote: out of memory"));
 
 	/* We are at the start of the buffer, and have not completed */
-	read_pos = 0; write_pos = 0; bytes_avail = 0; completed = false;
+	read_pos = 0; write_pos = 0; bytes_avail = 0; completed = false; terminating = false;
 
 	/* Create synchronization primitives */
 	pthread_mutex_init(&mtx_data, NULL);
@@ -129,6 +133,9 @@ InputRemote::InputRemote(std::string resource) :
 
 InputRemote::~InputRemote()
 {
+	/* Signal the thread that we want to get rid of it */
+	terminating = true;
+	
 	/* Wait until the thread is gone */
 	pthread_join(thr_fetcher, NULL);
 

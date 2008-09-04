@@ -143,14 +143,22 @@ MDRIVER mdriver_output_wrapper = {
 DecoderModule::DecoderModule(Input* i, Output* o, Visualizer* v) :
 	Decoder(i, o, v)
 {
+	static int _init = 0;
+
 	DecoderModuleDecoder = this;
 
 	/*
 	 * Initialize Mikmod's loaders, and force it to use our output wrapper (as we do not
-	 * register any other outputs
+	 * register any other outputs.
+	 *
+	 * For some reason, libMikMod seems to get confused if we do this multiple times;
+	 * to this avail, ensure this is done exactly one time and no more. The problem seems
+	 * to be in the loader chain becoming a ring...
 	 */
-	MikMod_RegisterAllLoaders();
-	MikMod_RegisterDriver(&mdriver_output_wrapper);
+	if (!_init++) {
+		MikMod_RegisterAllLoaders();
+		MikMod_RegisterDriver(&mdriver_output_wrapper);
+	}
 
 	buffer = (char*)malloc(DECODER_MODULE_BUFFER_SIZE);
 	if (buffer == NULL)

@@ -164,7 +164,7 @@ DecoderModule::DecoderModule(Input* i, Output* o, Visualizer* v) :
 	if (buffer == NULL)
 		throw DecoderException(std::string("DecoderModule: out of memory"));
 
-	if (MikMod_Init(""))
+	if (MikMod_Init((CHAR*)""))
 		throw DecoderException(std::string("DecoderModule: unable to initialize MikMod library: ") + MikMod_strerror(MikMod_errno));
 
 	/* Load the module */

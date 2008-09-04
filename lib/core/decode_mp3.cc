@@ -175,7 +175,6 @@ fail:
 	mad_synth_finish(&synth);
 	mad_frame_finish(&frame);
 	mad_stream_finish(&stream);	
-	free (music_chunk);
 
 	return 1;
 }

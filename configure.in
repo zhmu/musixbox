@@ -1,4 +1,4 @@
-AC_INIT(src/main.cc)
+AC_INIT(src/musixbox/main.cc)
 
 AM_CONFIG_HEADER(include/config.h)
 AM_INIT_AUTOMAKE(musicd,0.1)
@@ -178,4 +178,5 @@ public:
 ])
 AC_LANG_POP(C++)
 
-AC_OUTPUT([Makefile lib/Makefile lib/core/Makefile lib/ui/Makefile src/Makefile])
+AC_OUTPUT([Makefile lib/Makefile lib/core/Makefile lib/ui/Makefile src/Makefile
+	   src/musixbox/Makefile])

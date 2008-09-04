@@ -3,22 +3,22 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <err.h>
-#include "exceptions.h"
-#include "folder.h"
-#include "folder_fs.h"
+#include "core/exceptions.h"
+#include "core/folder.h"
+#include "core/folder_fs.h"
+#ifdef WITH_AO
+#include "core/output_ao.h"
+#endif
+#include "core/output_swmixer.h"
+#include "core/output_null.h"
+#include "core/mixer_oss.h"
+#include "core/mixer_sw.h"
 #include "interface.h"
 #ifdef WITH_SDL
 #include "interaction_sdl.h"
 #endif
 #include "interaction_avr.h"
 #include "interaction_chain.h"
-#ifdef WITH_AO
-#include "output_ao.h"
-#endif
-#include "output_swmixer.h"
-#include "output_null.h"
-#include "mixer_oss.h"
-#include "mixer_sw.h"
 
 InteractionChain* interaction;
 Interface* interface;

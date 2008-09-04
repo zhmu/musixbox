@@ -1,5 +1,5 @@
 #include <SDL/SDL.h>
-#include <exceptions.h>
+#include "core/exceptions.h"
 #include "font.h"
 #include "interaction_sdl.h"
 

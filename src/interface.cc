@@ -9,34 +9,34 @@
 #include <algorithm>
 #include <vector>
 #include <string>
-#include "output.h"
-#include "input_file.h"
+#include "core/output.h"
+#include "core/input_file.h"
 #ifdef WITH_MAD
-#include "decode_mp3.h"
+#include "core/decode_mp3.h"
 #endif
 #ifdef WITH_ID3TAG
-#include "info_mp3.h"
+#include "core/info_mp3.h"
 #endif
 #ifdef WITH_VORBIS
-#include "decode_ogg.h"
-#include "info_ogg.h"
+#include "core/decode_ogg.h"
+#include "core/info_ogg.h"
 #endif
 #ifdef WITH_FLAC
-#include "decode_flac.h"
-#include "info_flac.h"
+#include "core/decode_flac.h"
+#include "core/info_flac.h"
 #endif
 #ifdef WITH_MIKMOD
-#include "decode_module.h"
-#include "info_module.h"
+#include "core/decode_module.h"
+#include "core/info_module.h"
 #endif
 #ifdef WITH_SIDPLAY2
-#include "decode_sid.h"
-#include "info_sid.h"
+#include "core/decode_sid.h"
+#include "core/info_sid.h"
 #endif
 #ifdef WITH_CURL
-#include "input_remote.h"
+#include "core/input_remote.h"
 #endif
-#include "exceptions.h"
+#include "core/exceptions.h"
 #include "interface.h"
 #include "interaction.h"
 #include "formBrowser.h"

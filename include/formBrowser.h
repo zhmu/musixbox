@@ -1,6 +1,6 @@
 #include <map>
 #include <string>
-#include "folder.h"
+#include "core/folder.h"
 #include "ui/form.h"
 #include "ui/image.h"
 #include "ui/label.h"

@@ -1,1 +1,1 @@
-SUBDIRS = ui
+SUBDIRS = core ui

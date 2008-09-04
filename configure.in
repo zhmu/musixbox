@@ -178,4 +178,4 @@ public:
 ])
 AC_LANG_POP(C++)
 
-AC_OUTPUT([Makefile lib/Makefile lib/ui/Makefile src/Makefile])
+AC_OUTPUT([Makefile lib/Makefile lib/core/Makefile lib/ui/Makefile src/Makefile])

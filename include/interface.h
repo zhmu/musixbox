@@ -1,13 +1,13 @@
 #include <pthread.h>
 #include <string>
 #include <vector>
-#include "folder.h"
-#include "info.h"
+#include "core/folder.h"
+#include "core/info.h"
+#include "core/output.h"
+#include "core/visualize.h"
+#include "core/decode.h"
+#include "core/mixer.h"
 #include "interaction.h"
-#include "output.h"
-#include "visualize.h"
-#include "decode.h"
-#include "mixer.h"
 
 #ifndef __INTERFACE_H__
 #define __INTERFACE_H__

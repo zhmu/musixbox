@@ -1,5 +1,6 @@
 #include "config.h"
 #include <curses.h>
+#include <getopt.h>
 #include <signal.h>
 #include <stdlib.h>
 #include <string>
@@ -276,11 +277,37 @@ cleanup()
 	delete folder;
 }
 
+void
+usage()
+{
+	fprintf(stderr, "usage: musixcurses [-?h] folder\n\n");
+	fprintf(stderr, " -h, -?         this help\n");
+	fprintf(stderr, "\n");
+	fprintf(stderr, "folder is where your media files are expected to be\n");
+	exit(EXIT_SUCCESS);
+}
+
 int
 main(int argc, char** argv)
 {
+	int c;
 
-	folder = new FolderFS("/geluid");
+	while ((c = getopt(argc, argv, "?h")) != -1) {
+		switch(c) {
+			case 'h':
+			case '?': usage();
+			          /* NOTREACHED */
+		}
+	}
+	argc -= optind;
+	argv += optind;
+	if (argc < 1) {
+		fprintf(stderr, "error: no media path given\n");
+		usage();
+	}
+
+
+	folder = new FolderFS(argv[0]);
 	output = new OutputAO();
 
 	init();

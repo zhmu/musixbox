@@ -92,17 +92,14 @@ fillBrowser()
 	getmaxyx(winBrowser, browser_lines, x);
 
 	/*
-	 * Ensure that whatever is selected fits on the screen by scrolling
-	 * half screens up / down as needed. Since browser_sel_item >= 0, this
-	 * always terminates.
+	 * Ensure that whatever is selected fits on the screen by adjusting the
+	 * scroll position as needed.
 	 */
-	while (browser_sel_item < browser_first_item) {
-		/* scroll the screen a bit */
-		browser_first_item -= (browser_lines / 2);
+	if (browser_sel_item < browser_first_item) {
+		browser_first_item = browser_sel_item - (browser_lines / 2);
 	}
-	while (browser_sel_item - browser_first_item >= browser_lines) {
-		/* scroll the screen a bit */
-		browser_first_item += (browser_lines / 2);
+	if (browser_sel_item > browser_first_item + browser_lines) {
+		browser_first_item = browser_sel_item - (browser_lines / 2);
 	}
 
 	/*

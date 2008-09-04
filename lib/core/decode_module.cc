@@ -179,7 +179,7 @@ int
 DecoderModule::run()
 {
 	Player_Start(module);
-	while (Player_Active()) {
+	while (!terminating && Player_Active()) {
 		MikMod_Update();
 
 		playingtime = module->sngtime / 1024;

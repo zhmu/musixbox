@@ -25,20 +25,20 @@ WINDOW* winStatus;
 WINDOW* winBrowser;
 WINDOW* winInfo;
 
-Folder*  folder;
-Decoder* decoder = NULL;
-Input*   input = NULL;
-Output*  output = NULL;
-Visualizer* visualizer = NULL;
-Info*    info = NULL;
+Folder*		folder;
+Decoder*	decoder = NULL;
+Input*		input = NULL;
+Output*		output = NULL;
+Visualizer*	visualizer = NULL;
+Info*		info = NULL;
 
 pthread_t	player_thread;
 bool		havePlayerThread = false;
 bool		playerPaused = false;
 
-unsigned int browser_first_item = 0;
-unsigned int browser_sel_item   = 0;
-unsigned int browser_lines      = 0;
+unsigned int	browser_first_item = 0;
+unsigned int	browser_sel_item   = 0;
+unsigned int	browser_lines      = 0;
 
 void*
 player_wrapper(void* data)
@@ -51,16 +51,20 @@ void
 fillStatus()
 {
 	unsigned int playingTime = 0, totalTime = 0;
-
-	werase(winStatus);
-	box(winStatus, 0, 0);
+	const char* s;
+	char temp[64];
 
 	if (decoder != NULL) {
 		playingTime = decoder->getPlayingTime();
 		totalTime = decoder->getTotalTime();
 	}
 
-	const char* s;
+	/*
+	 * Nuke everything in the status window and put the new stuff in
+	 * there.
+	 */
+	werase(winStatus);
+	box(winStatus, 0, 0);
 	s = "Unknown Artist";
 	if (info != NULL && info->getArtist() != NULL) s = info->getArtist();
 	mvwprintw(winStatus, 1, 2, s);
@@ -71,12 +75,11 @@ fillStatus()
 	if (info != NULL && info->getTitle() != NULL) s = info->getTitle();
 	mvwprintw(winStatus, 3, 2, s);
 
-	char temp[64];
 	snprintf(temp, sizeof(temp), "%u:%02u / %u:%02u", playingTime / 60, playingTime % 60, totalTime / 60, totalTime % 60);
 	mvwprintw(winStatus, 5, 2, temp);
 
+	/* Force an update; the alarm function ensures we trigger an update about a second later */
 	wrefresh(winStatus);
-
 	alarm(1);
 }
 
@@ -88,7 +91,11 @@ fillBrowser()
 
 	getmaxyx(winBrowser, browser_lines, x);
 
-	/* ensure that whatever is selected fits on the screen */
+	/*
+	 * Ensure that whatever is selected fits on the screen by scrolling
+	 * half screens up / down as needed. Since browser_sel_item >= 0, this
+	 * always terminates.
+	 */
 	while (browser_sel_item < browser_first_item) {
 		/* scroll the screen a bit */
 		browser_first_item -= (browser_lines / 2);
@@ -98,6 +105,10 @@ fillBrowser()
 		browser_first_item += (browser_lines / 2);
 	}
 
+	/*
+	 * Keep placing folder entries on the screen one-by-one until we either
+	 * run out of entries or run out of space.
+	 */
 	werase(winBrowser);
 	while (browser_first_item + line < folder->getEntries().size()) {
 		if (line >= (unsigned int)browser_lines)
@@ -114,9 +125,26 @@ fillBrowser()
 }
 
 void
+fillInfo()
+{
+	werase(winInfo);
+	box(winInfo, 0, 0);
+	mvwprintw(winInfo, 1, 2, "up/dn/pgup/pgdn/home/end   browse                   space  pause/continue");
+	mvwprintw(winInfo, 2, 2, "right/enter                select");
+	mvwprintw(winInfo, 3, 2, "left/backspace             leave folder             f10    exit");
+	wrefresh(winInfo);
+}
+
+void
+handleUpdate(int n)
+{
+	fillStatus();
+}
+
+void
 init()
 {
-	/* Initialize curses */
+	/* Initialize curses and colors */
 	initscr();
 	if (has_colors() == FALSE) {
 		endwin();
@@ -128,40 +156,33 @@ init()
 	init_pair(PAIR_BROWSER, COLOR_WHITE,  COLOR_BLACK);
 	init_pair(PAIR_INFO,    COLOR_YELLOW, COLOR_BLUE);
 
-	raw(); cbreak();
-	keypad(stdscr, TRUE);
-	noecho();
-	refresh();
-	curs_set(0);
-	
+	/* Set our share of curses options, most notably no cursor and key input */
+	raw(); cbreak(); keypad(stdscr, TRUE);
+	noecho(); curs_set(0); refresh();
+
+	/*
+	 * Initialize windows: status window (first 7 lines), browser window (X lines)
+	 * and info window (last 7 lines), thus X = total lines - 14.
+	 */	
 	winStatus  = newwin(7, 0, 0, 0);
 	winBrowser = newwin(LINES - 14, 0, 7, 0);
 	winInfo    = newwin(7,  0, LINES - 7, 0);
 
+	/* Set colors for all windows */
 	wattrset(winStatus, COLOR_PAIR(PAIR_STATUS) | A_BOLD);
 	wbkgdset(winStatus, COLOR_PAIR(PAIR_STATUS));
-	fillStatus();
-
 	wattron(winBrowser, COLOR_PAIR(PAIR_BROWSER));
-	wrefresh(winBrowser);
-
 	wattron(winInfo, COLOR_PAIR(PAIR_INFO) | A_BOLD);
 	wbkgdset(winInfo, COLOR_PAIR(PAIR_STATUS));
-	werase(winInfo);
-	box(winInfo, 0, 0);
-	mvwprintw(winInfo, 1, 2, "up/dn/pgup/pgdn/home/end   browse                   space  pause/continue");
-	mvwprintw(winInfo, 2, 2, "right/enter                select");
-	mvwprintw(winInfo, 3, 2, "left/backspace             leave folder             f10    exit");
-	wrefresh(winInfo);
 
+	/* Dump stuff in the windows we just created and show 'em */
+	fillInfo();
+	fillStatus();
 	fillBrowser();
-
-#if 0
-	wprintw(winBrowser, "browser");
-	wprintw(winInfo, "info");
-#endif
-
 	refresh();
+
+	/* Update the status window every second */
+	signal(SIGALRM, handleUpdate);
 }
 
 void
@@ -170,7 +191,7 @@ stop()
 	if (!havePlayerThread)
 		return;
 
-	/* Ask the decoder thread to terminate, and wait until it is gone */
+	/* Ask the decoder thread to terminate and wait until it is gone */
 	decoder->terminate();
 	pthread_join(player_thread, NULL);
 
@@ -211,7 +232,7 @@ playFile()
 }
 
 void
-handleBrowser(int c)
+handleInput(int c)
 {
 	string item;
 
@@ -285,16 +306,18 @@ handleBrowser(int c)
 void
 cleanup()
 {
+	/* if music is playing, get rid of it */
+	stop();
+
+	/* deinitialize curses, this makes our terminal happy again */
 	delwin(winStatus);
 	delwin(winBrowser);
 	delwin(winInfo);
 	endwin();
-}
 
-void
-handleUpdate(int n)
-{
-	fillStatus();
+	/* nuke the final objects */
+	delete output;
+	delete folder;
 }
 
 int
@@ -302,19 +325,21 @@ main(int argc, char** argv)
 {
 
 	folder = new FolderFS("/geluid");
+	output = new OutputAO();
 
 	init();
 
-	output = new OutputAO();
 
-	signal(SIGALRM, handleUpdate);
-
-	int c;	
-	while ((c = getch()) != KEY_F(10)) {
-		handleBrowser(c);
+	/*
+	 * Handle input until the user hammers F10.
+	 */
+	while (1) {
+		int c = getch();
+		if (c == KEY_F(10))
+			break;
+		handleInput(c);
 	}
 
-	stop();
 	cleanup();
 
 	return EXIT_SUCCESS;

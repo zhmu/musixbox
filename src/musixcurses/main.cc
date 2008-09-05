@@ -12,10 +12,7 @@
 
 using namespace std;
 
-Folder*		folder;
-Output*		output;
-Mixer*		mixer;
-Interface*	interface = NULL;
+Interface* interface = NULL;
 
 void
 handle_update(int num)
@@ -54,9 +51,12 @@ usage()
 int
 main(int argc, char** argv)
 {
-	int c;
-
 	try {
+		Folder* folder;
+		Output* output;
+		Mixer* mixer;
+		int c;
+
 		while ((c = getopt(argc, argv, "?ho:")) != -1) {
 			switch(c) {
 				case 'h':

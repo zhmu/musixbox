@@ -1,3 +1,5 @@
+#include <sys/types.h>
+
 #ifndef __OUTPUT_H__
 #define __OUTPUT_H__
 

@@ -6,19 +6,15 @@
 #include "core/exceptions.h"
 #include "core/folder.h"
 #include "core/folder_fs.h"
-#ifdef WITH_AO
-#include "core/output_ao.h"
-#endif
-#include "core/output_swmixer.h"
-#include "core/output_null.h"
-#include "core/mixer_oss.h"
-#include "core/mixer_sw.h"
+#include "core/outputmixerfactory.h"
 #include "interface.h"
 #ifdef WITH_SDL
 #include "ui/interaction_sdl.h"
 #endif
 #include "ui/interaction_avr.h"
 #include "ui/interaction_chain.h"
+
+using namespace std;
 
 InteractionChain* interaction;
 Interface* interface;
@@ -29,19 +25,23 @@ Folder* folder;
 void
 usage()
 {
-	fprintf(stderr, "usage: musixbox [-?hs] [-a device] folder [resource]\n\n");
+	fprintf(stderr, "usage: musixbox [-?h"
+#ifdef WITH_SDL
+"s"
+#endif
+"] [-a device] [-o type] folder [resource]\n\n");
 	fprintf(stderr, " -h, -?         this help\n");
 #ifdef WITH_SDL
 	fprintf(stderr, " -s             enable SDL interaction frontend\n");
 #endif
 	fprintf(stderr, " -a device      enable AVR interaction frontend using device\n");
-	fprintf(stderr, " -m device      specify mixer device, defaults to /dev/mixer0\n");
-	fprintf(stderr, "                use 'soft' for the software mixer\n");
 	fprintf(stderr, " -o type        select output plugin\n");
-	fprintf(stderr, "                available are: null");
-#ifdef WITH_AO
-	fprintf(stderr, " ao");
-#endif
+	fprintf(stderr, "                available are:");
+	list<string> l;
+	OutputMixerFactory::getAvailable(l);
+	for (list<string>::iterator it = l.begin(); it != l.end(); it++) {
+		fprintf(stderr, " %s", (*it).c_str());
+	}
 	fprintf(stderr, "\n\n");
 	fprintf(stderr, "folder is where your media files are expected to be\n");
 	fprintf(stderr, "resource is optional; if specified, musixbox will immediately begin to play it\n");
@@ -54,27 +54,10 @@ terminate(int)
 	interaction->requestTermination();
 }
 
-Output*
-findOutputProvider(const char* name)
-{
-	if (!strcmp(name, "null"))
-		return new OutputNull();
-#ifdef WITH_AO
-	if (!strcmp(name, "ao"))
-		return new OutputAO();
-#endif
-	fprintf(stderr, "no such output provider '%s'\n", name);
-	usage();
-
-	/* NOTREACHED */
-	return NULL;
-}
-
 int
 main(int argc, char** argv)
 {
 	int ch;
-	std::string mixdev = "/dev/mixer0";
 
 	interface = NULL;
 	output = NULL;
@@ -86,8 +69,7 @@ main(int argc, char** argv)
 #ifdef WITH_SDL
 "s"
 #endif
-"a:o:"
-"m:")) != -1) {
+"a:o:")) != -1) {
 		switch(ch) {
 #ifdef WITH_SDL
 			case 's': interaction->add(new InteractionSDL());
@@ -95,9 +77,7 @@ main(int argc, char** argv)
 #endif
 			case 'a': interaction->add(new InteractionAVR(optarg));
 			          break;
-			case 'o': output = findOutputProvider(optarg);
-			          break;
-			case 'm': mixdev = std::string(optarg); 
+			case 'o': OutputMixerFactory::construct(optarg, &output, &mixer);
 			          break;
 			case 'h':
 			case '?': usage();
@@ -119,16 +99,6 @@ main(int argc, char** argv)
 		if (output == NULL) {
 			fprintf(stderr, "fatal: no output provider, aborting\n");
 			return EXIT_FAILURE;
-		}
-		if (mixdev == "soft") {
-			/*
-			 * Use the software mixer output and provider on the
- 			 * current output plugin
-			 */
-			output = new OutputSWMixer(output);
-			mixer = new MixerSW((OutputSWMixer*)output);
-		} else {
-			mixer = new MixerOSS(mixdev);
 		}
 		folder = new FolderFS(argv[0]);
 		interface = new Interface(interaction, output, mixer, folder, (argc > 1) ? argv[1] : NULL);

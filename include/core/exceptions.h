@@ -67,4 +67,10 @@ public:
 	FolderException(const std::string errstr) : MusixBoxException(errstr) { }
 };
 
+//! \brief Exception class used by factories
+class FactoryException : public MusixBoxException {
+public:
+	FactoryException(const std::string errstr) : MusixBoxException(errstr) { }
+};
+
 #endif /* __EXCEPTIONS_H__ */

@@ -1,4 +1,4 @@
-#include "interaction_chain.h"
+#include "ui/interaction_chain.h"
 
 void
 InteractionChain::add(Interaction* i)

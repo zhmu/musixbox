@@ -7,7 +7,7 @@
 #include <string.h>
 #include <unistd.h>
 #include "core/exceptions.h"
-#include "interaction_avr.h"
+#include "ui/interaction_avr.h"
 
 void*
 avrRecvThread(void* ptr)

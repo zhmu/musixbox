@@ -1,6 +1,6 @@
 #include <SDL/SDL.h>
 #include "core/exceptions.h"
-#include "interaction_sdl.h"
+#include "ui/interaction_sdl.h"
 
 InteractionSDL::InteractionSDL() : Interaction()
 {

@@ -6,7 +6,7 @@
 #include "core/visualize.h"
 #include "core/decode.h"
 #include "core/mixer.h"
-#include "interaction.h"
+#include "ui/interaction.h"
 #include "boxplayer.h"
 
 #ifndef __INTERFACE_H__

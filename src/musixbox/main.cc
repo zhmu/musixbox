@@ -15,10 +15,10 @@
 #include "core/mixer_sw.h"
 #include "interface.h"
 #ifdef WITH_SDL
-#include "interaction_sdl.h"
+#include "ui/interaction_sdl.h"
 #endif
-#include "interaction_avr.h"
-#include "interaction_chain.h"
+#include "ui/interaction_avr.h"
+#include "ui/interaction_chain.h"
 
 InteractionChain* interaction;
 Interface* interface;

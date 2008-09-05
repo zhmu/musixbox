@@ -1,7 +1,7 @@
 #include <string>
 #include "ui/control.h"
 #include "ui/form.h"
-#include "musixbox/interaction.h"
+#include "ui/interaction.h"
 
 void
 Form::add(Control* c)

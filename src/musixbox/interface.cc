@@ -12,8 +12,8 @@
 #include "core/output.h"
 #include "core/decoderfactory.h"
 #include "core/exceptions.h"
+#include "ui/interaction.h"
 #include "interface.h"
-#include "interaction.h"
 #include "formBrowser.h"
 #include "formPlayer.h"
 

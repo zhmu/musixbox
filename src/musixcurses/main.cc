@@ -1,4 +1,3 @@
-#include "config.h"
 #include <curses.h>
 #include <getopt.h>
 #include <signal.h>

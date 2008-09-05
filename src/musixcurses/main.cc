@@ -112,7 +112,7 @@ fillInfo()
 	werase(winInfo);
 	box(winInfo, 0, 0);
 	mvwprintw(winInfo, 1, 2, "up/dn/pgup/pgdn/home/end   browse                   space  pause/continue");
-	mvwprintw(winInfo, 2, 2, "right/enter                select");
+	mvwprintw(winInfo, 2, 2, "right/enter                select                   +/-    adjust volume");
 	mvwprintw(winInfo, 3, 2, "left/backspace             leave folder             f10    exit");
 	wrefresh(winInfo);
 }
@@ -185,6 +185,7 @@ void
 handleInput(int c)
 {
 	string item;
+	int vol;
 
 	switch(c) {
 		case KEY_UP:
@@ -250,6 +251,18 @@ handleInput(int c)
 					player->cont();
 				else
 					player->pause();
+			break;
+		case '+':
+		case '-':
+		case '=':
+			if (mixer == NULL)
+				break;
+			vol = mixer->getVolume();
+			if (c == '-')
+				vol = (vol > 4) ? vol - 4 : 0;
+			else
+				vol = vol + 4;
+			mixer->setVolume(vol);
 			break;
 	}
 }

@@ -184,6 +184,12 @@ Interface::playFile()
 void
 Interface::trackDone()
 {
+        if (browser_sel_item + 1 >= folder->getEntries().size())
+                return;
+
+	browser_sel_item++;
+	playFile();
+	fillBrowser();
 }
 
 void

@@ -38,7 +38,7 @@ main(int argc, char* argv[])
 	loadfont("/usr/local/lib/X11/fonts/bitstream-vera/Vera.ttf");
 
 	printf("/* This file was automatically generated - do not edit! */\n");
-	printf("#include \"font.h\"\n");
+	printf("#include \"ui/font.h\"\n");
 	printf("\n");
 	printf("struct CHARACTER theFont[] = {\n");
 	for (FT_ULong ch = 0; ch <= 255; ch++ ) {

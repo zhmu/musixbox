@@ -52,8 +52,6 @@ terminate(int)
 int
 main(int argc, char** argv)
 {
-	int ch;
-
 	try {
 		Output* output = NULL;
 		Interface* interface;
@@ -61,6 +59,7 @@ main(int argc, char** argv)
 		Mixer* mixer;
 		InteractionChain* interaction = new InteractionChain();
 
+		int ch;
 		while ((ch = getopt(argc, argv, "?h"
 #ifdef WITH_SDL
 "s"

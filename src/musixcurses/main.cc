@@ -1,3 +1,5 @@
+#include <sys/types.h>
+#include <sys/ioctl.h>
 #include <curses.h>
 #include <getopt.h>
 #include <signal.h>
@@ -28,6 +30,7 @@ Player*		player = NULL;
 unsigned int	browser_first_item = 0;
 unsigned int	browser_sel_item   = 0;
 unsigned int	browser_lines      = 0;
+bool		must_redraw        = false;
 
 void
 fillStatus()
@@ -124,6 +127,54 @@ handleUpdate(int n)
 }
 
 void
+handleResize(int n)
+{
+	struct winsize ws;
+	if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws) == 0) {
+		resizeterm(ws.ws_row, ws.ws_col);
+		wrefresh(curscr);
+		must_redraw = true;
+	}
+	signal(n, handleResize);
+}
+
+void
+initWindows()
+{
+	int x, y;
+	getmaxyx(stdscr, y, x);
+
+	/*
+	 * Initialize windows: status window (first 7 lines), browser window (X lines)
+	 * and info window (last 7 lines), thus X = total lines - 14.
+	 */	
+	winStatus  = newwin(7, x, 0, 0);
+	winBrowser = newwin(y - 14, x, 7, 0);
+	winInfo    = newwin(7, x, y - 7, 0);
+
+	/* Set colors for all windows */
+	wattrset(winStatus, COLOR_PAIR(PAIR_STATUS) | A_BOLD);
+	wbkgdset(winStatus, COLOR_PAIR(PAIR_STATUS));
+	wattron(winBrowser, COLOR_PAIR(PAIR_BROWSER));
+	wattron(winInfo, COLOR_PAIR(PAIR_INFO) | A_BOLD);
+	wbkgdset(winInfo, COLOR_PAIR(PAIR_STATUS));
+
+	/* Dump stuff in the windows we just created and show 'em */
+	fillInfo();
+	fillStatus();
+	fillBrowser();
+	refresh();
+}
+
+void
+cleanupWindows()
+{
+	delwin(winStatus);
+	delwin(winBrowser);
+	delwin(winInfo);
+}
+
+void
 init()
 {
 	/* Initialize curses and colors */
@@ -142,26 +193,10 @@ init()
 	raw(); cbreak(); keypad(stdscr, TRUE);
 	noecho(); curs_set(0); refresh();
 
-	/*
-	 * Initialize windows: status window (first 7 lines), browser window (X lines)
-	 * and info window (last 7 lines), thus X = total lines - 14.
-	 */	
-	winStatus  = newwin(7, 0, 0, 0);
-	winBrowser = newwin(LINES - 14, 0, 7, 0);
-	winInfo    = newwin(7,  0, LINES - 7, 0);
+	initWindows();
 
-	/* Set colors for all windows */
-	wattrset(winStatus, COLOR_PAIR(PAIR_STATUS) | A_BOLD);
-	wbkgdset(winStatus, COLOR_PAIR(PAIR_STATUS));
-	wattron(winBrowser, COLOR_PAIR(PAIR_BROWSER));
-	wattron(winInfo, COLOR_PAIR(PAIR_INFO) | A_BOLD);
-	wbkgdset(winInfo, COLOR_PAIR(PAIR_STATUS));
-
-	/* Dump stuff in the windows we just created and show 'em */
-	fillInfo();
-	fillStatus();
-	fillBrowser();
-	refresh();
+	/* Handle terminal resizes gracefully */
+	signal(SIGWINCH, handleResize);
 
 	/* Update the status window every second */
 	signal(SIGALRM, handleUpdate);
@@ -277,9 +312,7 @@ cleanup()
 	}
 
 	/* deinitialize curses, this makes our terminal happy again */
-	delwin(winStatus);
-	delwin(winBrowser);
-	delwin(winInfo);
+	cleanupWindows();
 	endwin();
 
 	/* nuke the final objects */
@@ -340,6 +373,14 @@ main(int argc, char** argv)
 		 * Handle input until the user hammers F10.
 		 */
 		while (1) {
+			if (must_redraw) {
+				fillInfo();
+				fillStatus();
+				fillBrowser();
+				refresh();
+				must_redraw = false;
+			}
+
 			int c = getch();
 			if (c == KEY_F(10))
 				break;

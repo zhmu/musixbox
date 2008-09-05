@@ -67,7 +67,6 @@ formBrowser::update()
 	}
 }
 
-
 void
 formBrowser::interact(Control* control)
 {

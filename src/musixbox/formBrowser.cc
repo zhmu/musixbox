@@ -1,3 +1,5 @@
+#include "ui/form.h"
+#include "interaction.h"
 #include "formBrowser.h"
 
 using namespace std;

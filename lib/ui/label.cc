@@ -1,5 +1,5 @@
 #include "ui/label.h"
-#include "font.h"
+#include "ui/font.h"
 
 void
 Label::draw()

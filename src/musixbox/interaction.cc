@@ -1,6 +1,6 @@
 #include <stdlib.h>
+#include "ui/font.h"
 #include "interaction.h"
-#include "font.h"
 
 void
 Interaction::puttext(unsigned int x, unsigned int y, const char* s)

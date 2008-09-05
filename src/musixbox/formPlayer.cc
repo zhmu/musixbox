@@ -1,4 +1,5 @@
 #include "core/exceptions.h"
+#include "ui/form.h"
 #include "formPlayer.h"
 #include "interface.h"
 

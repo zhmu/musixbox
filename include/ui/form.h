@@ -1,7 +1,7 @@
 #include <vector>
-#include "interaction.h"
 
 class Control;
+class Interaction;
 
 #ifndef __FORM_H__
 #define __FORM_H__

@@ -1,9 +1,8 @@
 bin_PROGRAMS=		musixbox
-AM_CXXFLAGS=		-Wall -I../../include
+AM_CXXFLAGS=		-Wall -I../../include -I../../include/musixbox
 
 musixbox_LDADD=        ../../lib/core/libcore.a ../../lib/ui/libui.a
-musixbox_SOURCES=	font.cc \
-			interaction.cc interaction_chain.cc \
+musixbox_SOURCES=	interaction.cc interaction_chain.cc \
 			interface.cc main.cc boxplayer.cc \
 			interaction_avr.cc \
 			formBrowser.cc formPlayer.cc 

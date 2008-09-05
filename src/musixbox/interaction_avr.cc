@@ -7,7 +7,6 @@
 #include <string.h>
 #include <unistd.h>
 #include "core/exceptions.h"
-#include "font.h"
 #include "interaction_avr.h"
 
 void*

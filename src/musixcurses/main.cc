@@ -5,8 +5,7 @@
 #include <stdlib.h>
 #include <string>
 #include <unistd.h>
-#include "core/folder.h"
-#include "core/folder_fs.h"
+#include "core/folderfactory.h"
 #include "core/outputmixerfactory.h"
 #include "core/player.h"
 #include "core/exceptions.h"
@@ -321,7 +320,7 @@ main(int argc, char** argv)
 		}
 
 
-		folder = new FolderFS(argv[0]);
+		FolderFactory::construct(argv[0], &folder);
 
 		init();
 

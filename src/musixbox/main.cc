@@ -4,8 +4,7 @@
 #include <stdlib.h>
 #include <err.h>
 #include "core/exceptions.h"
-#include "core/folder.h"
-#include "core/folder_fs.h"
+#include "core/folderfactory.h"
 #include "core/outputmixerfactory.h"
 #include "interface.h"
 #ifdef WITH_SDL
@@ -100,7 +99,7 @@ main(int argc, char** argv)
 			fprintf(stderr, "fatal: no output provider, aborting\n");
 			return EXIT_FAILURE;
 		}
-		folder = new FolderFS(argv[0]);
+		FolderFactory::construct(argv[0], &folder);
 		interface = new Interface(interaction, output, mixer, folder, (argc > 1) ? argv[1] : NULL);
 
 		signal(SIGINT, terminate);

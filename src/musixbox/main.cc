@@ -16,10 +16,6 @@
 using namespace std;
 
 InteractionChain* interaction;
-Interface* interface;
-Output* output;
-Mixer* mixer;
-Folder* folder;
 
 void
 usage()
@@ -58,12 +54,13 @@ main(int argc, char** argv)
 {
 	int ch;
 
-	interface = NULL;
-	output = NULL;
-	mixer = NULL;
-	interaction = new InteractionChain();
-
 	try {
+		Output* output = NULL;
+		Interface* interface;
+		Folder* folder;
+		Mixer* mixer;
+		InteractionChain* interaction = new InteractionChain();
+
 		while ((ch = getopt(argc, argv, "?h"
 #ifdef WITH_SDL
 "s"
@@ -106,6 +103,10 @@ main(int argc, char** argv)
 		signal(SIGTERM, terminate);
 
 		interface->run();
+
+		delete interface;
+		delete output;
+		delete folder;
 	} catch (MusixBoxException& e) {
 		fprintf(stderr, "%s\n", e.what());
 		return EXIT_FAILURE;

@@ -43,7 +43,6 @@ usage()
 		fprintf(stderr, " %s", (*it).c_str());
 	}
 	fprintf(stderr, "\n\n");
-	fprintf(stderr, "\n");
 	fprintf(stderr, "folder is where your media files are expected to be\n");
 	exit(EXIT_SUCCESS);
 }

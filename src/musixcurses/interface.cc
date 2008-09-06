@@ -170,12 +170,21 @@ Interface::signalResize()
 void
 Interface::playFile()
 {
-	if (player != NULL) {
-		player->stop();
-		delete player;
+	/*
+	 * We have to be careful here; it is always possible that the player
+	 * object is referenced during a signal. To that end, ensure the
+	 * player object can't be referenced before we tamper with it, this
+	 * closes any races.
+	 */
+	Player* p = player;
+	player = NULL;
+	if (p != NULL) {
+		p->stop();
+		delete p;
 	}
 
-	player = new CursePlayer(folder->getFullPath(folder->getEntries()[browser_sel_item]), output, this);
+	p = new CursePlayer(folder->getFullPath(folder->getEntries()[browser_sel_item]), output, this);
+	player = p;
 	player->play();
 
 	fillStatus();

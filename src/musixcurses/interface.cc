@@ -113,7 +113,7 @@ Interface::fillBrowser()
 	 * scroll position as needed.
 	 */
 	if (browser_sel_item < browser_first_item ||
-	   browser_sel_item > browser_first_item + browser_lines) {
+	   browser_sel_item >= browser_first_item + browser_lines) {
 		if (browser_lines / 2 <= browser_sel_item)
 			browser_first_item = browser_sel_item - (browser_lines / 2);
 		else

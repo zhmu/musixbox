@@ -23,8 +23,11 @@ public:
 	 */
 	void addItem(PlaylistItem* it);
 
-	/*! \brief Remove an item from the playlist */
+	/*! \brief Remove an item from the playlist by number */
 	void removeItem(unsigned int num);
+
+	/*! \brief Remove an item from the playlist by resource	 */
+	void removeItem(std::string resource);
 
 	//! \brief Clears the playlist
 	void clear();

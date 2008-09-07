@@ -33,6 +33,19 @@ Playlist::removeItem(unsigned int num)
 }
 
 void
+Playlist::removeItem(string resource)
+{
+	int num = 0;
+	for (vector<PlaylistItem*>::iterator ite = items.begin(); ite != items.end(); ite++, num++) {
+		if ((*ite)->getResource() == resource) {
+			delete items[num];
+			items.erase(ite);
+			return;
+		}
+	}
+}
+
+void
 Playlist::clear()
 {
 	items.clear();

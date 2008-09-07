@@ -10,6 +10,10 @@ Menu::draw()
 
 	getmaxyx(window, num_lines, x);
 
+	/* Ensure items that do not exist cannot be selected */
+	if (sel_item >= getNumItems() && getNumItems() > 0)
+		sel_item = getNumItems() - 1;
+
 	/*
 	 * Ensure that whatever is selected fits on the screen by adjusting the
 	 * scroll position as needed.

@@ -348,6 +348,7 @@ Interface::handlePlaylistInput(int c)
 			showingPlaylist = false;
 			break;
 	}
+	handleCommonInput(c);
 }
 
 void

@@ -1,4 +1,5 @@
 #include <string>
+#include "core/info.h"
 
 #ifndef __PLAYLISTITEM_H__
 #define __PLAYLISTITEM_H__
@@ -8,14 +9,26 @@ public:
 	/*! \brief Constructs a playlist item
 	 *  \param res Resource referring to the item
 	 */
-	inline PlaylistItem(std::string res) { resource = res; }
+	PlaylistItem(std::string res);
 
 	//! \brief Retrieve the resource to play
 	inline std::string getResource() { return resource; }
 
+	//! \brief Retrieve the text to display for this item
+	std::string getDisplayText();
+
 protected:
 	//! \brief The item
 	std::string resource;
+
+        //! \brief Name of the artist
+        std::string artist;
+
+        //! \brief Name of the album
+        std::string album;
+
+        //! \brief Title of the song
+        std::string title;
 };
 
 #endif /* __PLAYLISTITEM_H__ */

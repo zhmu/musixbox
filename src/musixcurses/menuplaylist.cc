@@ -9,6 +9,12 @@ MenuPlaylist::getItem(unsigned int num)
 		return "   " + playlist->getItems()[num]->getDisplayText();
 }
 
+std::string
+MenuPlaylist::getCompareItem(unsigned int num)
+{
+	return playlist->getItems()[num]->getDisplayText();
+}
+
 unsigned int
 MenuPlaylist::getNumItems()
 {

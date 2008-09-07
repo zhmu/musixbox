@@ -11,7 +11,7 @@ public:
 	 *  \param w Window used for drawing
 	 */
 	inline Menu(WINDOW* w) {
-		first_item = 0; sel_item = 0; num_lines = 0;
+		first_item = 0; sel_item = 0; num_lines = 0; lookup = "";
 		window = w;
 	}
 
@@ -42,6 +42,16 @@ protected:
 	//! \brief Retrieve the number of items
 	virtual unsigned int getNumItems() = 0;
 
+	/*! \brief Retrieve textual representation of an item for comparison purposes
+	 *  \param num The item to retrieve
+	 */
+	virtual std::string getCompareItem(unsigned int num) { return getItem(num); }
+
+	/*! \brief Attempt to match the lookup buffer to user input
+	 *  \return true if the attempt was successful
+	 */
+	bool tryLookup();
+
 private:
 	//! \brief Window used to draw
 	WINDOW* window;
@@ -54,6 +64,9 @@ private:
 
 	//! \brief Number of lines in window
 	unsigned int num_lines;
+
+	//! \brief Current string we are looking up
+	std::string lookup;
 };
 
 #endif /* __MENU_H__ */

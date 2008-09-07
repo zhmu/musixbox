@@ -19,6 +19,11 @@ protected:
 	 */
 	virtual std::string getItem(unsigned int num);
 
+	/*! \brief Retrieve textual representation of an item for comparison purposes
+	 *  \param num The item to retrieve
+	 */
+	virtual std::string getCompareItem(unsigned int num);
+
 	//! \brief Retrieve the number of items
 	virtual unsigned int getNumItems();
 

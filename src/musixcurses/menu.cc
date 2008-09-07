@@ -50,6 +50,19 @@ Menu::handleInput(int c)
 	if (getNumItems() == 0)
 		return false;
 
+	/*
+	 * If the user touched A-Z, attempt a lookup
+	 */
+	if (isalpha(c)) {
+		c = tolower(c);
+		lookup += c;
+		return tryLookup();
+		
+	}
+
+	/* We are no longer looking stuff up */
+	lookup = "";
+
 	switch(c) {
 		case KEY_UP:
 		case KEY_DOWN:
@@ -83,4 +96,19 @@ Menu::handleInput(int c)
 			return false;
 	}
 	return true;
+}
+
+bool
+Menu::tryLookup()
+{
+	size_t lookup_len = lookup.length();
+
+	for (unsigned int i = 0; i < getNumItems(); i++) {
+		if (!strncasecmp(getCompareItem(i).c_str(), lookup.c_str(), lookup_len)) {
+			sel_item = i;
+			return true;
+		}
+	}
+
+	return false;
 }

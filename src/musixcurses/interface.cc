@@ -249,6 +249,11 @@ Interface::handleBrowserInput(int c)
 {
 	string item;
 
+	if (menuBrowser->handleInput(c)) {
+		menuBrowser->draw();
+		return;
+	}
+
 	switch(c) {
 		case 0x0a: /* ENTER */
 		case KEY_RIGHT:
@@ -288,10 +293,6 @@ Interface::handleBrowserInput(int c)
 			showingPlaylist = true;
 			break;
 	}
-	if (menuBrowser->handleInput(c)) {
-		menuBrowser->draw();
-		return;
-	}
 	handleCommonInput(c);
 }
 
@@ -299,6 +300,11 @@ void
 Interface::handlePlaylistInput(int c)
 {
 	string item;
+
+	if (menuPlaylist->handleInput(c)) {
+		menuPlaylist->draw();
+		return;
+	}
 	switch(c) {
 		case KEY_DC: /* delete */
 			playlist.removeItem(menuPlaylist->getSelectedItem());
@@ -321,10 +327,6 @@ Interface::handlePlaylistInput(int c)
 			menuBrowser->draw();
 			showingPlaylist = false;
 			break;
-	}
-	if (menuPlaylist->handleInput(c)) {
-		menuPlaylist->draw();
-		return;
 	}
 }
 

@@ -24,10 +24,22 @@ public:
 	void addItem(PlaylistItem* it);
 
 	/*! \brief Remove an item from the playlist */
-	void removeItem(PlaylistItem* it);
+	void removeItem(unsigned int num);
+
+	//! \brief Clears the playlist
+	void clear();
 
 	/*! \brief Get the number of the current play item */
-	int getCurrentPlayItem();
+	int getCurrentPlayItem() { return currentPlayItem; }
+
+	/*! \brief Set the current play item */
+	void setCurrentPlayItem(int n) { currentPlayItem = n; }
+
+	/*! \brief Retrieves the next resources to play and advances pointer
+	 * 
+	 *  Returns an empty string if the playlist has finished.
+	 */
+	std::string getNextResource();
 
 protected:
 	//! \brief List of the items

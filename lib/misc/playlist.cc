@@ -7,20 +7,43 @@ Playlist::~Playlist()
 	for (vector<PlaylistItem*>::iterator it = items.begin(); it != items.end(); it++) {
 		delete *it;
 	}
-	items.clear();
 }
 
 void
 Playlist::addItem(PlaylistItem* it)
 {
+	items.insert(items.end(), it);
 }
 
 void
-Playlist::removeItem(PlaylistItem* it)
+Playlist::removeItem(unsigned int num)
 {
+	/* Do not attempt to delete if there are no items */
+	if (num > items.size())
+		return;
+
+	/* Get rid of the item itself, and walk the structure to do the same */
+	delete items[num];
+	for (vector<PlaylistItem*>::iterator ite = items.begin(); ite != items.end(); ite++) {
+		if (!num--) {
+			items.erase(ite);
+			return;
+		}
+	}
 }
 
-int
-Playlist::getCurrentPlayItem()
+void
+Playlist::clear()
 {
+	items.clear();
+	currentPlayItem = 0;
+}
+
+string
+Playlist::getNextResource()
+{
+	if (currentPlayItem + 1 == items.size())
+		return "";
+
+	return items[++currentPlayItem]->getResource();
 }

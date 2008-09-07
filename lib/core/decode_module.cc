@@ -56,7 +56,7 @@ mreader_get(struct MREADER* mr)
 BOOL
 mreader_eof(struct MREADER* mr)
 {
-	return (DecoderModuleDecoder->input->getCurrentPosition() >=
+	return (DecoderModuleDecoder->input->getCurrentPosition() >
 	        DecoderModuleDecoder->input->getLength()) ? 1 : 0;
 }
 

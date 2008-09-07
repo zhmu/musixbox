@@ -7,6 +7,9 @@
 #include "core/decode.h"
 #include "core/player.h"
 #include "core/mixer.h"
+#include "misc/playlist.h"
+#include "menubrowser.h"
+#include "menuplaylist.h"
 
 #ifndef __INTERFACE_H__
 #define __INTERFACE_H__
@@ -57,6 +60,11 @@ protected:
 	//! \brief Play previus track
 	void prev();
 
+	/*! \brief Adds the given file or folder to the playlist
+	 *  \param resource Resource to add
+	 */
+	void addToPlaylist(std::string resource);
+
 private:
 	//! \brief Fill status window
 	void fillStatus();
@@ -64,13 +72,20 @@ private:
 	//! \brief Fill info window
 	void fillInfo();
 
-	//! \brief Fill directory browser
-	void fillBrowser();
-
-	/*! \brief Handle a keystroke
+	/*! \brief Handle a common keystroke
 	 *  \param c Keystroke to handle
 	 */
-	void handleInput(int c);
+	void handleCommonInput(int c);
+
+	/*! \brief Handle a keystroke in the browsr
+	 *  \param c Keystroke to handle
+	 */
+	void handleBrowserInput(int c);
+
+	/*! \brief Handle a keystroke in the playlist
+	 *  \param c Keystroke to handle
+	 */
+	void handlePlaylistInput(int c);
 
 	//! \brief Folder where all media resides
 	Folder* folder;
@@ -92,14 +107,17 @@ private:
 	WINDOW* winBrowser;
 	WINDOW* winInfo;
 
-	//! \brief Top item shown in browser window
-	unsigned int browser_first_item;
+	//! \brief Playlist
+	Playlist playlist;
+	
+	//! \brief Are we showing the playlist
+	bool showingPlaylist;
 
-	//! \brief Currently selected item in browser window
-	unsigned int browser_sel_item;
+	//! \brief Browser menu
+	MenuBrowser* menuBrowser;
 
-	//! \brief Number of lines in browser window
-	unsigned int browser_lines;
+	//! \brief Playlist menu
+	MenuPlaylist* menuPlaylist;
 };
 
 #endif /* __INTERFACE_H__ */

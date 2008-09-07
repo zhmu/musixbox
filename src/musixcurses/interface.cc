@@ -9,8 +9,7 @@ using namespace std;
 
 Interface::Interface(Output* o, Mixer* m, Folder* f)
 {
-	output = o; mixer = m; folder = f; player = NULL;
-	browser_first_item = 0; browser_sel_item = 0; browser_lines = 0;
+	output = o; mixer = m; folder = f; player = NULL; showingPlaylist = false;
 
 	/* Initialize curses and colors */
 	initscr();
@@ -43,10 +42,14 @@ Interface::Interface(Output* o, Mixer* m, Folder* f)
 	wattron(winInfo, COLOR_PAIR(PAIR_INFO) | A_BOLD);
 	wbkgdset(winInfo, COLOR_PAIR(PAIR_STATUS));
 
+	/* Initialize menu's */
+	menuBrowser = new MenuBrowser(winBrowser, folder);
+	menuPlaylist = new MenuPlaylist(winBrowser, &playlist);
+
 	/* Dump stuff in the windows we just created and show 'em */
 	fillInfo();
 	fillStatus();
-	fillBrowser();
+	menuBrowser->draw();
 	refresh();
 }
 
@@ -101,45 +104,6 @@ Interface::fillStatus()
 }
 
 void
-Interface::fillBrowser()
-{
-	int x;
-	unsigned int line = 0;
-
-	getmaxyx(winBrowser, browser_lines, x);
-
-	/*
-	 * Ensure that whatever is selected fits on the screen by adjusting the
-	 * scroll position as needed.
-	 */
-	if (browser_sel_item < browser_first_item ||
-	   browser_sel_item >= browser_first_item + browser_lines) {
-		if (browser_lines / 2 <= browser_sel_item)
-			browser_first_item = browser_sel_item - (browser_lines / 2);
-		else
-			browser_first_item = 0;
-	}
-
-	/*
-	 * Keep placing folder entries on the screen one-by-one until we either
-	 * run out of entries or run out of space.
-	 */
-	werase(winBrowser);
-	while (browser_first_item + line < folder->getEntries().size()) {
-		if (line >= (unsigned int)browser_lines)
-			break;
-		if (browser_first_item + line == browser_sel_item)
-			wattron(winBrowser, A_REVERSE);
-		mvwprintw(winBrowser, line, 1, " %s ",
-			folder->getEntries()[browser_first_item + line].c_str());
-		if (browser_first_item + line == browser_sel_item)
-			wattroff(winBrowser, A_REVERSE);
-		line++;
-	}
-	wrefresh(winBrowser);
-}
-
-void
 Interface::fillInfo()
 {
 	werase(winInfo);
@@ -183,7 +147,7 @@ Interface::playFile()
 		delete p;
 	}
 
-	p = new CursePlayer(folder->getFullPath(folder->getEntries()[browser_sel_item]), output, this);
+	p = new CursePlayer(folder->getFullPath(folder->getEntries()[menuBrowser->getSelectedItem()]), output, this);
 	player = p;
 	player->play();
 
@@ -193,78 +157,41 @@ Interface::playFile()
 void
 Interface::trackDone()
 {
+#if 0
         if (browser_sel_item + 1 >= folder->getEntries().size())
                 return;
 
 	browser_sel_item++;
 	playFile();
 	fillBrowser();
+#endif
 }
 
 void
-Interface::handleInput(int c)
+Interface::addToPlaylist(string resource)
 {
-	string item;
+	/* Do not traverse '.' or '..' */
+	if (resource == "." || resource == "..")
+		return;
+
+	/* If the resource is a folder, enter it and recursively add */
+	if (folder->isFolder(resource)) {
+		folder->select(resource);
+		for (unsigned int i = 0; i < folder->getEntries().size(); i++)
+			addToPlaylist(folder->getEntries()[i]);
+		folder->goUp();
+		return;
+	}
+
+	playlist.addItem(new PlaylistItem(resource));
+}
+
+void
+Interface::handleCommonInput(int c)
+{
 	int vol;
 
 	switch(c) {
-		case KEY_UP:
-		case KEY_DOWN:
-			/* advance menu position */
-			if (c == KEY_UP)
-				browser_sel_item = ((browser_sel_item > 0) ? browser_sel_item : folder->getEntries().size()) - 1;
-			else
-				browser_sel_item = (browser_sel_item + 1) % folder->getEntries().size();
-			fillBrowser();
-			break;
-		case 0x0a: /* ENTER */
-		case KEY_RIGHT:
-			item = folder->getEntries()[browser_sel_item];
-			if (item == "..") {
-				browser_sel_item = 0; browser_first_item = 0;
-				folder->goUp();
-				fillBrowser();
-				break;
-			}
-			if (folder->isFolder(item)) {
-				browser_sel_item = 0; browser_first_item = 0;
-				folder->select(item);
-				fillBrowser();
-				break;
-			}
-			playFile();
-			break;
-		case KEY_LEFT:
-			if (folder->getEntries()[0] != "..")
-				break;
-			browser_sel_item = 0; browser_first_item = 0;
-			folder->goUp();
-			fillBrowser();
-			break;
-		case KEY_NPAGE:
-			browser_first_item += (browser_lines - 1);
-			browser_sel_item += (browser_lines - 1);
-			if (browser_sel_item >= folder->getEntries().size())
-				browser_sel_item = folder->getEntries().size() - 1;
-			fillBrowser();
-			break;
-		case KEY_PPAGE:
-			if (browser_sel_item < (browser_lines - 1)) {
-				browser_sel_item = 0;
-			} else {
-				browser_first_item -= (browser_lines - 1);
-				browser_sel_item -= (browser_lines - 1);
-			}
-			fillBrowser();
-			break;
-		case KEY_HOME:
-			browser_sel_item = 0;
-			fillBrowser();
-			break;
-		case KEY_END:
-			browser_sel_item = folder->getEntries().size() - 1;
-			fillBrowser();
-			break;
 		case ' ': /* space */
 			if (player != NULL)
 				if (player->isPaused())
@@ -288,6 +215,74 @@ Interface::handleInput(int c)
 }
 
 void
+Interface::handleBrowserInput(int c)
+{
+	string item;
+
+	switch(c) {
+		case 0x0a: /* ENTER */
+		case KEY_RIGHT:
+			item = folder->getEntries()[menuBrowser->getSelectedItem()];
+			if (item == "..") {
+				menuBrowser->reset();
+				folder->goUp();
+				menuBrowser->draw();
+				break;
+			}
+			if (folder->isFolder(item)) {
+				menuBrowser->reset();
+				folder->select(item);
+				menuBrowser->draw();
+				break;
+			}
+			playFile();
+			break;
+		case KEY_IC: /* insert */
+			addToPlaylist(item);
+			break;
+		case KEY_LEFT:
+			if (folder->getEntries()[0] != "..")
+				break;
+			menuBrowser->reset();
+			folder->goUp();
+			menuBrowser->draw();
+			break;
+		case 0x09: /* TAB */
+			menuPlaylist->draw();
+			showingPlaylist = true;
+			break;
+	}
+	if (menuBrowser->handleInput(c)) {
+		menuBrowser->draw();
+		return;
+	}
+	handleCommonInput(c);
+}
+
+void
+Interface::handlePlaylistInput(int c)
+{
+	switch(c) {
+		case KEY_DC: /* insert */
+			playlist.removeItem(menuPlaylist->getSelectedItem());
+			menuPlaylist->draw();
+			break;
+		case 0x0a: /* ENTER */
+			playlist.setCurrentPlayItem(menuPlaylist->getSelectedItem());
+			menuPlaylist->draw();
+			break;
+		case 0x09: /* TAB */
+			menuBrowser->draw();
+			showingPlaylist = false;
+			break;
+	}
+	if (menuPlaylist->handleInput(c)) {
+		menuPlaylist->draw();
+		return;
+	}
+}
+
+void
 Interface::run()
 {
 	/*
@@ -297,7 +292,10 @@ Interface::run()
 		int c = getch();
 		if (c == KEY_F(10))
 			break;
-		handleInput(c);
+		if (showingPlaylist)
+			handlePlaylistInput(c);
+		else
+			handleBrowserInput(c);
 	}
 
 }

@@ -52,7 +52,7 @@ main(int argc, char** argv)
 {
 	try {
 		Folder* folder;
-		Output* output;
+		Output* output = NULL;
 		Mixer* mixer;
 		int c;
 

@@ -67,6 +67,11 @@ protected:
 	 */
 	void addToPlaylist(std::string resource);
 
+	/*! \brief Removes the given file or folder from the playlist
+	 *  \param resource Resource to remove
+	 */
+	void removeFromPlaylist(std::string resource);
+
 private:
 	//! \brief Fill status window
 	void fillStatus();

@@ -108,9 +108,10 @@ Interface::fillInfo()
 {
 	werase(winInfo);
 	box(winInfo, 0, 0);
-	mvwprintw(winInfo, 1, 2, "up/dn/pgup/pgdn/home/end   browse                   space  pause/continue");
-	mvwprintw(winInfo, 2, 2, "right/enter                select                   +/-    adjust volume");
-	mvwprintw(winInfo, 3, 2, "left/backspace             leave folder             f10    exit");
+	mvwprintw(winInfo, 1, 2, "up/dn/pgup/pgdn/home/end   browse                     space  pause/continue");
+	mvwprintw(winInfo, 2, 2, "right/enter                select                     +/-    adjust volume");
+	mvwprintw(winInfo, 3, 2, "left/backspace             leave folder               f10    exit");
+	mvwprintw(winInfo, 4, 2, "insert/delete              add/remove from playlist   *      clear playlist");
 	wrefresh(winInfo);
 }
 
@@ -197,6 +198,25 @@ Interface::addToPlaylist(string resource)
 }
 
 void
+Interface::removeFromPlaylist(string resource)
+{
+	if (resource == "." || resource == "..")
+		return;
+
+	/* If the resource is a folder, enter it and recursively add */
+	if (folder->isFolder(resource)) {
+		folder->select(resource);
+		for (unsigned int i = 0; i < folder->getEntries().size(); i++)
+			removeFromPlaylist(folder->getEntries()[i]);
+		folder->goUp();
+		return;
+	}
+
+	/* Get rid of the entire item */
+	playlist.removeItem(folder->getFullPath(resource));
+}
+
+void
 Interface::handleCommonInput(int c)
 {
 	int vol;
@@ -252,6 +272,10 @@ Interface::handleBrowserInput(int c)
 			item = folder->getEntries()[menuBrowser->getSelectedItem()];
 			addToPlaylist(item);
 			break;
+		case KEY_DC: /* delete */
+			item = folder->getEntries()[menuBrowser->getSelectedItem()];
+			removeFromPlaylist(item);
+			break;
 		case KEY_LEFT:
 			if (folder->getEntries()[0] != "..")
 				break;
@@ -276,7 +300,7 @@ Interface::handlePlaylistInput(int c)
 {
 	string item;
 	switch(c) {
-		case KEY_DC: /* insert */
+		case KEY_DC: /* delete */
 			playlist.removeItem(menuPlaylist->getSelectedItem());
 			menuPlaylist->draw();
 			break;

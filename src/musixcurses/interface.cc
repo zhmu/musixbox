@@ -132,7 +132,7 @@ Interface::signalResize()
 }
 
 void
-Interface::playFile()
+Interface::playResource(string resource)
 {
 	/*
 	 * We have to be careful here; it is always possible that the player
@@ -147,7 +147,7 @@ Interface::playFile()
 		delete p;
 	}
 
-	p = new CursePlayer(folder->getFullPath(folder->getEntries()[menuBrowser->getSelectedItem()]), output, this);
+	p = new CursePlayer(resource, output, this);
 	player = p;
 	player->play();
 
@@ -157,20 +157,29 @@ Interface::playFile()
 void
 Interface::trackDone()
 {
-#if 0
-        if (browser_sel_item + 1 >= folder->getEntries().size())
-                return;
+	/*
+	 * If we are not playing from the playlist, do nothing. This gets
+	 * called whenever the current track is done, so we need to advance
+	 * only the playlist.
+	 */
+	if (!playingFromList)
+		return;
 
-	browser_sel_item++;
-	playFile();
-	fillBrowser();
-#endif
+	string item = playlist.getNextResource();
+	if (item != "")
+		playResource(item);
+
+	/*
+	 * If we are showing the playlist, update it so that the playing
+	 * track is correctly marked.
+	 */
+	if (showingPlaylist)
+		menuPlaylist->draw();
 }
 
 void
 Interface::addToPlaylist(string resource)
 {
-	/* Do not traverse '.' or '..' */
 	if (resource == "." || resource == "..")
 		return;
 
@@ -183,7 +192,8 @@ Interface::addToPlaylist(string resource)
 		return;
 	}
 
-	playlist.addItem(new PlaylistItem(resource));
+	/* Upon adding, resolve the complete path */
+	playlist.addItem(new PlaylistItem(folder->getFullPath(resource)));
 }
 
 void
@@ -235,9 +245,11 @@ Interface::handleBrowserInput(int c)
 				menuBrowser->draw();
 				break;
 			}
-			playFile();
+			playingFromList = false;
+			playResource(folder->getFullPath(folder->getEntries()[menuBrowser->getSelectedItem()]));
 			break;
 		case KEY_IC: /* insert */
+			item = folder->getEntries()[menuBrowser->getSelectedItem()];
 			addToPlaylist(item);
 			break;
 		case KEY_LEFT:
@@ -262,6 +274,7 @@ Interface::handleBrowserInput(int c)
 void
 Interface::handlePlaylistInput(int c)
 {
+	string item;
 	switch(c) {
 		case KEY_DC: /* insert */
 			playlist.removeItem(menuPlaylist->getSelectedItem());
@@ -269,6 +282,11 @@ Interface::handlePlaylistInput(int c)
 			break;
 		case 0x0a: /* ENTER */
 			playlist.setCurrentPlayItem(menuPlaylist->getSelectedItem());
+			item = playlist.getCurrentResource();
+			if (item != "") {
+				playingFromList = true;
+				playResource(item);
+			}
 			menuPlaylist->draw();
 			break;
 		case 0x09: /* TAB */

@@ -41,6 +41,12 @@ public:
 	 */
 	std::string getNextResource();
 
+	/*! \brief Retrieves the current resource to play
+	 *
+	 *  Returns an empty string if the playlist has finished.
+	 */
+	std::string getCurrentResource();
+
 protected:
 	//! \brief List of the items
 	std::vector<PlaylistItem*> items;

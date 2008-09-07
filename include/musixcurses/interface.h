@@ -45,8 +45,10 @@ public:
 	void signalResize();
 
 protected:
-	//! \brief Plays the current file
-	void playFile();
+	/*! \brief Plays a resource
+	 *  \param res Resource to play
+	 */
+	void playResource(std::string resource);
 
 	//! \brief Retrieve mixer object
 	inline Mixer* getMixer() { return mixer; }
@@ -118,6 +120,9 @@ private:
 
 	//! \brief Playlist menu
 	MenuPlaylist* menuPlaylist;
+
+	//! \brief Are we playing from the playlist?
+	bool playingFromList;
 };
 
 #endif /* __INTERFACE_H__ */

@@ -19,7 +19,7 @@ void
 Playlist::removeItem(unsigned int num)
 {
 	/* Do not attempt to delete if there are no items */
-	if (num > items.size())
+	if (num >= items.size())
 		return;
 
 	/* Get rid of the item itself, and walk the structure to do the same */
@@ -46,4 +46,13 @@ Playlist::getNextResource()
 		return "";
 
 	return items[++currentPlayItem]->getResource();
+}
+
+string
+Playlist::getCurrentResource()
+{
+	if (currentPlayItem == items.size())
+		return "";
+
+	return items[currentPlayItem]->getResource();
 }

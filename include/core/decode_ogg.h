@@ -14,7 +14,7 @@ public:
 	~DecoderOgg();
 
 	//! \brief Performs a Ogg Vorbis decoding run
-	int run();
+	void run();
 
 	//! \brief Retrieve Ogg Vorbuis comments
 	struct vorbis_comment* getComments();

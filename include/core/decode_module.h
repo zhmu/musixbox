@@ -23,7 +23,7 @@ public:
 	~DecoderModule();
 
 	//! \brief Performs a module decoding run
-	int run();
+	void run();
 
 protected:
 	//! \brief Retrieve the temporary decoding buffer

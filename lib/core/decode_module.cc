@@ -183,7 +183,7 @@ DecoderModule::~DecoderModule()
 	DecoderModuleDecoder = NULL;
 }
 
-int
+void
 DecoderModule::run()
 {
 	Player_Start(module);
@@ -195,6 +195,4 @@ DecoderModule::run()
 	}
 
 	Player_Stop();
-	
-	return 0;
 }

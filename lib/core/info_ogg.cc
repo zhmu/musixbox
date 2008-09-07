@@ -4,7 +4,7 @@
 #include "decode_ogg.h"
 #include "info_ogg.h"
 
-int
+void
 InfoOgg::load(const char* fname)
 {
 	struct vorbis_comment* c = (reinterpret_cast<DecoderOgg*> (decoder))->getComments();
@@ -24,6 +24,4 @@ InfoOgg::load(const char* fname)
 			album = strdup(ptr + 1);
 		}
 	}
-
-	return 1;
 }

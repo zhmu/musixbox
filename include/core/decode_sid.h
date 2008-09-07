@@ -17,7 +17,7 @@ public:
 	~DecoderSID();
 
 	//! \brief Performs a SID decoding run
-	int run();
+	void run();
 
 protected:
 	const SidTuneInfo& getTuneInfo() { return *player.info().tuneInfo; }

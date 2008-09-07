@@ -20,7 +20,7 @@ public:
 	virtual ~Decoder();
 
 	//! \brief Decode the input stream until the end
-	virtual int run() = 0;
+	virtual void run() = 0;
 
 	//! \brief Get rid of the decoder
 	inline void terminate() { terminating = true; }

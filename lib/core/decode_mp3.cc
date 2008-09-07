@@ -93,7 +93,7 @@ DecoderMP3::~DecoderMP3()
 	free(music_chunk);
 }
 
-int
+void
 DecoderMP3::run()
 {
 	struct mad_stream stream;
@@ -175,8 +175,6 @@ fail:
 	mad_synth_finish(&synth);
 	mad_frame_finish(&frame);
 	mad_stream_finish(&stream);	
-
-	return 1;
 }
 
 void

@@ -61,7 +61,7 @@ DecoderOgg::DecoderOgg(Input* i, Output* o, Visualizer* v) :
 		throw DecoderException(std::string("ov_open_callbacks() failed"));
 }
 
-int
+void
 DecoderOgg::run()
 {
 	int current;
@@ -83,8 +83,6 @@ DecoderOgg::run()
 		if (output != NULL)
 			output->play(out_buffer, len);
 	}
-
-	return 1;
 }
 
 struct vorbis_comment*

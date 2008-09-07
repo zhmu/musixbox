@@ -10,7 +10,7 @@ public:
 	InfoFLAC(Decoder* d) : Info(d) { }
 
 	//! \brief Process an input file
-	int load(const char* fname);
+	void load(const char* fname);
 
 	//! \brief Retrieve artist name
 	inline const char* getArtist() {

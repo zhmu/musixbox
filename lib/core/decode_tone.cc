@@ -5,7 +5,7 @@
 #include "decode_tone.h"
 #include "output.h"
 
-int
+void
 DecoderTone::run()
 {
 	while (1) {
@@ -24,6 +24,4 @@ DecoderTone::run()
 		if (output != NULL)
 			output->play(out_buffer, buflen);
 	}
-
-	return 1;
 }

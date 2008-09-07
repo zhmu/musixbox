@@ -4,9 +4,7 @@
 #include "decode_flac.h"
 #include "info_flac.h"
 
-int
+void
 InfoFLAC::load(const char* fname)
 {
-
-	return 1;
 }

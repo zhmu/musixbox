@@ -11,7 +11,7 @@ public:
 	DecoderTone(Input* i, Output* o, Visualizer* v) : Decoder(i, o, v) { freq = 1000; }
 
 	//! \brief Performs a tone generator run
-	int run();
+	void run();
 
 	//! \brief Set the frequency generated
 	void setFrequency(float f) { freq = f; }

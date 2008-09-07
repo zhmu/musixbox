@@ -14,7 +14,7 @@ public:
 	virtual ~Info();
 
 	//! \brief Process an input file
-	virtual int load(const char* fname) = 0;
+	virtual void load(const char* fname) = 0;
 
 	//! \brief Retrieve number of seconds this file lasts
 	inline virtual int getTotalTime() { return totaltime; }

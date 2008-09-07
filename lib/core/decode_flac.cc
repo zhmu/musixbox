@@ -26,14 +26,12 @@ DecoderFLAC::~DecoderFLAC()
 		free(title);
 }
 
-int
+void
 DecoderFLAC::run()
 {
 	while (!terminating && process_single()) {
 		/* keep rolling */
 	}
-
-	return 0;
 }
 
 FLAC__StreamDecoderReadStatus

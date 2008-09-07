@@ -1,9 +1,10 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <id3tag.h>
+#include "exceptions.h"
 #include "info_mp3.h"
 
-int
+void
 InfoMP3::load(const char* fname)
 {
 	struct id3_file* id3;
@@ -12,7 +13,7 @@ InfoMP3::load(const char* fname)
 
 	id3 = id3_file_open(fname, ID3_FILE_MODE_READONLY);
 	if (id3 == NULL)
-		return 0;
+		throw InfoException(std::string("InfoMP3: Unable to open ") + fname);
 	tag = id3_file_tag(id3);
 
 	/* Handle all tags, one by one... */
@@ -30,5 +31,4 @@ InfoMP3::load(const char* fname)
 	}
 	
 	id3_file_close(id3);
-	return 1;
 }

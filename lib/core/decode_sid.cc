@@ -73,7 +73,7 @@ DecoderSID::~DecoderSID()
 		free(buffer);
 }
 
-int
+void
 DecoderSID::run()
 {
 	while (!terminating) {

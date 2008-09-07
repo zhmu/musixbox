@@ -9,7 +9,7 @@ public:
 	InfoModule(Decoder* d) : Info(d) { }
 
 	//! \brief Process an input file
-	int load(const char* fname);
+	void load(const char* fname);
 };
 
 #endif /* __INFO_MODULE_H__ */

@@ -22,7 +22,7 @@ public:
 	~DecoderMP3();
 
 	//! \brief Performs a mp3 decoding run
-	int run();
+	void run();
 
 private:
 	/*! \brief Reads an input chunk and feeds it to the stream

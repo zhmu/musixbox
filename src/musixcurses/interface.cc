@@ -2,6 +2,7 @@
 #include <sys/ioctl.h>
 #include <curses.h>
 #include <signal.h>
+#include "core/exceptions.h"
 #include "curseplayer.h"
 #include "interface.h"
 
@@ -166,9 +167,14 @@ Interface::trackDone()
 	if (!playingFromList)
 		return;
 
-	string item = playlist.getNextResource();
-	if (item != "")
-		playResource(item);
+	try {
+		string item = playlist.getNextResource();
+		if (item != "")
+			playResource(item);
+	} catch (MusixBoxException& e) {
+		/* Something was unhappy - skip the track */
+		trackDone();
+	}
 
 	/*
 	 * If we are showing the playlist, update it so that the playing
@@ -194,7 +200,11 @@ Interface::addToPlaylist(string resource)
 	}
 
 	/* Upon adding, resolve the complete path */
-	playlist.addItem(new PlaylistItem(folder->getFullPath(resource)));
+	try {
+		playlist.addItem(new PlaylistItem(folder->getFullPath(resource)));
+	} catch (DecoderException& e) {
+		/* Something made the decoder unhappy - just skip the file */
+	}
 }
 
 void
@@ -271,7 +281,11 @@ Interface::handleBrowserInput(int c)
 				break;
 			}
 			playingFromList = false;
-			playResource(folder->getFullPath(folder->getEntries()[menuBrowser->getSelectedItem()]));
+			try {
+				playResource(folder->getFullPath(folder->getEntries()[menuBrowser->getSelectedItem()]));
+			} catch (MusixBoxException& e) {
+				/* Something went wrong */
+			}
 			break;
 		case KEY_IC: /* insert */
 			item = folder->getEntries()[menuBrowser->getSelectedItem()];
@@ -315,7 +329,12 @@ Interface::handlePlaylistInput(int c)
 			item = playlist.getCurrentResource();
 			if (item != "") {
 				playingFromList = true;
-				playResource(item);
+				try {
+					playResource(item);
+				} catch (MusixBoxException& e) {
+					/* Something went wrong - skip the track */
+					trackDone();
+				}
 			}
 			menuPlaylist->draw();
 			break;

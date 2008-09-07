@@ -9,7 +9,7 @@ public:
 	InfoMP3(Decoder* d) : Info(d) { }
 
 	//! \brief Process an input file
-	int load(const char* fname);
+	void load(const char* fname);
 };
 
 #endif /* __INFO_MP3_H__ */

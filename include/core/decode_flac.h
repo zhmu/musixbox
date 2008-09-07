@@ -16,7 +16,7 @@ public:
 	~DecoderFLAC();
 
 	//! \brief Performs a FLAC decoding run
-	int run();
+	void run();
 
 protected:
 	//! \brief Read callback

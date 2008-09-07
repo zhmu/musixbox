@@ -5,6 +5,6 @@
 #include "info_flac.h"
 
 void
-InfoFLAC::load(const char* fname)
+InfoFLAC::load(std::string res)
 {
 }

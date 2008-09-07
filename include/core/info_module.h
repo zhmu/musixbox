@@ -8,8 +8,10 @@ class InfoModule : public Info {
 public:
 	InfoModule(Decoder* d) : Info(d) { }
 
-	//! \brief Process an input file
-	void load(const char* fname);
+	/*! \brief Load information from a resource
+	 *  \param res Resource to process
+	 */
+	void load(std::string res);
 };
 
 #endif /* __INFO_MODULE_H__ */

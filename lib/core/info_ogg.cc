@@ -5,7 +5,7 @@
 #include "info_ogg.h"
 
 void
-InfoOgg::load(const char* fname)
+InfoOgg::load(std::string res)
 {
 	struct vorbis_comment* c = (reinterpret_cast<DecoderOgg*> (decoder))->getComments();
 

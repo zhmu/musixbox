@@ -8,8 +8,10 @@ class InfoOgg : public Info {
 public:
 	InfoOgg(Decoder* d) : Info(d) { }
 
-	//! \brief Process an input file
-	void load(const char* fname);
+	/*! \brief Load information from a resource
+	 *  \param res Resource to process
+	 */
+	void load(std::string res);
 };
 
 #endif /* __INFO_OGG_H__ */

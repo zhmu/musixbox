@@ -8,8 +8,10 @@ class InfoSID : public Info {
 public:
 	InfoSID(Decoder* d) : Info(d) { }
 
-	//! \brief Process an input file
-	void load(const char* fname);
+	/*! \brief Load information from a resource
+	 *  \param res Resource to process
+	 */
+	void load(std::string res);
 };
 
 #endif /* __INFO_SID_H__ */

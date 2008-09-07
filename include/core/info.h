@@ -1,3 +1,4 @@
+#include <string>
 #include "decode.h"
 
 #ifndef __INFO_H__
@@ -13,8 +14,10 @@ public:
 	Info(Decoder* d);
 	virtual ~Info();
 
-	//! \brief Process an input file
-	virtual void load(const char* fname) = 0;
+	/*! \brief Load information from a resource
+	 *  \param res Resource to process
+	 */
+	virtual void load(std::string res ) = 0;
 
 	//! \brief Retrieve number of seconds this file lasts
 	inline virtual int getTotalTime() { return totaltime; }

@@ -5,7 +5,7 @@
 #include "info_sid.h"
 
 void
-InfoSID::load(const char* fname)
+InfoSID::load(std::string res)
 {
 	const SidTuneInfo tuneinfo = (reinterpret_cast<DecoderSID*> (decoder))->getTuneInfo();
 

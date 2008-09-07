@@ -289,6 +289,10 @@ Interface::handlePlaylistInput(int c)
 			}
 			menuPlaylist->draw();
 			break;
+		case '*':
+			playlist.clear();
+			menuPlaylist->draw();
+			break;
 		case 0x09: /* TAB */
 			menuBrowser->draw();
 			showingPlaylist = false;

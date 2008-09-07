@@ -103,6 +103,19 @@ Menu::tryLookup()
 {
 	size_t lookup_len = lookup.length();
 
+	/*
+	 * First of all, attempt to do a search from our current position; this
+	 * is usually what the user is looking for
+	 */
+	for (unsigned int i = sel_item + 1; i < getNumItems(); i++) {
+		if (!strncasecmp(getCompareItem(i).c_str(), lookup.c_str(), lookup_len)) {
+			sel_item = i;
+			return true;
+		}
+	}
+
+
+
 	for (unsigned int i = 0; i < getNumItems(); i++) {
 		if (!strncasecmp(getCompareItem(i).c_str(), lookup.c_str(), lookup_len)) {
 			sel_item = i;

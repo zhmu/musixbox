@@ -109,10 +109,11 @@ Interface::fillInfo()
 {
 	werase(winInfo);
 	box(winInfo, 0, 0);
-	mvwprintw(winInfo, 1, 2, "up/dn/pgup/pgdn/home/end   browse                     space  pause/continue");
+	mvwprintw(winInfo, 1, 2, "up/dn/pgup/pgdn/home/end   navigate                   space  pause/continue");
 	mvwprintw(winInfo, 2, 2, "right/enter                select                     +/-    adjust volume");
 	mvwprintw(winInfo, 3, 2, "left/backspace             leave folder               f10    exit");
 	mvwprintw(winInfo, 4, 2, "insert/delete              add/remove from playlist   *      clear playlist");
+	mvwprintw(winInfo, 5, 2, "tab                        toggle browser/playlist view");
 	wrefresh(winInfo);
 }
 

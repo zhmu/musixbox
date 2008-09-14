@@ -94,7 +94,10 @@ avrRecvThread(void* ptr)
 				break;
 
 			/* Unknown data part */
-			default: fprintf(stderr, "Unknown data part\n");
+			default: 
+				fprintf(stderr, "Unknown data part\n");
+				cmd = '0'; dp = -1;
+				touched = false;
 		}
 
 		/* Check validity */
@@ -111,7 +114,9 @@ avrRecvThread(void* ptr)
 			x = (int)((float)x * ((float)avr->getWidth()) / (float)(maxX - minX));
 			y = (int)((float)y * ((float)avr->getHeight()) / (float)(maxY - minY));
 			/* we need to invert the Y */
-			y = avr->getHeight() - y;
+			//y = avr->getHeight() - y;
+			/* we need to invert the X */
+			x = avr->getWidth() - x;
 
 			/*
 			 * Only report changed coordinates - otherwise, the LCD is way

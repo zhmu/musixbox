@@ -41,11 +41,12 @@ usage()
 	for (list<string>::iterator it = l.begin(); it != l.end(); it++) {
 		fprintf(stderr, " %s", (*it).c_str());
 	}
+	fprintf(stderr, "\n");
 	fprintf(stderr, " -p path        path to media files\n");
 	fprintf(stderr, " -c config      location of configuration file\n");
-	fprintf(stderr, "                default: ~/%s", DEFAULT_CONFIG_FILE);
+	fprintf(stderr, "                default: ~/%s\n", DEFAULT_CONFIG_FILE);
 	fprintf(stderr, " -n             clear configuration file\n");
-	fprintf(stderr, "\n\n");
+	fprintf(stderr, "\n");
 	fprintf(stderr, "resource is optional; if specified, musixbox will immediately begin to play it\n");
 	exit(EXIT_SUCCESS);
 }

@@ -46,7 +46,6 @@ usage()
 	fprintf(stderr, "                default: ~/%s", DEFAULT_CONFIG_FILE);
 	fprintf(stderr, " -n             clear configuration file\n");
 	fprintf(stderr, "\n\n");
-	fprintf(stderr, "folder is where your media files are expected to be\n");
 	fprintf(stderr, "resource is optional; if specified, musixbox will immediately begin to play it\n");
 	exit(EXIT_SUCCESS);
 }

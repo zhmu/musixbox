@@ -106,6 +106,7 @@ main(int argc, char** argv)
 		delete interface;
 		delete output;
 		delete folder;
+		delete interaction;
 	} catch (MusixBoxException& e) {
 		fprintf(stderr, "%s\n", e.what());
 		return EXIT_FAILURE;

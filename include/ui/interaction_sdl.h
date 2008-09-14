@@ -11,7 +11,7 @@ public:
 	InteractionSDL();
 
 	//! \brief Deinitialize the interaction provider
-	~InteractionSDL();
+	virtual ~InteractionSDL();
 
 	//! \brief Returns the height of the SDL window
 	inline unsigned int getHeight() { return 64; }

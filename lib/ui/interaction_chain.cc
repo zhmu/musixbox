@@ -1,5 +1,12 @@
 #include "ui/interaction_chain.h"
 
+InteractionChain::~InteractionChain()
+{
+	for (unsigned int i = 0; i < provider.size(); i++) {
+		delete provider[i];
+	}
+}
+
 void
 InteractionChain::add(Interaction* i)
 {

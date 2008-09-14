@@ -7,6 +7,9 @@
 //! \brief Provides interaction using a chain of other providers
 class InteractionChain : public Interaction {
 public:
+	//! \brief Destructs the chain and all providers in it
+	virtual ~InteractionChain();
+
 	//! \brief Returns the height of the chain window
 	inline unsigned int getHeight() { return provider[0]->getHeight(); }
 

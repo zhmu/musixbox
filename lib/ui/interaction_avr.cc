@@ -29,8 +29,8 @@ avrRecvThread(void* ptr)
 	maxX = 207; maxY = 176;
 #else
 	/* Dwight: this does not belong here... need to store them or something */
-	minX = 113; minY = 170;
-	maxX = 930; maxY = 853;
+	minX = 1000; minY = 1000;
+	maxX = 0; maxY = 0;
 #endif
 
 	while (!avr->isTerminating()) {
@@ -130,6 +130,9 @@ avrRecvThread(void* ptr)
 			
 		}
 	}
+
+	printf("minx,miny,maxx,maxy=%u,%u,%u,%u\n",
+		minX, minY, maxX,  maxY);
 	return NULL;
 }
 

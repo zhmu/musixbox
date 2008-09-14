@@ -9,6 +9,8 @@ public:
 		haveValidCoords = false;
 	}
 
+	virtual ~Interaction() { }
+
 	//! \brief Returns the height of the screen
 	virtual unsigned int getHeight() = 0;
 

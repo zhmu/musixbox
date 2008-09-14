@@ -17,7 +17,7 @@ public:
 	InteractionAVR(const char* device);
 
 	//! \brief Destructs the AVR interaction provider
-	~InteractionAVR();
+	virtual ~InteractionAVR();
 
 	//! \brief Returns the height of the AVR window
 	inline unsigned int getHeight() { return 64; }

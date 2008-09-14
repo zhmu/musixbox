@@ -70,6 +70,15 @@ formBrowser::update()
 void
 formBrowser::interact(Control* control)
 {
+	/*
+	 * If we are rehashing, do not accept any interaction - this prevents
+	 * the browser form attemping to navigate two subfolders because it
+	 * got two interactions shortly after eachother while the screen was not
+	 * yet updated.
+	 */
+	if (rehash)
+		return;
+
 	if (control == bLeave) {
 		/* Stop button - return to main screen */
 		cachedIndexMap[folder->getPath()] = first_index;

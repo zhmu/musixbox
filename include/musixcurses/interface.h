@@ -27,7 +27,7 @@ public:
 	 *  \param f Folder containing media to browse
 	 *  \param resource Resource to play, or NULL
 	 */
-	Interface(Output* o, Mixer* m, Folder* f);
+	Interface(Output* o, Mixer* m, Folder* f, const char* resource);
 
 	//! \brief Destructs the interface object
 	~Interface();

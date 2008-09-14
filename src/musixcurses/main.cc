@@ -37,7 +37,7 @@ handle_resize(int num)
 void
 usage()
 {
-	fprintf(stderr, "usage: musixcurses [-?hn] [-o type] [-p path]\n\n");
+	fprintf(stderr, "usage: musixcurses [-?hn] [-o type] [-p path] [resource]\n\n");
 	fprintf(stderr, " -h, -?         this help\n");
 	fprintf(stderr, " -o type        select output plugin\n");
 	fprintf(stderr, "                available are:");
@@ -52,6 +52,7 @@ usage()
 	fprintf(stderr, "                default: ~/%s\n", DEFAULT_CONFIG_FILE);
 	fprintf(stderr, " -n             clear configuration file\n");
 	fprintf(stderr, "\n");
+	fprintf(stderr, "resource is optional; if specified, musixbox will immediately begin to play it\n");
 	exit(EXIT_SUCCESS);
 }
 
@@ -116,7 +117,7 @@ main(int argc, char** argv)
 		signal(SIGALRM, handle_update);
 		signal(SIGWINCH, handle_resize);
 
-		interface = new Interface(output, mixer, folder);
+		interface = new Interface(output, mixer, folder, (argc > 0) ? argv[0] : NULL);
 		interface->run();
 
 		/* Only store the configuration on successful termination */

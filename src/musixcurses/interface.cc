@@ -8,7 +8,7 @@
 
 using namespace std;
 
-Interface::Interface(Output* o, Mixer* m, Folder* f)
+Interface::Interface(Output* o, Mixer* m, Folder* f, const char* resource)
 {
 	output = o; mixer = m; folder = f; player = NULL; showingPlaylist = false;
 
@@ -52,6 +52,19 @@ Interface::Interface(Output* o, Mixer* m, Folder* f)
 	fillStatus();
 	menuBrowser->draw();
 	refresh();
+
+	if (resource == NULL)
+		return;
+
+	try {
+		playResource(resource);
+	} catch (MusixBoxException& e) {
+		/*
+		 * XXX No reporting yet - we should show a cute dialog or something
+		 *
+		 * fprintf(stderr, "musixcurses: unable to play initial file: %s\n", e.what());
+		 */
+	}
 }
 
 Interface::~Interface()

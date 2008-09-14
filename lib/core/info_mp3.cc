@@ -19,15 +19,15 @@ InfoMP3::load(std::string res)
 	/* Handle all tags, one by one... */
 	frame = id3_tag_findframe(tag, ID3_FRAME_TITLE, 0);
 	if (frame != NULL) {
-		title = (char*)id3_ucs4_utf8duplicate(id3_field_getstrings(&frame->fields[1], 0));
+		title = (char*)id3_ucs4_latin1duplicate(id3_field_getstrings(&frame->fields[1], 0));
 	}
 	frame = id3_tag_findframe(tag, ID3_FRAME_ARTIST, 0);
 	if (frame != NULL) {
-		artist = (char*)id3_ucs4_utf8duplicate(id3_field_getstrings(&frame->fields[1], 0));
+		artist = (char*)id3_ucs4_latin1duplicate(id3_field_getstrings(&frame->fields[1], 0));
 	}
 	frame = id3_tag_findframe(tag, ID3_FRAME_ALBUM, 0);
 	if (frame != NULL) {
-		album = (char*)id3_ucs4_utf8duplicate(id3_field_getstrings(&frame->fields[1], 0));
+		album = (char*)id3_ucs4_latin1duplicate(id3_field_getstrings(&frame->fields[1], 0));
 	}
 	
 	id3_file_close(id3);

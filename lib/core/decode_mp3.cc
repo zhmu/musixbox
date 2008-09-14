@@ -134,9 +134,12 @@ DecoderMP3::run()
 	 * Note: this will yield utter nonsense for VBR files, which is why we
 	 *       look for Xing tags later on.
 	 */
-	totaltime = 
-		((input->getLength() - input->getCurrentPosition()) * 8) /
-		frame.header.bitrate;
+	if (frame.header.bitrate > 0)
+		totaltime = 
+			((input->getLength() - input->getCurrentPosition()) * 8) /
+			frame.header.bitrate;
+	else
+		totaltime = 0;
 
 	if (!MAD_RECOVERABLE(stream.error))
 		goto fail;

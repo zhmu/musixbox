@@ -33,6 +33,7 @@ public:
 	void gettextsize(const char* s, unsigned int* h, unsigned int* w);
 	bool getCoordinates(unsigned int* x, unsigned int* y);
 	bool isScrollingOK();
+	void flushCoordinates();
 
 private:
 	std::vector<Interaction*> provider;

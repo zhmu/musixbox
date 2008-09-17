@@ -59,3 +59,8 @@ Interaction::setCoordinates(unsigned int x, unsigned int y)
 	haveValidCoords = true;
 }
 
+void 
+Interaction::flushCoordinates()
+{
+	haveValidCoords = false;
+}

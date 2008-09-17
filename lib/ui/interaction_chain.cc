@@ -74,3 +74,10 @@ InteractionChain::isScrollingOK()
 			return false;
 	return true;
 }
+
+void
+InteractionChain::flushCoordinates()
+{
+	for (unsigned int i = 0; i < provider.size(); i++)
+		provider[i]->flushCoordinates();
+}

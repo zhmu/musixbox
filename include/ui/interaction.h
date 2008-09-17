@@ -64,6 +64,9 @@ public:
 	 */
 	virtual bool getCoordinates(unsigned int* x, unsigned int* y);
 
+	//! \brief Flushes any unreported coordinates
+	virtual void flushCoordinates();
+
 	//! \brief Is scrolling output desirable
 	virtual bool isScrollingOK() { return true; }
 	

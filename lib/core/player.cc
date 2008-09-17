@@ -66,6 +66,7 @@ Player::stop_locked()
 	pthread_join(playerThread, NULL);
 
 	delete input; delete info; delete decoder;
+	input = NULL; info = NULL; decoder = NULL;
 	havePlayerThread = false;
 }
 

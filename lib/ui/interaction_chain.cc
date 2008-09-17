@@ -21,6 +21,12 @@ InteractionChain::yield()
 		if (provider[i]->mustTerminate())
 			requestTermination();
 	}
+
+	/*
+	 * Delay for a far bit of time to give the OS the chance to do
+	 * something else...
+	 */
+	usleep(250);
 }
 
 bool

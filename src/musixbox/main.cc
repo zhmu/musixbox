@@ -24,7 +24,7 @@ Configuration* config;
 void
 usage()
 {
-	fprintf(stderr, "usage: musixbox [-?hn"
+	fprintf(stderr, "usage: musixbox [-?dhn"
 #ifdef WITH_SDL
 "s"
 #endif
@@ -46,6 +46,7 @@ usage()
 	fprintf(stderr, " -c config      location of configuration file\n");
 	fprintf(stderr, "                default: ~/%s\n", DEFAULT_CONFIG_FILE);
 	fprintf(stderr, " -n             clear configuration file\n");
+	fprintf(stderr, " -d             daemonize after startup\n");
 	fprintf(stderr, "\n");
 	fprintf(stderr, "resource is optional; if specified, musixbox will immediately begin to play it\n");
 	exit(EXIT_SUCCESS);
@@ -61,6 +62,7 @@ int
 main(int argc, char** argv)
 {
 	string cfgfile;
+	int daemonize = 0;
 
 	if (getenv("HOME") != NULL)
 		cfgfile = string(getenv("HOME")) + "/"DEFAULT_CONFIG_FILE;
@@ -75,7 +77,7 @@ main(int argc, char** argv)
 		interaction = new InteractionChain();
 
 		int ch;
-		while ((ch = getopt(argc, argv, "?hn"
+		while ((ch = getopt(argc, argv, "?dhn"
 #ifdef WITH_SDL
 "s"
 #endif
@@ -102,6 +104,8 @@ main(int argc, char** argv)
 			          config = new Configuration(optarg);
 			          break;
 			case 'n': config->clear();
+			          break;
+			case 'd': daemonize++;
 			          break;
 			case 'h':
 			case '?': usage();
@@ -147,6 +151,9 @@ main(int argc, char** argv)
 
 		signal(SIGINT, terminate);
 		signal(SIGTERM, terminate);
+
+		if (daemonize && daemon(1, 1) < 0)
+			fprintf(stderr, "couldn't daemonize (%s), continuing anyway\n", strerror(errno));
 
 		interface->run();
 	

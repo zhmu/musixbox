@@ -72,7 +72,7 @@ main(int argc, char** argv)
 		Interface* interface;
 		Folder* folder = NULL;
 		Mixer* mixer;
-		InteractionChain* interaction = new InteractionChain();
+		interaction = new InteractionChain();
 
 		int ch;
 		while ((ch = getopt(argc, argv, "?hn"

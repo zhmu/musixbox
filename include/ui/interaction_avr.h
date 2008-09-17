@@ -3,9 +3,13 @@
 #ifndef __INTERACTION_AVR_H__
 #define __INTERACTION_AVR_H__
 
-#define CMD_TOUCH_COORDS	0x01
-#define CMD_TOUCH_COORD_X	0x04
-#define CMD_TOUCH_COORD_Y	0x05
+#define CMD_NONE		0x00
+#define CMD_COORDS		0x01
+
+/* Pseudo-command's to handle a stream of input bytes */
+#define CMD_TOUCH_SUB_XHI	0xf0
+#define CMD_TOUCH_SUB_YLO	0xf1
+#define CMD_TOUCH_SUB_YHI	0xf2
 
 //! \brief Provides interaction using AVR, serially connected
 class InteractionAVR : public Interaction {

@@ -17,21 +17,12 @@ avrRecvThread(void* ptr)
 	bool touched = false, ready = false;
 	int x = -1, y = -1;
 	int minX = 1000, minY = 1000, maxX = 0, maxY = 0;
-	int oldX = -1, oldY = -1;
 	int reading = 0; // What are we going to read?
-	unsigned char cmd = '0'; 
-	unsigned char data = '0';
-	int dp = -1; /* Datapart we have to read next */
+	uint8_t curCmd = CMD_NONE;
+	uint8_t data;
 
-#if 0
-	/* Rink: this does not belong here... need to store them or something */
-	minX = 52; minY = 68;
-	maxX = 207; maxY = 176;
-#else
-	/* Dwight: this does not belong here... need to store them or something */
-	minX = 1000; minY = 1000;
-	maxX = 0; maxY = 0;
-#endif
+	/* XXX: store me in config file */
+	minX = 91; maxX = 1846; minY = 223; maxY = 1748;
 
 	while (!avr->isTerminating()) {
 		/*
@@ -42,62 +33,62 @@ avrRecvThread(void* ptr)
 		if (fd < 0) 
 			break;
 
-		/* wait until we get word the AVR gets data */
+		/* Wait until there is something to report */
 		FD_ZERO(&fds);
 		FD_SET(fd, &fds);
 		if (select(fd + 1, &fds, (fd_set*)NULL, (fd_set*)NULL, NULL) < 0) 
 			break;
 		
 		if(!FD_ISSET(fd, &fds)) 
-			/* It was not for us this means we got interrupted by
-			 * something, so it's game over time */
+			/*
+			 * We got interrupted, but no data is available. This
+			 * generally means the select() got interrupted by a
+			 * signal - so just attempt again (the isTerminating()
+		 	 * condition gets us out of the loop if needed)
+			 */
 			break;
 
-		/* Read next command */
-		if (cmd == '0') {
-			if (!(read(avr->getFD(), &cmd, 1))) {
-				break;
-			}
-			else {
-				if (cmd == CMD_TOUCH_COORDS) {
-					dp = 1; // start with x lowbyte
-				}
-				/* Wait for the next byte to be reported */
-				continue;
-			}
+		if (curCmd == CMD_NONE) {
+			/*
+			 * We do not have a command, so the first byte we read is the
+			 * command
+			 */
+			read(avr->getFD(), &curCmd, 1);
+			continue;
 		}
 
-		/* Read data, datapart selected on dp */
+		/* Read data */
 		if (!(read(avr->getFD(), &data, 1))) 
 			break;
 		
 		/* Data read was succesfull, store data */
-		switch (dp) {
+		switch (curCmd) {
 			/* Touchscreen coordinate storage */
-			case 1: /* We received the lowbyte of the X-coordinate */
-				x = data; // x-lowbyte
-				dp++; // goto x-highbyte
+			case CMD_COORDS:
+				/* lo byte of the X-coordinate */
+				x = data;
+				curCmd = CMD_TOUCH_SUB_XHI;
 				break;
-			case 2: /* We received the highbyte of the X-coordinate */
-				x |= (data<<8); // x-highbyte
-				dp++; // goto y-lowbyte
+			case CMD_TOUCH_SUB_XHI:
+				/* hi byte of the X-coordinate */
+				x |= (data<<8);
+				curCmd = CMD_TOUCH_SUB_YLO;
 				break;
-			case 3: /* We received the lowbyte of the Y-coordinate */
-				y = data; //y-lowbyte
-				dp++; // goto y-highbyte
+			case CMD_TOUCH_SUB_YLO:
+				/* lo byte of the Y-coordinate */
+				y = data;
+				curCmd = CMD_TOUCH_SUB_YHI;
 				break;
-			case 4: /* We received the highbyte of the Y-coordinate */
+			case CMD_TOUCH_SUB_YHI:
+				/* hi byte of the X-coordinate */
 				y |= (data<<8); // y-highbyte
-				dp = -1; cmd = '0'; // get next command
+				curCmd = CMD_NONE;
 				touched = true;
-				//fprintf(stderr, "avr's x,y: %i, %i\n", x,y);
 				break;
-
-			/* Unknown data part */
-			default: 
+			default:
 				fprintf(stderr, "Unknown data part\n");
-				cmd = '0'; dp = -1;
-				touched = false;
+				curCmd = CMD_NONE;
+				continue;
 		}
 
 		/* Check validity */
@@ -106,26 +97,23 @@ avrRecvThread(void* ptr)
 		/* Process coordinate set? */	
 		if (touched) {
 			touched = false;
+			fprintf(stderr, "touch: got bytes x=%u,y=%u (minX=%u,maxX=%u,minY=%u,maxY=%u)=>", x, y, minX, maxX, minY, maxY);
 
+#if 0
 			/* dynamically adjust scaling */
 			if (x < minX) minX = x; if (x > maxX) maxX = x;
 			if (y < minY) minY = y; if (y > maxY) maxY = y;
-			x -= minX; y -= minY;
-			x = (int)((float)x * ((float)avr->getWidth()) / (float)(maxX - minX));
-			y = (int)((float)y * ((float)avr->getHeight()) / (float)(maxY - minY));
-			/* we need to invert the Y */
-			//y = avr->getHeight() - y;
-			/* we need to invert the X */
-			x = avr->getWidth() - x;
+#endif
+			/* Ignore out-of-range coordinates */
+			if (x >= minX && y >= minY && x <= maxX && y <= maxY) {
+				x -= minX; y -= minY;
+				x = (int)((float)x * ((float)avr->getWidth()) / (float)(maxX - minX));
+				y = (int)((float)y * ((float)avr->getHeight()) / (float)(maxY - minY));
+				/* We need to invert the X */
+				x = avr->getWidth() - x;
 
-			/*
-			 * Only report changed coordinates - otherwise, the LCD is way
-			 * too sensitive...
-			 */
-			if (oldX != x || oldY != y) {
 				avr->setCoordinates(x, y);
-				oldX = x; oldY = y;
-				fprintf(stderr, "display's x,y: %i, %i\n", x,y);
+				fprintf(stderr, " display's x,y: %i, %i\n", x,y);
 			}
 			
 		}

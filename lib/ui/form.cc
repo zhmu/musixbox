@@ -37,8 +37,12 @@ Form::puttext(unsigned int x, unsigned int y, std::string s)
 void
 Form::run()
 {
-	/* Ensure we do at least one run of the form */
+	/*
+	 * Ensure we do at least one run of the form - and don't trust lingering
+	 * coordinates
+	 */
 	mustClose = false;
+	interaction->flushCoordinates();
 
 	while (!mustBeClosed()) {
 		/* Update form and throw it on the interaction provider */

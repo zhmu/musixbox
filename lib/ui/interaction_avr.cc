@@ -9,6 +9,8 @@
 #include "core/exceptions.h"
 #include "ui/interaction_avr.h"
 
+#undef DEBUG
+
 void*
 avrRecvThread(void* ptr)
 {
@@ -86,7 +88,9 @@ avrRecvThread(void* ptr)
 				touched = true;
 				break;
 			default:
-				fprintf(stderr, "Unknown data part\n");
+#ifdef DEBUG
+				fprintf(stderr, "InteractionAVR: received unknown command 0x%02x, ignored\n", curCmd);
+#endif
 				curCmd = CMD_NONE;
 				continue;
 		}
@@ -97,7 +101,9 @@ avrRecvThread(void* ptr)
 		/* Process coordinate set? */	
 		if (touched) {
 			touched = false;
+#ifdef DEBUG
 			fprintf(stderr, "touch: got bytes x=%u,y=%u (minX=%u,maxX=%u,minY=%u,maxY=%u)=>", x, y, minX, maxX, minY, maxY);
+#endif
 
 #if 0
 			/* dynamically adjust scaling */
@@ -113,7 +119,11 @@ avrRecvThread(void* ptr)
 				x = avr->getWidth() - x;
 
 				avr->setCoordinates(x, y);
+#ifdef DEBUG
 				fprintf(stderr, " display's x,y: %i, %i\n", x,y);
+			} else {
+				fprintf(stderr, " ignored\n");
+#endif
 			}
 			
 		}

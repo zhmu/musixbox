@@ -129,8 +129,6 @@ avrRecvThread(void* ptr)
 		}
 	}
 
-	printf("minx,miny,maxx,maxy=%u,%u,%u,%u\n",
-		minX, minY, maxX,  maxY);
 	return NULL;
 }
 

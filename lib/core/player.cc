@@ -8,6 +8,9 @@ player_wrapper(void* data)
 {
 	Player* player = (Player*)data;
 
+	/*
+	 * XXX We do not acquire any locks here
+	 */
 	player->decoder->run();
 	if (!player->decoder->isTerminating()) {
 		/*
@@ -28,54 +31,46 @@ Player::Player(std::string resource, Output* o, Visualizer* v)
 	 */
 	output = o; visualizer = v; input = NULL; decoder = NULL; info = NULL;
 	playerPaused = false; havePlayerThread = false;
+	pthread_mutex_init(&mtx_data, NULL);
 
 	DecoderFactory::construct(resource, output, visualizer, &input, &decoder, &info);
 }
 
 Player::~Player()
 {
-	/* get rid of the player, if any */
-	stop();
+	pthread_mutex_lock(&mtx_data);
 
-	/* remove lingering objects as we promised */
-	delete decoder;
-	delete input;
-	delete info;
+	/* get rid of the player, if any - this will remove any lingering objects */
+	stop_locked();
+
+	pthread_mutex_destroy(&mtx_data);
 }
 
 void
-Player::play()
+Player::play_locked()
 {
-	stop();
-
+	stop_locked();
 	pthread_create(&playerThread, NULL, player_wrapper, this);
 	havePlayerThread = true;
 }
 
 void
-Player::stop()
+Player::stop_locked()
 {
 	if (!havePlayerThread)
 		return;
 
 	/* Ask the decoder thread to terminate, and wait until it is gone */
 	decoder->terminate();
-	cont();
+	cont_locked();
 	pthread_join(playerThread, NULL);
 
-	Input* oldInput = input; Info* oldInfo = info; Decoder* oldDecoder = decoder;
-
-	input = NULL; info = NULL; decoder = NULL;
-
-	delete oldInput;
-	delete oldInfo;
-	delete oldDecoder;
-
+	delete input; delete info; delete decoder;
 	havePlayerThread = false;
 }
 
 void
-Player::pause()
+Player::pause_locked()
 {
 	if (playerPaused || !havePlayerThread)
 		return;
@@ -85,7 +80,7 @@ Player::pause()
 }
 
 void
-Player::cont()
+Player::cont_locked()
 {
 	if (!playerPaused || !havePlayerThread)
 		return;
@@ -97,15 +92,80 @@ Player::cont()
 unsigned int
 Player::getPlayingTime()
 {
+	pthread_mutex_lock(&mtx_data);
+
+	unsigned int i;
 	if (decoder == NULL)
-		return 0;
-	return decoder->getPlayingTime();
+		i = 0;
+	else
+		i = decoder->getPlayingTime();
+
+	pthread_mutex_unlock(&mtx_data);
+	return i;
 }
 
 unsigned int
 Player::getTotalTime()
 {
+
+	pthread_mutex_lock(&mtx_data);
+
+	unsigned int i;
 	if (decoder == NULL)
-		return 0;
-	return decoder->getTotalTime();
+		i = 0;
+	else
+		i = decoder->getTotalTime();
+
+	pthread_mutex_unlock(&mtx_data);
+	return i;
+}
+
+bool
+Player::isPaused()
+{
+	pthread_mutex_lock(&mtx_data);
+	bool b = playerPaused;
+	pthread_mutex_unlock(&mtx_data);
+	return b;
+}
+
+Info*
+Player::getInfo()
+{
+	pthread_mutex_lock(&mtx_data);
+	Info* i = info;
+	pthread_mutex_unlock(&mtx_data);
+	return i;
+}
+
+void
+Player::play()
+{
+	pthread_mutex_lock(&mtx_data);
+	play_locked();
+	pthread_mutex_unlock(&mtx_data);
+}
+
+void
+Player::stop()
+{
+	pthread_mutex_lock(&mtx_data);
+	stop_locked();
+	pthread_mutex_unlock(&mtx_data);
+}
+
+void
+Player::pause()
+{
+	pthread_mutex_lock(&mtx_data);
+	pause_locked();
+	pthread_mutex_unlock(&mtx_data);
+}
+
+void
+Player::cont()
+{
+	pthread_mutex_lock(&mtx_data);
+	cont_locked();
+	pthread_mutex_unlock(&mtx_data);
 }

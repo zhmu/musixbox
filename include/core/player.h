@@ -22,6 +22,7 @@ public:
 	inline Player(Output* o, Visualizer* v, Input* it, Decoder* d, Info* in) {
 		output = o; visualizer = v; input = it; decoder = d; info = in;
 		playerPaused = false; havePlayerThread = false;
+		pthread_mutex_init(&mtx_data, NULL);
 	}
 
 	/*! \brief Construct a player object
@@ -58,10 +59,10 @@ public:
 	void cont();
 
 	//! \brief Is the player paused?
-	bool isPaused() { return playerPaused; }
+	bool isPaused();
 
 	//! \brief Retrieve the associated information object
-	Info* getInfo() { return info; }
+	Info* getInfo();
 
 	//! \brief Retrieve how long we have been playing
 	unsigned int getPlayingTime();
@@ -99,6 +100,22 @@ protected:
 
 	//! \brief Player thread
 	pthread_t playerThread;
+
+	//! \brief Mutex used to protect data fields
+	pthread_mutex_t mtx_data;
+
+private:
+	//! \brief Implementation of play() where the mutex is already held
+	void play_locked();
+
+	//! \brief Implementation of stop() where the mutex is already held
+	void stop_locked();
+
+	//! \brief Implementation of cont() where the mutex is already held
+	void cont_locked();
+
+	//! \brief Implementation of pause() where the mutex is already held
+	void pause_locked();
 };
 
 #endif /* __PLAYER_H__ */

@@ -14,11 +14,6 @@ Interface::Interface(Output* o, Mixer* m, Folder* f, const char* resource)
 
 	/* Initialize curses and colors */
 	initscr();
-	if (has_colors() == FALSE) {
-		endwin();
-		fprintf(stderr, "musixcurses: your terminal does not support colors, exiting\n");
-		throw NULL; /* XXX */
-	}
 	start_color();
 	init_pair(PAIR_STATUS,  COLOR_YELLOW, COLOR_BLUE);
 	init_pair(PAIR_BROWSER, COLOR_WHITE,  COLOR_BLACK);

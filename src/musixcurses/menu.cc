@@ -1,3 +1,4 @@
+#include <string.h>
 #include "menu.h"
 
 using namespace std;

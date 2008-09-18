@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <err.h>
+#include <errno.h>
 #include "core/exceptions.h"
 #include "core/folderfactory.h"
 #include "core/outputmixerfactory.h"

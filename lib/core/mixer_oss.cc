@@ -1,4 +1,5 @@
 #include <sys/soundcard.h>
+#include <sys/ioctl.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include "exceptions.h"

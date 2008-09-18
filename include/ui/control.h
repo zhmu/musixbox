@@ -1,3 +1,4 @@
+#include <string>
 #include "form.h"
 
 #ifndef __CONTROL_H__

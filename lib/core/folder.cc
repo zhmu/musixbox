@@ -1,3 +1,4 @@
+#include <algorithm>
 #include "folder.h"
 
 Folder::Folder(std::string r)

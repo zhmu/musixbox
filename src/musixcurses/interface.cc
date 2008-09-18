@@ -17,7 +17,7 @@ Interface::Interface(Output* o, Mixer* m, Folder* f, const char* resource)
 	if (has_colors() == FALSE) {
 		endwin();
 		fprintf(stderr, "musixcurses: your terminal does not support colors, exiting\n");
-		exit(EXIT_FAILURE);
+		throw NULL; /* XXX */
 	}
 	start_color();
 	init_pair(PAIR_STATUS,  COLOR_YELLOW, COLOR_BLUE);

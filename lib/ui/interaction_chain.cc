@@ -1,3 +1,4 @@
+#include <unistd.h>
 #include "ui/interaction_chain.h"
 
 InteractionChain::~InteractionChain()

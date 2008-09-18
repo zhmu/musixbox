@@ -77,7 +77,7 @@ AC_SEARCH_LIBS([pthread_create], [pthread], [],
 	AC_MSG_ERROR([POSIX threads are required])
 )
 AC_SEARCH_LIBS([pthread_suspend_np], [pthread],
-	[AC_DEFINE(WITH_PTHREAD_NP, [], [Support for POSIX Non-Portable functions]),
+	[AC_DEFINE(WITH_PTHREAD_NP, [], [Support for POSIX Non-Portable functions])
 	 AM_CONDITIONAL([PTHREAD_NP], [true])],
 	AM_CONDITIONAL([PTHREAD_NP], [false])
 )

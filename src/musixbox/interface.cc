@@ -3,7 +3,6 @@
 #include <sys/stat.h>
 #include <dirent.h>
 #include <pthread.h>
-#include <pthread_np.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <algorithm>

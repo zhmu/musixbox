@@ -1,5 +1,8 @@
+#include "config.h"
 #include <pthread.h>
+#ifdef WITH_PTHREAD_NP
 #include <pthread_np.h>
+#endif
 #include "decoderfactory.h"
 #include "player.h"
 
@@ -76,7 +79,9 @@ Player::pause_locked()
 	if (playerPaused || !havePlayerThread)
 		return;
 
+#ifdef WITH_PTHREAD_NP
 	pthread_suspend_np(playerThread);
+#endif
 	playerPaused = true;
 }
 
@@ -86,7 +91,9 @@ Player::cont_locked()
 	if (!playerPaused || !havePlayerThread)
 		return;
 
+#ifdef WITH_PTHREAD_NP
 	pthread_resume_np(playerThread);
+#endif
 	playerPaused = false;
 }
 

@@ -63,7 +63,6 @@ AC_ARG_WITH(sidplay2,
 [
 	LDFLAGS="$LDFLAGS -L$with_sidplay2/lib -L$with_sidplay2/lib/sidplay/builders -rpath $with_sidplay2/lib/sidplay/builders"
 	CPPFLAGS="$CPPFLAGS -I$with_sidplay2/include"
-	USE_LDCO
 ])
 AC_ARG_WITH(curl,
 [  --with-curl=dir             Remote fetching using libcurl],

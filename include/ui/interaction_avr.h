@@ -3,13 +3,12 @@
 #ifndef __INTERACTION_AVR_H__
 #define __INTERACTION_AVR_H__
 
+/* Commands send by the AVR to us */
 #define CMD_NONE		0x00
 #define CMD_COORDS		0x01
 
-/* Pseudo-command's to handle a stream of input bytes */
-#define CMD_TOUCH_SUB_XHI	0xf0
-#define CMD_TOUCH_SUB_YLO	0xf1
-#define CMD_TOUCH_SUB_YHI	0xf2
+/* Maximum argument length */
+#define CMD_MAX_DATA_LENGTH	0x10
 
 //! \brief Provides interaction using AVR, serially connected
 class InteractionAVR : public Interaction {
@@ -43,10 +42,15 @@ protected:
 	//! \brief Retrieve the file descriptor used for serial access
 	int getFD() { return fd; };
 
+	//! \brief Handle a touch coordinate request
+	void handleTouch(uint8_t* buf);
+
 private:
+	//! \brief File descriptor used for serial access
 	int fd;
 
-	int dirty;
+	//! \brief Need to update the display?
+	bool dirty;
 
 	//! \brief Working contents of display data
 	unsigned char* displaydata;
@@ -59,6 +63,18 @@ private:
 
 	//! \brief Is the receiving thread terminating
 	bool terminating;
+
+	//! \brief Minimum X coordinate on the touch
+	unsigned int minX;
+
+	//! \brief Maximum X coordinate on the touch
+	unsigned int maxX;
+
+	//! \brief Minimum Y coordinate on the touch
+	unsigned int minY;
+
+	//! \brief Maximum Y coordinate on the touch
+	unsigned int maxY;
 
 	//! \brief Receiving thread
 	pthread_t recvThread;

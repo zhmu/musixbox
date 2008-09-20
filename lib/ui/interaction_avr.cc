@@ -11,20 +11,26 @@
 
 #undef DEBUG
 
+/*
+ * struct COMMANDMAP is used to look up the corresponding aergument length
+ * per command.
+ */
+struct COMMANDMAP {
+	uint8_t	cmd;
+	uint8_t len;
+} commandmap[] = {
+	{ CMD_NONE,   0 },
+	{ CMD_COORDS, 4 },
+};
+
 void*
 avrRecvThread(void* ptr)
 {
 	InteractionAVR* avr = (InteractionAVR*)ptr;
 	fd_set fds;
-	bool touched = false, ready = false;
-	int x = -1, y = -1;
-	int minX = 1000, minY = 1000, maxX = 0, maxY = 0;
-	int reading = 0; // What are we going to read?
 	uint8_t curCmd = CMD_NONE;
-	uint8_t data;
-
-	/* XXX: store me in config file */
-	minX = 91; maxX = 1846; minY = 223; maxY = 1748;
+	uint8_t curByte, numBytes;
+	uint8_t argBuf[CMD_MAX_DATA_LENGTH];
 
 	while (!avr->isTerminating()) {
 		/*
@@ -56,77 +62,54 @@ avrRecvThread(void* ptr)
 			 * command
 			 */
 			read(avr->getFD(), &curCmd, 1);
-			continue;
-		}
 
-		/* Read data */
-		if (!(read(avr->getFD(), &data, 1))) 
-			break;
-		
-		/* Data read was succesfull, store data */
-		switch (curCmd) {
-			/* Touchscreen coordinate storage */
-			case CMD_COORDS:
-				/* lo byte of the X-coordinate */
-				x = data;
-				curCmd = CMD_TOUCH_SUB_XHI;
-				break;
-			case CMD_TOUCH_SUB_XHI:
-				/* hi byte of the X-coordinate */
-				x |= (data<<8);
-				curCmd = CMD_TOUCH_SUB_YLO;
-				break;
-			case CMD_TOUCH_SUB_YLO:
-				/* lo byte of the Y-coordinate */
-				y = data;
-				curCmd = CMD_TOUCH_SUB_YHI;
-				break;
-			case CMD_TOUCH_SUB_YHI:
-				/* hi byte of the X-coordinate */
-				y |= (data<<8); // y-highbyte
-				curCmd = CMD_NONE;
-				touched = true;
-				break;
-			default:
+			/* Look up the command length */
+			unsigned int idx;
+			for (idx = 0; idx < sizeof(commandmap) / sizeof(struct COMMANDMAP); idx++)
+				if (commandmap[idx].cmd == curCmd)
+					break;
+			if (idx == sizeof(commandmap) / sizeof(struct COMMANDMAP)) {
+				/* No such command */
 #ifdef DEBUG
 				fprintf(stderr, "InteractionAVR: received unknown command 0x%02x, ignored\n", curCmd);
 #endif
 				curCmd = CMD_NONE;
+				break;
+			}
+			curByte = 0; numBytes = commandmap[idx].len;
+			if (numBytes >= CMD_MAX_DATA_LENGTH) {
+#ifdef DEBUG
+				fprintf(stderr, "InteractionAVR: command 0x%02x has argument length %u > maximum %u, adjusting!\n", curCmd, numBytes, CMD_MAX_DATA_LEN);
+#endif
+				numBytes = CMD_MAX_DATA_LENGTH;
+			}
+			/* If we need to read data, do it */
+			if (numBytes > 0)
 				continue;
 		}
 
-		/* Check validity */
-		if ((x < 0) || (y < 0)) touched = false;
-		
-		/* Process coordinate set? */	
-		if (touched) {
-			touched = false;
-#ifdef DEBUG
-			fprintf(stderr, "touch: got bytes x=%u,y=%u (minX=%u,maxX=%u,minY=%u,maxY=%u)=>", x, y, minX, maxX, minY, maxY);
-#endif
-
-#if 0
-			/* dynamically adjust scaling */
-			if (x < minX) minX = x; if (x > maxX) maxX = x;
-			if (y < minY) minY = y; if (y > maxY) maxY = y;
-#endif
-			/* Ignore out-of-range coordinates */
-			if (x >= minX && y >= minY && x <= maxX && y <= maxY) {
-				x -= minX; y -= minY;
-				x = (int)((float)x * ((float)avr->getWidth()) / (float)(maxX - minX));
-				y = (int)((float)y * ((float)avr->getHeight()) / (float)(maxY - minY));
-				/* We need to invert the X */
-				x = avr->getWidth() - x;
-
-				avr->setInteraction(x, y, INTERACTION_TYPE_NORMAL);
-#ifdef DEBUG
-				fprintf(stderr, " display's x,y: %i, %i\n", x,y);
-			} else {
-				fprintf(stderr, " ignored\n");
-#endif
-			}
-			
+		/* Read extra data if needed */
+		if (curByte < numBytes) {
+			if (!(read(avr->getFD(), &argBuf[curByte++], 1))) 
+				break;
+			if (curByte < numBytes)
+				continue;
 		}
+
+		/* We have a complete data packet - process it */
+		switch (curCmd) {
+			/* Touchscreen coordinate storage */
+			case CMD_COORDS:
+				avr->handleTouch(argBuf);
+				break;
+			default:
+				/*
+				 * Length is know, but no action. Ignore the
+				 * to be on the safe side
+				 */
+				break;
+		}
+		curCmd = CMD_NONE;
 	}
 
 	return NULL;
@@ -173,8 +156,6 @@ InteractionAVR::InteractionAVR(const char* device)
 	if (tcsetattr(fd, TCSANOW, &opt) < 0)
 		throw InteractionException(std::string("tcsetattr() failure for ") + device);
 
-	pthread_create(&recvThread, NULL, avrRecvThread, this);
-
 	displaydata = (unsigned char*)malloc((getHeight() / 8) * getWidth());
 	if (displaydata == NULL)
 		throw InteractionException(std::string("Out of memory"));
@@ -183,11 +164,18 @@ InteractionAVR::InteractionAVR(const char* device)
 	if (currentDisplayData == NULL)
 		throw InteractionException(std::string("Out of memory"));
 
+	/* We want a clear display, so ensure we overwrite every little byte on there */
 	memset(displaydata, 0, (getHeight() / 8) * getWidth());
-	memset(currentDisplayData, 0, (getHeight() / 8) * getWidth());
+	memset(currentDisplayData, 0xFF, (getHeight() / 8) * getWidth());
+
+	/* XXX: store me in config file */
+	minX = 91; maxX = 1846; minY = 223; maxY = 1748;
+
+	/* Finally, launch the thread to cope with incoming data */
+	pthread_create(&recvThread, NULL, avrRecvThread, this);
 
 	/* We do not know what's on the LCD, so write whenever we can! */
-	dirty = 1;
+	dirty = true;
 }
 
 InteractionAVR::~InteractionAVR()
@@ -240,7 +228,7 @@ InteractionAVR::yield()
 		}
 	}
 
-	dirty = 0;
+	dirty = false;
 }
 
 void
@@ -254,7 +242,7 @@ InteractionAVR::putpixel(unsigned int x, unsigned int y, unsigned int c)
 	else
 		displaydata[x + (getWidth() * (y / 8))] &= ~(1 << (y % 8));
 
-	dirty = 1;
+	dirty = true;
 }
 
 void
@@ -267,4 +255,44 @@ InteractionAVR::writeAVRPage(unsigned char ic, unsigned char page, unsigned char
 		return;
 	if (!write(fd, data, 64))
 		return;
+}
+
+void
+InteractionAVR::handleTouch(uint8_t* buf)
+{
+	uint16_t x, y;
+
+	x = buf[0] | (buf[1] << 8);
+	y = buf[2] | (buf[3] << 8);
+
+#if 0
+	/* dynamically adjust scaling */
+	if (x < minX) minX = x; if (x > maxX) maxX = x;
+	if (y < minY) minY = y; if (y > maxY) maxY = y;
+#endif
+
+#ifdef DEBUG
+	fprintf(stderr, "touch: got bytes x=%u,y=%u (minX=%u,maxX=%u,minY=%u,maxY=%u)=>", x, y, minX, maxX, minY, maxY);
+#endif
+
+	/* Check validity */
+	if (x < minX || y < minY || x > maxX || y > maxY) {
+#ifdef DEBUG
+		fprintf(stderr, " ignored\n");
+#endif
+		return;
+	}
+		
+	/* Process coordinate set? */	
+	x -= minX; y -= minY;
+	x = (int)((float)x * ((float)getWidth()) / (float)(maxX - minX));
+	y = (int)((float)y * ((float)getHeight()) / (float)(maxY - minY));
+	/* We need to invert the X */
+	x = getWidth() - x;
+#ifdef DEBUG
+	fprintf(stderr, " display's x,y: %i, %i\n", x,y);
+#endif
+
+	/* All is well => report the coordinate */
+	setInteraction(x, y, INTERACTION_TYPE_NORMAL);
 }

@@ -55,9 +55,6 @@ protected:
 	//! \brief Play previus track
 	void prev();
 
-	//! \brief Relinquish control to the operating system
-	void relinquish();
-
 private:
 	//! \brief Interaction object we are using
 	Interaction* interaction;

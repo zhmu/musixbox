@@ -11,7 +11,7 @@ static char crossbutton[8] = { 0x81, 0x42, 0x24, 0x18, 0x18, 0x24, 0x42, 0x81 };
 formBrowser::formBrowser(Interaction* in, Folder* f)
 	: Form(in)
 {
-	for (unsigned int i = 0; i < interaction->getHeight() / interaction->getTextHeight(); i++) {
+	for (unsigned int i = 0; i < (interaction->getHeight() - interaction->getTextHeight())  / interaction->getTextHeight(); i++) {
 		Label* l = new Label(0, i * interaction->getTextHeight(),
 		                     interaction->getWidth() - 8, interaction->getTextHeight());
 		l->setData(new int(i));
@@ -19,9 +19,10 @@ formBrowser::formBrowser(Interaction* in, Folder* f)
 		add(l);
 	}
 
-	bLeave = new Image(interaction->getWidth() - 8, 0, 8, 8, crossbutton);
-	bUp = new Image(interaction->getWidth() - 8, 8, 8, 8, upbutton);
-	bDown = new Image(interaction->getWidth() - 8, interaction->getHeight() - 8, 8, 8, downbutton);
+	unsigned int sz = interaction->getWidth() / 3;
+	bUp =    new Image( 0, interaction->getHeight() - 8, sz, 8, upbutton);
+	bDown =  new Image(sz, interaction->getHeight() - 8, sz, 8, downbutton);
+	bLeave = new Image( 2 * sz, interaction->getHeight() - 8, sz, 8, crossbutton);
 	add(bLeave); add(bUp); add(bDown);
 
 	folder = f; rehash = true;
@@ -53,7 +54,7 @@ formBrowser::update()
 	unsigned int last_index = first_index;
 	unsigned int index = 0;
 	while (last_index < folder->getEntries().size()) {
-		if (index * interaction->getTextHeight() >= interaction->getHeight())
+		if (index * interaction->getTextHeight() >= interaction->getHeight() - interaction->getTextHeight())
 			break;
 
 		dirlabel[index++]->setText(folder->getEntries()[last_index++]);
@@ -62,7 +63,7 @@ formBrowser::update()
 	/*
 	 * Ensure unused items are properly nullified.
 	 */
-	while (index < interaction->getHeight() / interaction->getTextHeight()) {
+	while (index < (interaction->getHeight()  - interaction->getTextHeight()) / interaction->getTextHeight()) {
 		dirlabel[index++]->setText("");
 	}
 }

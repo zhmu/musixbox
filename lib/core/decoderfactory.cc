@@ -27,6 +27,7 @@
 #ifdef WITH_CURL
 #include "core/input_remote.h"
 #endif
+#include "core/exceptions.h"
 
 void
 DecoderFactory::construct(std::string resource, Output* output, Visualizer* visualizer, Input** input, Decoder** decoder, Info** info)
@@ -46,51 +47,56 @@ DecoderFactory::construct(std::string resource, Output* output, Visualizer* visu
 		*input = new InputFile(resource);
 
 	std::string extension = std::string(resource.begin() + resource.find_last_of(".") + 1, resource.end());
+	try {
 #ifdef WITH_VORBIS
-	if (!strcasecmp(extension.c_str(), "ogg")) {
-		*decoder = new DecoderOgg(*input, output, visualizer);
-		*info = new InfoOgg(*decoder);
-	} else
+		if (!strcasecmp(extension.c_str(), "ogg")) {
+			*decoder = new DecoderOgg(*input, output, visualizer);
+			*info = new InfoOgg(*decoder);
+		} else
 #endif /* WITH_VORBIS */
 #ifdef WITH_FLAC
-	if (!strcasecmp(extension.c_str(), "flac")) {
-		*decoder = new DecoderFLAC(*input, output, visualizer);
-		*info = new InfoFLAC(*decoder);
-	} else
+		if (!strcasecmp(extension.c_str(), "flac")) {
+			*decoder = new DecoderFLAC(*input, output, visualizer);
+			*info = new InfoFLAC(*decoder);
+		} else
 #endif /* WITH_FLAC */
 #ifdef WITH_MIKMOD
-	if (!strcasecmp(extension.c_str(), "669")  || !strcasecmp(extension.c_str(), "amf") ||
-	    !strcasecmp(extension.c_str(), "apun") || !strcasecmp(extension.c_str(), "dsm") ||
-	    !strcasecmp(extension.c_str(), "far")  || !strcasecmp(extension.c_str(), "gdm") ||
-	    !strcasecmp(extension.c_str(), "it")   || !strcasecmp(extension.c_str(), "imf") ||
-	    !strcasecmp(extension.c_str(), "mod")  || !strcasecmp(extension.c_str(), "med") ||
-	    !strcasecmp(extension.c_str(), "mtm")  || !strcasecmp(extension.c_str(), "okt") ||
-	    !strcasecmp(extension.c_str(), "s3m")  || !strcasecmp(extension.c_str(), "stm") ||
-	    !strcasecmp(extension.c_str(), "stx")  || !strcasecmp(extension.c_str(), "ult") ||
-	    !strcasecmp(extension.c_str(), "uni")  || !strcasecmp(extension.c_str(), "xm")) {
-		*decoder = new DecoderModule(*input, output, visualizer);
-		*info = new InfoModule(*decoder);
-	} else
+		if (!strcasecmp(extension.c_str(), "669")  || !strcasecmp(extension.c_str(), "amf") ||
+		    !strcasecmp(extension.c_str(), "apun") || !strcasecmp(extension.c_str(), "dsm") ||
+		    !strcasecmp(extension.c_str(), "far")  || !strcasecmp(extension.c_str(), "gdm") ||
+		    !strcasecmp(extension.c_str(), "it")   || !strcasecmp(extension.c_str(), "imf") ||
+		    !strcasecmp(extension.c_str(), "mod")  || !strcasecmp(extension.c_str(), "med") ||
+		    !strcasecmp(extension.c_str(), "mtm")  || !strcasecmp(extension.c_str(), "okt") ||
+		    !strcasecmp(extension.c_str(), "s3m")  || !strcasecmp(extension.c_str(), "stm") ||
+		    !strcasecmp(extension.c_str(), "stx")  || !strcasecmp(extension.c_str(), "ult") ||
+		    !strcasecmp(extension.c_str(), "uni")  || !strcasecmp(extension.c_str(), "xm")) {
+			*decoder = new DecoderModule(*input, output, visualizer);
+			*info = new InfoModule(*decoder);
+		} else
 #endif /* WITH_MIKMOD */
 #ifdef WITH_SIDPLAY2
-	if (!strcasecmp(extension.c_str(), "sid")) {
-		*decoder = new DecoderSID(*input, output, visualizer);
-		*info = new InfoSID(*decoder);
-	} else
+		if (!strcasecmp(extension.c_str(), "sid")) {
+			*decoder = new DecoderSID(*input, output, visualizer);
+			*info = new InfoSID(*decoder);
+		} else
 #endif /* WITH_SIDPLAY2 */
 #ifdef WITH_MAD
-	{
-		/* assume MP3 */
-		*decoder = new DecoderMP3(*input, output, visualizer);
+		{
+			/* assume MP3 */
+			*decoder = new DecoderMP3(*input, output, visualizer);
 #ifdef WITH_ID3TAG
-		*info = new InfoMP3(*decoder);
+			*info = new InfoMP3(*decoder);
 #endif
 #else /* WITH_MAD */
-	{
-		delete *input; *input = NULL;
-		return;
+		{
+			delete *input; *input = NULL;
+			return;
 #endif /* !WITH_MAD */
+		}
+		if (*info != NULL)
+			(*info)->load(resource.c_str());
+	} catch (InfoException &e) {
+		/* Failure to obtain information should not be critical */
+		*info = NULL;
 	}
-	if (*info != NULL)
-		(*info)->load(resource.c_str());
 }

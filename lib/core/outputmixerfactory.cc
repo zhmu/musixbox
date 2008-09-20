@@ -22,7 +22,12 @@ OutputMixerFactory::construct(string resource, Output** output, Mixer** mixer)
 #ifdef WITH_AO
 	} else if (resource == "ao") {
 		*output = new OutputAO();
-		*mixer = new MixerOSS("/dev/mixer0" /* XXX */);
+		try {
+			*mixer = new MixerOSS("/dev/mixer0" /* XXX */);
+		} catch (MixerException& e) {
+			/* Lack of a mixer shouldn't be fatal */
+			*mixer = NULL;
+		}
 	} else if (resource == "ao-swmixer") {
 		*output = new OutputSWMixer(new OutputAO());
 		*mixer = new MixerSW((OutputSWMixer*)*output);

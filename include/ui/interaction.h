@@ -71,9 +71,6 @@ public:
 
 	//! \brief Flushes any unreported interaction 
 	virtual void flushInteraction();
-
-	//! \brief Is scrolling output desirable
-	virtual bool isScrollingOK() { return true; }
 	
 protected:
 	/* \brief Update interaction coordinates

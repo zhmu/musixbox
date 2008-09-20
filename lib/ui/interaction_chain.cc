@@ -67,15 +67,6 @@ InteractionChain::gettextsize(const char* s, unsigned int* h, unsigned int* w)
 	provider[0]->gettextsize(s, h, w);
 }
 
-bool
-InteractionChain::isScrollingOK()
-{
-	for (unsigned int i = 0; i < provider.size(); i++)
-		if (!provider[i]->isScrollingOK())
-			return false;
-	return true;
-}
-
 void
 InteractionChain::flushInteraction()
 {

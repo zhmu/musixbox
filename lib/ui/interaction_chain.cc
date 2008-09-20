@@ -31,10 +31,10 @@ InteractionChain::yield()
 }
 
 bool
-InteractionChain::getCoordinates(unsigned int* x, unsigned int* y)
+InteractionChain::getInteraction(unsigned int* x, unsigned int* y, unsigned int* type)
 {
 	for (unsigned int i = 0; i < provider.size(); i++) {
-		if (provider[i]->getCoordinates(x, y))
+		if (provider[i]->getInteraction(x, y, type))
 			return true;
 	}
 	return false;
@@ -77,8 +77,8 @@ InteractionChain::isScrollingOK()
 }
 
 void
-InteractionChain::flushCoordinates()
+InteractionChain::flushInteraction()
 {
 	for (unsigned int i = 0; i < provider.size(); i++)
-		provider[i]->flushCoordinates();
+		provider[i]->flushInteraction();
 }

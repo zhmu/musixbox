@@ -118,7 +118,7 @@ avrRecvThread(void* ptr)
 				/* We need to invert the X */
 				x = avr->getWidth() - x;
 
-				avr->setCoordinates(x, y);
+				avr->setInteraction(x, y, INTERACTION_TYPE_NORMAL);
 #ifdef DEBUG
 				fprintf(stderr, " display's x,y: %i, %i\n", x,y);
 			} else {

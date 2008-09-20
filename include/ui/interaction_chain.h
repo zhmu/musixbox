@@ -31,9 +31,9 @@ public:
 	void putpixel(unsigned int x, unsigned int y, unsigned int c);
 	void puttext(unsigned int x, unsigned int y, const char* s);
 	void gettextsize(const char* s, unsigned int* h, unsigned int* w);
-	bool getCoordinates(unsigned int* x, unsigned int* y);
+	bool getInteraction(unsigned int* x, unsigned int* y, unsigned int* type);
 	bool isScrollingOK();
-	void flushCoordinates();
+	void flushInteraction();
 
 private:
 	std::vector<Interaction*> provider;

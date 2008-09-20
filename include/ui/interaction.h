@@ -1,12 +1,16 @@
 #ifndef __INTERACTION_H__
 #define __INTERACTION_H__
 
+#define INTERACTION_TYPE_NONE		0
+#define INTERACTION_TYPE_NORMAL		1
+#define INTERACTION_TYPE_ALTERNATIVE	2
+
 //! \brief Abstract class to provide interaction between the player and the user
 class Interaction {
 public:
 	Interaction() {
-		mustBeTerminating = false; coordX = 0; coordY = 0;
-		haveValidCoords = false;
+		mustBeTerminating = false; intX = 0; intY = 0;
+		intType = INTERACTION_TYPE_NONE;
 	}
 
 	virtual ~Interaction() { }
@@ -57,15 +61,16 @@ public:
 	 */
 	virtual void gettextsize(const char* s, unsigned int* h, unsigned int* w);
 
-	/* \brief Returns interaction coordinates, if any
+	/* \brief Returns interaction, if any
 	 * \param x X-coordinate
 	 * \param y Y-coordinate
+	 * \param type Interaction type
 	 * \returns True if there was interaction
 	 */
-	virtual bool getCoordinates(unsigned int* x, unsigned int* y);
+	virtual bool getInteraction(unsigned int* x, unsigned int* y, unsigned int* type);
 
-	//! \brief Flushes any unreported coordinates
-	virtual void flushCoordinates();
+	//! \brief Flushes any unreported interaction 
+	virtual void flushInteraction();
 
 	//! \brief Is scrolling output desirable
 	virtual bool isScrollingOK() { return true; }
@@ -74,18 +79,16 @@ protected:
 	/* \brief Update interaction coordinates
 	 * \param x X-coordinate
 	 * \param y Y-coordinate
+	 * \param type Interaction type
 	 */
-	virtual void setCoordinates(unsigned int x, unsigned int y);
+	virtual void setInteraction(unsigned int x, unsigned int y, unsigned int type);
 
 	//! \brief Determines whether we should terminate
 	bool mustBeTerminating;
 
 private:
-	//! \brief Do we have valid X/Y coordinates?
-	bool haveValidCoords;
-
-	//! \brief X and Y coordinates
-	unsigned int coordX, coordY;
+	//! \brief Interaction: X and Y coordinates and type
+	unsigned int intX, intY, intType;
 };
 
 #endif /* __INTERACTION_H__ */

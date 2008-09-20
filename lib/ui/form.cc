@@ -42,7 +42,7 @@ Form::run()
 	 * coordinates
 	 */
 	mustClose = false;
-	interaction->flushCoordinates();
+	interaction->flushInteraction();
 
 	while (!mustBeClosed()) {
 		/* Update form and throw it on the interaction provider */
@@ -56,8 +56,8 @@ Form::run()
 			continue;
 		}
 
-		unsigned int cx, cy;
-		if (!interaction->getCoordinates(&cx, &cy))
+		unsigned int cx, cy, ctype;
+		if (!interaction->getInteraction(&cx, &cy, &ctype))
 			continue;
 
 		/*

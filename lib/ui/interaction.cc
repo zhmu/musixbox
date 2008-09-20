@@ -43,24 +43,23 @@ Interaction::clear(unsigned int x, unsigned int y, unsigned int h, unsigned int 
 }
 
 bool
-Interaction::getCoordinates(unsigned int* x, unsigned int* y)
+Interaction::getInteraction(unsigned int* x, unsigned int* y, unsigned int* type)
 {
-	if (!haveValidCoords)
+	if (intType == INTERACTION_TYPE_NONE)
 		return false;
-	*x = coordX; *y = coordY;
-	haveValidCoords = false;
+	*x = intX; *y = intY; *type = intType;
+	intType = INTERACTION_TYPE_NONE;
 	return true;
 }
 
 void
-Interaction::setCoordinates(unsigned int x, unsigned int y)
+Interaction::setInteraction(unsigned int x, unsigned int y, unsigned int type)
 {
-	coordX = x; coordY = y;
-	haveValidCoords = true;
+	intX = x; intY = y; intType = type;
 }
 
 void 
-Interaction::flushCoordinates()
+Interaction::flushInteraction()
 {
-	haveValidCoords = false;
+	intType = INTERACTION_TYPE_NONE;
 }

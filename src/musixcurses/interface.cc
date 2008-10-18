@@ -386,9 +386,9 @@ void
 Interface::reposition()
 {
 	/* Get rid of the old windows first */
-	if (winStatus != NULL)  delwin(winStatus);
+	if (winStatus != NULL) delwin(winStatus);
 	if (winBrowser != NULL) delwin(winBrowser);
-	if (winInfo != NULL)   delwin(winInfo);
+	if (winInfo != NULL) delwin(winInfo);
 
 	/*
 	 * Initialize windows: status window (first 7 lines), browser window (X
@@ -399,7 +399,7 @@ Interface::reposition()
 	winStatus  = newwin(7, 0, 0, 0);
 	winBrowser = newwin(LINES - (showHelp ? 14 : 7), 0, 7, 0);
 	if (showHelp)
-		winInfo    = newwin(7, 0, LINES - 7, 0);
+		winInfo = newwin(7, 0, LINES - 7, 0);
 
 	/* Set colors for all windows */
 	wattrset(winStatus, COLOR_PAIR(PAIR_STATUS) | A_BOLD);

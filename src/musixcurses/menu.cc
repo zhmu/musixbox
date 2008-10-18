@@ -119,8 +119,9 @@ Menu::tryLookup()
 		}
 	}
 
-
-
+	/*
+	 * If this failed, wade through the entire list.
+	 */
 	for (unsigned int i = 0; i < getNumItems(); i++) {
 		if (!strncasecmp(getCompareItem(i).c_str(), lookup.c_str(), lookup_len)) {
 			sel_item = i;

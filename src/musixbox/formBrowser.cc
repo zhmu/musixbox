@@ -34,8 +34,8 @@ formBrowser::update()
 {
 	if (rehash) {
 		/*
-		 * Attempt to look up the visiting page number - if it's not there, just
-		 * default to the top.
+		 * Attempt to look up the visiting page number - if it's not
+		 * there, just default to the top.
 		 */
 		map<string, unsigned int>::iterator it = cachedIndexMap.find(folder->getPath());
 
@@ -74,8 +74,8 @@ formBrowser::interact(Control* control)
 	/*
 	 * If we are rehashing, do not accept any interaction - this prevents
 	 * the browser form attemping to navigate two subfolders because it
-	 * got two interactions shortly after eachother while the screen was not
-	 * yet updated.
+	 * got two interactions shortly after eachother while the screen was
+	 * not yet updated.
 	 */
 	if (rehash)
 		return;

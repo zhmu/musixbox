@@ -6,10 +6,10 @@ using namespace std;
 void
 Menu::draw()
 {
-	int x;
+	int num_cols;
 	unsigned int line = 0;
 
-	getmaxyx(window, num_lines, x);
+	getmaxyx(window, num_lines, num_cols);
 
 	/* Ensure items that do not exist cannot be selected */
 	if (sel_item >= getNumItems() && getNumItems() > 0)
@@ -37,8 +37,21 @@ Menu::draw()
 			break;
 		if (first_item + line == sel_item)
 			wattron(window, A_REVERSE);
-		mvwprintw(window, line, 1, " %s ",
-			getItem(first_item + line).c_str());
+		string s = getItem(first_item + line);
+		if (s.length() + 2 < num_cols || num_cols < 7) {
+			/*
+		 	 * The string either fits on the screen, or we have
+		 	 * no space to propery trim it - write it as-is.
+		 	 */
+			mvwprintw(window, line, 1, " %s ", s.c_str());
+		} else {
+			/*
+			 * The string doesn't fir on the screen - chop off
+			 * a part to make it fit.
+			 */
+			s = s.substr(1, num_cols - 7) + "...";
+			mvwprintw(window, line, 1, " %s ", s.c_str());
+		}
 		if (first_item + line == sel_item)
 			wattroff(window, A_REVERSE);
 		line++;

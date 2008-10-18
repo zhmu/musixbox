@@ -72,6 +72,9 @@ protected:
 	 */
 	void removeFromPlaylist(std::string resource);
 
+	//! \brief Reposition all windows
+	void reposition();
+
 private:
 	//! \brief Fill status window
 	void fillStatus();
@@ -128,6 +131,9 @@ private:
 
 	//! \brief Are we playing from the playlist?
 	bool playingFromList;
+
+	//! \brief Do we show the show the help?
+	bool showHelp;
 };
 
 #endif /* __INTERFACE_H__ */

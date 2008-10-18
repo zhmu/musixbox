@@ -10,7 +10,8 @@ using namespace std;
 
 Interface::Interface(Output* o, Mixer* m, Folder* f, const char* resource)
 {
-	output = o; mixer = m; folder = f; player = NULL; showingPlaylist = false;
+	output = o; mixer = m; folder = f; player = NULL;
+	showingPlaylist = false; showHelp = true;
 
 	/* Initialize curses and colors */
 	initscr();
@@ -24,26 +25,18 @@ Interface::Interface(Output* o, Mixer* m, Folder* f, const char* resource)
 	noecho(); curs_set(0); refresh();
 
 	/*
-	 * Initialize windows: status window (first 7 lines), browser window (X lines)
-	 * and info window (last 7 lines), thus X = total lines - 14.
-	 */	
-	winStatus  = newwin(7, 0, 0, 0);
-	winBrowser = newwin(LINES - 14, 0, 7, 0);
-	winInfo    = newwin(7, 0, LINES - 7, 0);
-
-	/* Set colors for all windows */
-	wattrset(winStatus, COLOR_PAIR(PAIR_STATUS) | A_BOLD);
-	wbkgdset(winStatus, COLOR_PAIR(PAIR_STATUS));
-	wattron(winBrowser, COLOR_PAIR(PAIR_BROWSER));
-	wattron(winInfo, COLOR_PAIR(PAIR_INFO) | A_BOLD);
-	wbkgdset(winInfo, COLOR_PAIR(PAIR_STATUS));
+	 * Call reposition for the first time to reposition all windows - but
+	 * initialize the windows to NULL to prevent garbage from being
+	 * freed.
+	 */
+	winStatus = NULL; winBrowser = NULL; winBrowser = NULL;
+	reposition();
 
 	/* Initialize menu's */
 	menuBrowser = new MenuBrowser(winBrowser, folder);
 	menuPlaylist = new MenuPlaylist(winBrowser, &playlist);
 
 	/* Dump stuff in the windows we just created and show 'em */
-	fillInfo();
 	fillStatus();
 	menuBrowser->draw();
 	refresh();
@@ -121,7 +114,7 @@ Interface::fillInfo()
 	mvwprintw(winInfo, 2, 2, "right/enter                select                     +/-    adjust volume");
 	mvwprintw(winInfo, 3, 2, "left/backspace             leave folder               f10    exit");
 	mvwprintw(winInfo, 4, 2, "insert/delete              add/remove from playlist   *      clear playlist");
-	mvwprintw(winInfo, 5, 2, "tab                        toggle browser/playlist view");
+	mvwprintw(winInfo, 5, 2, "tab                        toggle browser/playlist    f1     toggle help");
 	wrefresh(winInfo);
 }
 
@@ -367,6 +360,18 @@ Interface::run()
 	 */
 	while (1) {
 		int c = getch();
+		if (c == KEY_F(1)) {
+			/*
+			 * Toggle help - and redraw about everything
+			 * to ensure it's immediately visibleely visible
+			 */
+			showHelp = !showHelp;
+			reposition();
+			fillStatus();
+			menuBrowser->draw();
+			refresh();
+			continue;
+		}
 		if (c == KEY_F(10))
 			break;
 		if (showingPlaylist)
@@ -375,4 +380,34 @@ Interface::run()
 			handleBrowserInput(c);
 	}
 
+}
+
+void
+Interface::reposition()
+{
+	/* Get rid of the old windows first */
+	if (winStatus != NULL)  delwin(winStatus);
+	if (winBrowser != NULL) delwin(winBrowser);
+	if (winInfo != NULL)   delwin(winInfo);
+
+	/*
+	 * Initialize windows: status window (first 7 lines), browser window (X
+	 * lines) and info window (last 7 lines), thus X = total lines - 14.
+	 *
+	 * Note: if the help is hidden, the info window's doesn't exist.
+	 */	
+	winStatus  = newwin(7, 0, 0, 0);
+	winBrowser = newwin(LINES - (showHelp ? 14 : 7), 0, 7, 0);
+	if (showHelp)
+		winInfo    = newwin(7, 0, LINES - 7, 0);
+
+	/* Set colors for all windows */
+	wattrset(winStatus, COLOR_PAIR(PAIR_STATUS) | A_BOLD);
+	wbkgdset(winStatus, COLOR_PAIR(PAIR_STATUS));
+	wattron(winBrowser, COLOR_PAIR(PAIR_BROWSER));
+	if (showHelp) {
+		wattron(winInfo, COLOR_PAIR(PAIR_INFO) | A_BOLD);
+		wbkgdset(winInfo, COLOR_PAIR(PAIR_STATUS));
+		fillInfo();
+	}
 }

@@ -184,5 +184,72 @@ public:
 ])
 AC_LANG_POP(C++)
 
+# display an overview of how we will be builtj
+echo
+echo "Summary"
+echo "------"
+echo -n "MP3 support:          "
+if test "x${MAD_FALSE}" != "x"; then
+	echo "Yes (libmad)"
+else
+	echo "No"
+fi
+echo -n "MP3 tag support:      "
+if test "x${ID3TAG_FALSE}" != "x"; then
+	echo "Yes (libid3tag)"
+else
+	echo "No"
+fi
+echo -n "Ogg Vorbis support:   "
+if test "x${VORBIS_FALSE}" != "x"; then
+	echo "Yes (libvorbisfile)"
+else
+	echo "No"
+fi
+echo -n "Module support:       "
+if test "x${MIKMOD_FALSE}" != "x"; then
+	echo "Yes (libmikmod)"
+else
+	echo "No"
+fi
+echo -n "FLAC support:         "
+if test "x${FLAC_FALSE}" != "x"; then
+	echo "Yes (libflac++)"
+else
+	echo "No"
+fi
+echo -n "SID support:          "
+if test "x${SIDPLAY2_FALSE}" != "x"; then
+	echo "Yes (libsidplay2)"
+else
+	echo "No"
+fi
+echo
+echo -n "AO output:            "
+if test "x${AO_FALSE}" != "x"; then
+	echo "Yes (libao)"
+else
+	echo "No"
+fi
+echo -n "X11 visualization:    "
+if test "x${SDL_FALSE}" != "x"; then
+	echo "Yes (libSDL)"
+else
+	echo "No"
+fi
+echo -n "Streaming input:      "
+if test "x${CURL_FALSE}" != "x"; then
+	echo "Yes (libcurl)"
+else
+	echo "No"
+fi
+echo -n "Specium analyzer:     "
+if test "x${FFTW_FALSE}" != "x"; then
+	echo "Yes (libfftw)"
+else
+	echo "No"
+fi
+echo
+
 AC_OUTPUT([Makefile lib/Makefile lib/core/Makefile lib/ui/Makefile src/Makefile
 	   lib/misc/Makefile src/musixbox/Makefile src/musixcurses/Makefile])

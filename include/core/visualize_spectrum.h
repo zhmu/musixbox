@@ -1,4 +1,3 @@
-#include <SDL/SDL.h>
 #include <fftw3.h>
 #include "visualize.h"
 

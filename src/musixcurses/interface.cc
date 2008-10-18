@@ -215,7 +215,7 @@ Interface::removeFromPlaylist(string resource)
 	if (resource == "." || resource == "..")
 		return;
 
-	/* If the resource is a folder, enter it and recursively add */
+	/* If the resource is a folder, enter it and recursively remove */
 	if (folder->isFolder(resource)) {
 		folder->select(resource);
 		for (unsigned int i = 0; i < folder->getEntries().size(); i++)

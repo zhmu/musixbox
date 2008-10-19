@@ -17,6 +17,7 @@
 #define PAIR_STATUS		1
 #define PAIR_BROWSER		2
 #define PAIR_INFO		3
+#define PAIR_DIALOG		4
 
 //! \brief Provides user interaction
 class Interface {
@@ -75,6 +76,20 @@ protected:
 	//! \brief Reposition all windows
 	void reposition();
 
+	/*! \brief Draw a message dialog
+	 *  \param s Text to show
+	 *  \param keymsg Show 'press any key to continue' message
+	 */
+	void drawDialog(std::string s, bool keymsg = false);
+
+	//! \brief Remove the dialog
+	void clearDialog();
+
+	/*! \brief Displays a modal dialog
+	 *  \param s Text to show
+	 */
+	void dialog(std::string s);
+
 private:
 	//! \brief Fill status window
 	void fillStatus();
@@ -119,6 +134,7 @@ private:
 	WINDOW* winStatus;
 	WINDOW* winBrowser;
 	WINDOW* winInfo;
+	WINDOW* winMsg;
 
 	//! \brief Playlist
 	Playlist playlist;

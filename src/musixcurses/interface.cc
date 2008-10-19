@@ -11,7 +11,7 @@ using namespace std;
 Interface::Interface(Output* o, Mixer* m, Folder* f, const char* resource)
 {
 	output = o; mixer = m; folder = f; player = NULL;
-	showingPlaylist = false; showHelp = true;
+	showingPlaylist = false; showHelp = true; winMsg = NULL;
 
 	/* Initialize curses and colors */
 	initscr();
@@ -19,6 +19,7 @@ Interface::Interface(Output* o, Mixer* m, Folder* f, const char* resource)
 	init_pair(PAIR_STATUS,  COLOR_YELLOW, COLOR_BLUE);
 	init_pair(PAIR_BROWSER, COLOR_WHITE,  COLOR_BLACK);
 	init_pair(PAIR_INFO,    COLOR_YELLOW, COLOR_BLUE);
+	init_pair(PAIR_DIALOG,  COLOR_BLACK,  COLOR_WHITE);
 
 	/* Set our share of curses options, most notably no cursor and key input */
 	raw(); cbreak(); keypad(stdscr, TRUE);
@@ -45,11 +46,9 @@ Interface::Interface(Output* o, Mixer* m, Folder* f, const char* resource)
 	try {
 		playResource(resource);
 	} catch (MusixBoxException& e) {
-		/*
-		 * XXX No reporting yet - we should show a cute dialog or something
-		 *
-		 * fprintf(stderr, "musixcurses: unable to play initial file: %s\n", e.what());
-		 */
+		/* Unable to play the resource - inform the user */
+		string s = string("unable to play initial file: ") + e.what();
+		dialog(s);
 	}
 }
 
@@ -62,6 +61,8 @@ Interface::~Interface()
 
 	/* deinitialize curses, this makes our terminal happy again */
 	delwin(winInfo); delwin(winBrowser); delwin(winStatus);
+	if (winMsg != NULL)
+		delwin(winMsg);
 	endwin();
 }
 
@@ -294,7 +295,9 @@ Interface::handleBrowserInput(int c)
 			break;
 		case KEY_IC: /* insert */
 			item = folder->getEntries()[menuBrowser->getSelectedItem()];
+			drawDialog("Adding files to playlist...");
 			addToPlaylist(item);
+			clearDialog();
 			break;
 		case KEY_DC: /* delete */
 			item = folder->getEntries()[menuBrowser->getSelectedItem()];
@@ -423,4 +426,48 @@ Interface::redraw()
 	else
 		menuBrowser->draw();
 	refresh();
+}
+
+void
+Interface::drawDialog(std::string s, bool keymsg)
+{
+	string keystr = string("<any key to continue>");
+
+	if (winMsg != NULL)
+		delwin(winMsg);
+
+	/* Figure out the dialog size */
+	unsigned int width = s.size();
+	if (keymsg && width < keystr.size())
+		width = keystr.size();
+
+	winMsg = newwin(5, 10 + width, (LINES - 5) / 2, (COLS - 10 - s.size()) / 2);
+	wattron(winMsg, COLOR_PAIR(PAIR_DIALOG));
+	wbkgdset(winMsg, COLOR_PAIR(PAIR_DIALOG));
+	
+	werase(winMsg);
+	box(winMsg, 0, 0);
+	mvwprintw(winMsg, 2, 5 + (width - s.size()), s.c_str());
+	if (keymsg)
+		mvwprintw(winMsg, 4, (width - 10) / 2, keystr.c_str());
+
+	wrefresh(winMsg);
+	refresh();
+	
+}
+
+void
+Interface::clearDialog()
+{
+	if (winMsg != NULL)
+		delwin(winMsg);
+	redraw();
+}
+
+void
+Interface::dialog(std::string s)
+{
+	drawDialog(s, true);
+	(void)getch();
+	clearDialog();
 }

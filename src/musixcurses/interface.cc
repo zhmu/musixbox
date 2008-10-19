@@ -37,9 +37,7 @@ Interface::Interface(Output* o, Mixer* m, Folder* f, const char* resource)
 	menuPlaylist = new MenuPlaylist(winBrowser, &playlist);
 
 	/* Dump stuff in the windows we just created and show 'em */
-	fillStatus();
-	menuBrowser->draw();
-	refresh();
+	redraw();
 
 	if (resource == NULL)
 		return;
@@ -367,12 +365,7 @@ Interface::run()
 			 */
 			showHelp = !showHelp;
 			reposition();
-			fillStatus();
-			if (showingPlaylist)
-				menuPlaylist->draw();
-			else
-				menuBrowser->draw();
-			refresh();
+			redraw();
 			continue;
 		}
 		if (c == KEY_F(10))
@@ -413,4 +406,15 @@ Interface::reposition()
 		wbkgdset(winInfo, COLOR_PAIR(PAIR_STATUS));
 		fillInfo();
 	}
+}
+
+void
+Interface::redraw()
+{
+	fillStatus();
+	if (showingPlaylist)
+		menuPlaylist->draw();
+	else
+		menuBrowser->draw();
+	refresh();
 }

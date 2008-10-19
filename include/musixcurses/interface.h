@@ -97,6 +97,9 @@ private:
 	 */
 	void handlePlaylistInput(int c);
 
+	//! \brief Forcefully update all content
+	void redraw();
+
 	//! \brief Folder where all media resides
 	Folder* folder;
 

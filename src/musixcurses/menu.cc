@@ -144,3 +144,11 @@ Menu::tryLookup()
 
 	return false;
 }
+
+void
+Menu::setSelectedItem(unsigned int num)
+{
+	if (num >= getNumItems())
+		return;
+	sel_item = num;
+}

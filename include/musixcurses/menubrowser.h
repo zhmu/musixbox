@@ -1,4 +1,6 @@
 #include <curses.h>
+#include <map>
+#include <string>
 #include "core/folder.h"
 #include "menu.h"
 
@@ -12,6 +14,11 @@ public:
 		folder = f;
 	}
 
+	//! \brief Restore position to where it was when exiting the folder
+	void attemptReturnPosition();
+
+	//! \brief Store the position of the current folder
+	void storePosition();
 
 protected:
 	/*! \brief Retrieve textual representation of an item
@@ -25,6 +32,9 @@ protected:
 private:
 	//! \brief The folder we are browsing
 	Folder* folder;
+
+	//! \brief Map used to store per folder which page we were displaying
+	std::map<std::string, unsigned int> cachedPositionMap;
 };
 
 #endif /* __MENU_BROWSER_H__ */

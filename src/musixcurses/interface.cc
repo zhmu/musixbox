@@ -269,14 +269,19 @@ Interface::handleBrowserInput(int c)
 		case KEY_RIGHT:
 			item = folder->getEntries()[menuBrowser->getSelectedItem()];
 			if (item == "..") {
+				menuBrowser->storePosition();
 				menuBrowser->reset();
 				folder->goUp();
+				menuBrowser->attemptReturnPosition();
 				menuBrowser->draw();
 				break;
 			}
 			if (folder->isFolder(item)) {
+
+				menuBrowser->storePosition();
 				menuBrowser->reset();
 				folder->select(item);
+				menuBrowser->attemptReturnPosition();
 				menuBrowser->draw();
 				break;
 			}
@@ -300,6 +305,7 @@ Interface::handleBrowserInput(int c)
 				break;
 			menuBrowser->reset();
 			folder->goUp();
+			menuBrowser->attemptReturnPosition();
 			menuBrowser->draw();
 			break;
 		case 0x09: /* TAB */

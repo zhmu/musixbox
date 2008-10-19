@@ -52,6 +52,13 @@ protected:
 	 */
 	bool tryLookup();
 
+	/*! \brief Set the current selected item
+	 *  \item num Item to select
+	 *
+	 *  This function will only update the selected item if it is within range.
+	 */
+	void setSelectedItem(unsigned int num);
+
 private:
 	//! \brief Window used to draw
 	WINDOW* window;

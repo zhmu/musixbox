@@ -368,7 +368,10 @@ Interface::run()
 			showHelp = !showHelp;
 			reposition();
 			fillStatus();
-			menuBrowser->draw();
+			if (showingPlaylist)
+				menuPlaylist->draw();
+			else
+				menuBrowser->draw();
 			refresh();
 			continue;
 		}

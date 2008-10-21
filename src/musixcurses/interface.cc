@@ -367,6 +367,7 @@ Interface::run()
 	 */
 	while (1) {
 		int c = getch();
+#if 0
 		if (c == KEY_F(1)) {
 			/*
 			 * Toggle help - and redraw about everything
@@ -377,6 +378,7 @@ Interface::run()
 			redraw();
 			continue;
 		}
+#endif
 		if (c == KEY_F(10))
 			break;
 		if (showingPlaylist)

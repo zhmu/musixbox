@@ -46,10 +46,10 @@ Menu::draw()
 			mvwprintw(window, line, 1, " %s ", s.c_str());
 		} else {
 			/*
-			 * The string doesn't fir on the screen - chop off
+			 * The string doesn't fit on the screen - chop off
 			 * a part to make it fit.
 			 */
-			s = s.substr(1, num_cols - 7) + "...";
+			s = s.substr(0, num_cols - 7) + "...";
 			mvwprintw(window, line, 1, " %s ", s.c_str());
 		}
 		if (first_item + line == sel_item)

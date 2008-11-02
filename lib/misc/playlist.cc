@@ -60,7 +60,7 @@ Playlist::clear()
 string
 Playlist::getNextResource()
 {
-	if (nextPlayItem == items.size())
+	if (nextPlayItem >= items.size())
 		return "";
 
 	currentPlayItem = nextPlayItem;
@@ -70,7 +70,7 @@ Playlist::getNextResource()
 string
 Playlist::getCurrentResource()
 {
-	if (currentPlayItem == items.size())
+	if (currentPlayItem >= items.size())
 		return "";
 
 	return items[currentPlayItem]->getResource();

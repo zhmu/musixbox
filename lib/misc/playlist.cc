@@ -2,6 +2,11 @@
 
 using namespace std;
 
+Playlist::Playlist()
+{
+	clear();
+}
+
 Playlist::~Playlist()
 {
 	for (vector<PlaylistItem*>::iterator it = items.begin(); it != items.end(); it++) {
@@ -49,16 +54,17 @@ void
 Playlist::clear()
 {
 	items.clear();
-	currentPlayItem = 0;
+	currentPlayItem = 0; nextPlayItem = 1;
 }
 
 string
 Playlist::getNextResource()
 {
-	if (currentPlayItem + 1 == items.size())
+	if (nextPlayItem == items.size())
 		return "";
 
-	return items[++currentPlayItem]->getResource();
+	currentPlayItem = nextPlayItem;
+	return items[nextPlayItem++]->getResource();
 }
 
 string

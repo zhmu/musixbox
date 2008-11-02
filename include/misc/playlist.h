@@ -8,9 +8,7 @@
 class Playlist {
 public:
 	//! \brief Constructs a new playlist
-	inline Playlist() {
-		currentPlayItem = 0;
-	}
+	Playlist();
 
 	//! \brief Destructs the playlist
 	virtual ~Playlist();
@@ -38,6 +36,12 @@ public:
 	/*! \brief Set the current play item */
 	void setCurrentPlayItem(int n) { currentPlayItem = n; }
 
+	//! \brief Get the number of the next item to play
+	int getNextPlayItem() { return nextPlayItem; }
+
+	//! \brief Set the next item to play */
+	void setNextPlayItem(int n) { nextPlayItem = n; }
+
 	/*! \brief Retrieves the next resources to play and advances pointer
 	 * 
 	 *  Returns an empty string if the playlist has finished.
@@ -56,6 +60,9 @@ protected:
 
 	//! \brief Item we are currently playing
 	int currentPlayItem;
+
+	//! \brief Item we will play next
+	int nextPlayItem;
 };
 
 #endif /* __PLAYLIST_H__ */

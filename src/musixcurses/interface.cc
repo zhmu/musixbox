@@ -335,6 +335,7 @@ Interface::handlePlaylistInput(int c)
 			break;
 		case 0x0a: /* ENTER */
 			playlist.setCurrentPlayItem(menuPlaylist->getSelectedItem());
+			playlist.setNextPlayItem(menuPlaylist->getSelectedItem() + 1);
 			item = playlist.getCurrentResource();
 			if (item != "") {
 				playingFromList = true;
@@ -349,6 +350,11 @@ Interface::handlePlaylistInput(int c)
 			break;
 		case '*':
 			playlist.clear();
+			menuPlaylist->draw();
+			break;
+		case '.':
+		case '>':
+			playlist.setNextPlayItem(menuPlaylist->getSelectedItem());
 			menuPlaylist->draw();
 			break;
 		case 0x09: /* TAB */

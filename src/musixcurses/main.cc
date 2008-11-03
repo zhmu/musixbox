@@ -114,6 +114,7 @@ main(int argc, char** argv)
 			FolderFactory::construct(str, &folder);
 		}
 
+		signal(SIGQUIT, SIG_IGN);
 		signal(SIGALRM, handle_update);
 		signal(SIGWINCH, handle_resize);
 

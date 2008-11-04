@@ -350,6 +350,8 @@ Interface::handlePlaylistInput(int c)
 			break;
 		case '*':
 			playlist.clear();
+			playlist.setCurrentPlayItem(0);
+			playlist.setNextPlayItem(1);
 			menuPlaylist->draw();
 			break;
 		case '.':

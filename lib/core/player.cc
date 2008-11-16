@@ -1,8 +1,5 @@
 #include "config.h"
 #include <pthread.h>
-#ifdef WITH_PTHREAD_NP
-#include <pthread_np.h>
-#endif
 #include "decoderfactory.h"
 #include "player.h"
 
@@ -91,9 +88,7 @@ Player::pause_locked()
 	if (playerPaused || !havePlayerThread)
 		return;
 
-#ifdef WITH_PTHREAD_NP
-	pthread_suspend_np(playerThread);
-#endif
+	// Decoder threads will automatically suspend themselves if this is set
 	playerPaused = true;
 }
 
@@ -104,11 +99,7 @@ Player::cont_locked()
 		return;
 
 	playerPaused = false;
-#ifdef WITH_PTHREAD_NP
-	pthread_resume_np(playerThread);
-#else
 	pthread_cond_signal(&cv_suspend);
-#endif
 }
 
 unsigned int

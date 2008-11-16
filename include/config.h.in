@@ -42,9 +42,6 @@
 /* Decode using libmikmod */
 #undef WITH_MIKMOD
 
-/* Support for POSIX Non-Portable functions */
-#undef WITH_PTHREAD_NP
-
 /* Interaction using SDL */
 #undef WITH_SDL
 

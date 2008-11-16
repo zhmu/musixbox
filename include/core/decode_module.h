@@ -25,6 +25,9 @@ public:
 	//! \brief Performs a module decoding run
 	void run();
 
+	//! \brief Retrieve a list of file extensions this class can decode
+	static std::list<std::string> getExtensions();
+
 protected:
 	//! \brief Retrieve the temporary decoding buffer
 	inline char* getBuffer() { return buffer; }

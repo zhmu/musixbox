@@ -19,6 +19,9 @@ public:
 	//! \brief Performs a SID decoding run
 	void run();
 
+	//! \brief Retrieve a list of file extensions this class can decode
+	static std::list<std::string> getExtensions();
+
 protected:
 	const SidTuneInfo& getTuneInfo() { return *player.info().tuneInfo; }
 

@@ -88,3 +88,11 @@ DecoderSID::run()
 		playingtime = player.time() / player.timebase();
 	}
 }
+
+std::list<std::string> 
+DecoderSID::getExtensions()
+{
+	std::list<std::string> l;
+	l.push_back("sid");
+	return l;
+}

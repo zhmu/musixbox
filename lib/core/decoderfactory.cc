@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <string.h>
 #include "config.h"
 #include "decoderfactory.h"
@@ -48,34 +49,31 @@ DecoderFactory::construct(std::string resource, Player* player, Output* output, 
 
 	std::string extension = std::string(resource.begin() + resource.find_last_of(".") + 1, resource.end());
 	try {
+		std::list<std::string> ext;
 #ifdef WITH_VORBIS
-		if (!strcasecmp(extension.c_str(), "ogg")) {
+		ext = DecoderOgg::getExtensions();
+		if (std::find(ext.begin(), ext.end(), extension) != ext.end()) {
 			*decoder = new DecoderOgg(player, *input, output, visualizer);
 			*info = new InfoOgg(*decoder);
 		} else
 #endif /* WITH_VORBIS */
 #ifdef WITH_FLAC
-		if (!strcasecmp(extension.c_str(), "flac")) {
+		ext = DecoderFLAC::getExtensions();
+		if (std::find(ext.begin(), ext.end(), extension) != ext.end()) {
 			*decoder = new DecoderFLAC(player, *input, output, visualizer);
 			*info = new InfoFLAC(*decoder);
 		} else
 #endif /* WITH_FLAC */
 #ifdef WITH_MIKMOD
-		if (!strcasecmp(extension.c_str(), "669")  || !strcasecmp(extension.c_str(), "amf") ||
-		    !strcasecmp(extension.c_str(), "apun") || !strcasecmp(extension.c_str(), "dsm") ||
-		    !strcasecmp(extension.c_str(), "far")  || !strcasecmp(extension.c_str(), "gdm") ||
-		    !strcasecmp(extension.c_str(), "it")   || !strcasecmp(extension.c_str(), "imf") ||
-		    !strcasecmp(extension.c_str(), "mod")  || !strcasecmp(extension.c_str(), "med") ||
-		    !strcasecmp(extension.c_str(), "mtm")  || !strcasecmp(extension.c_str(), "okt") ||
-		    !strcasecmp(extension.c_str(), "s3m")  || !strcasecmp(extension.c_str(), "stm") ||
-		    !strcasecmp(extension.c_str(), "stx")  || !strcasecmp(extension.c_str(), "ult") ||
-		    !strcasecmp(extension.c_str(), "uni")  || !strcasecmp(extension.c_str(), "xm")) {
+		ext = DecoderModule::getExtensions();
+		if (std::find(ext.begin(), ext.end(), extension) != ext.end()) {
 			*decoder = new DecoderModule(player, *input, output, visualizer);
 			*info = new InfoModule(*decoder);
 		} else
 #endif /* WITH_MIKMOD */
 #ifdef WITH_SIDPLAY2
-		if (!strcasecmp(extension.c_str(), "sid")) {
+		ext = DecoderSID::getExtensions();
+		if (std::find(ext.begin(), ext.end(), extension) != ext.end()) {
 			*decoder = new DecoderSID(player, *input, output, visualizer);
 			*info = new InfoSID(*decoder);
 		} else

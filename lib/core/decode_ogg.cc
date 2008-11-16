@@ -91,3 +91,11 @@ DecoderOgg::getComments()
 {
 	return ov_comment(&ovf, -1);
 }
+
+std::list<std::string> 
+DecoderOgg::getExtensions()
+{
+	std::list<std::string> l;
+	l.push_back("ogg");
+	return l;
+}

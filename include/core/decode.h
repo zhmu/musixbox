@@ -1,3 +1,4 @@
+#include <list>
 #include "input.h"
 #include "output.h"
 #include "visualize.h"
@@ -41,6 +42,9 @@ public:
 
 	//! \brief Handle pausing/unpausing in the decoder context
 	void handlePause();
+
+	//! \brief Retrieve a list of file extensions the class can decode
+	static std::list<std::string> getExtensions();
 
 protected:
 	Player* player;

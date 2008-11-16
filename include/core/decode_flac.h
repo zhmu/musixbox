@@ -18,6 +18,9 @@ public:
 	//! \brief Performs a FLAC decoding run
 	void run();
 
+	//! \brief Retrieve a list of file extensions this class can decode
+	static std::list<std::string> getExtensions();
+
 protected:
 	//! \brief Read callback
 	FLAC__StreamDecoderReadStatus read_callback(FLAC__byte buffer[], size_t* bytes);

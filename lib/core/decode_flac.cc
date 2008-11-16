@@ -116,3 +116,11 @@ DecoderFLAC::metadata_callback(const FLAC__StreamMetadata* metadata)
 		}
 	}
 }
+
+std::list<std::string> 
+DecoderFLAC::getExtensions()
+{
+	std::list<std::string> l;
+	l.push_back("flac");
+	return l;
+}

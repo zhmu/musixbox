@@ -229,3 +229,11 @@ DecoderMP3::parseXingTag(struct mad_stream* stream, struct mad_frame* frame)
 	totaltime = (int)(((double)xing_frames * 
 		((frame->header.flags & MAD_FLAG_LSF_EXT) ? 576 : 1152)) / frame->header.samplerate);
 }
+
+std::list<std::string> 
+DecoderMP3::getExtensions()
+{
+	std::list<std::string> l;
+	l.push_back("mp3");
+	return l;
+}

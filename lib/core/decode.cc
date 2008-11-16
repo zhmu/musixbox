@@ -17,3 +17,9 @@ Decoder::handlePause()
 {
 	player->handleUnpause();
 }
+
+std::list<std::string> 
+Decoder::getExtensions()
+{
+	return std::list<std::string> ();
+}

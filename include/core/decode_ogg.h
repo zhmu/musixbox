@@ -16,6 +16,9 @@ public:
 	//! \brief Performs a Ogg Vorbis decoding run
 	void run();
 
+	//! \brief Retrieve a list of file extensions this class can decode
+	static std::list<std::string> getExtensions();
+
 	//! \brief Retrieve Ogg Vorbuis comments
 	struct vorbis_comment* getComments();
 

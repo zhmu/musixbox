@@ -24,6 +24,9 @@ public:
 	//! \brief Performs a mp3 decoding run
 	void run();
 
+	//! \brief Retrieve a list of file extensions this class can decode
+	static std::list<std::string> getExtensions();
+
 private:
 	/*! \brief Reads an input chunk and feeds it to the stream
 	 *

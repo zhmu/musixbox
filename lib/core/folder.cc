@@ -1,7 +1,9 @@
 #include <algorithm>
 #include "folder.h"
 
-Folder::Folder(std::string r)
+using namespace std;
+
+Folder::Folder(string r)
 {
 	root = r; current = r;
 	/*
@@ -20,12 +22,12 @@ Folder::Folder(std::string r)
 void
 Folder::goUp()
 {
-	current = std::string(current.begin(), current.begin() + current.find_last_of("/"));
+	current = string(current.begin(), current.begin() + current.find_last_of("/"));
 	rehash();
 }
 
 void
-Folder::select(std::string dir)
+Folder::select(string dir)
 {
 	current = current + "/" + dir;
 	rehash();
@@ -36,11 +38,11 @@ Folder::rehash()
 {
 	entries.clear();
 	retrieveEntries();
-	std::sort(entries.begin(), entries.end());
+	sort(entries.begin(), entries.end());
 }
 
-std::string
-Folder::getFullPath(std::string entry)
+string
+Folder::getFullPath(string entry)
 {
 	return current + "/" + entry;
 }

@@ -5,6 +5,8 @@
 #include "decode_tone.h"
 #include "output.h"
 
+using namespace std;
+
 void
 DecoderTone::run()
 {

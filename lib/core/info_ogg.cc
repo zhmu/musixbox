@@ -4,8 +4,10 @@
 #include "decode_ogg.h"
 #include "info_ogg.h"
 
+using namespace std;
+
 void
-InfoOgg::load(std::string res)
+InfoOgg::load(string res)
 {
 	struct vorbis_comment* c = (reinterpret_cast<DecoderOgg*> (decoder))->getComments();
 

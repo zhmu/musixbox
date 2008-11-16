@@ -3,6 +3,8 @@
 #include "decoderfactory.h"
 #include "player.h"
 
+using namespace std;
+
 void*
 player_wrapper(void* data)
 {
@@ -23,7 +25,7 @@ player_wrapper(void* data)
 }
 
 
-Player::Player(std::string resource, Output* o, Visualizer* v)
+Player::Player(string resource, Output* o, Visualizer* v)
 {
 	/*
 	 * Note that it's not possible to chain constructers - so do what

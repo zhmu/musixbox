@@ -2,6 +2,8 @@
 #include <math.h>
 #include "visualize_spectrum.h"
 
+using namespace std;
+
 #define MAX_VIS_SIZE	1152
 
 SpectrumVisualizer::SpectrumVisualizer()

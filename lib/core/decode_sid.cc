@@ -6,6 +6,8 @@
 #include "decode_sid.h"
 #include "exceptions.h"
 
+using namespace std;
+
 DecoderSID::DecoderSID(Player* p, Input* i, Output* o, Visualizer* v) :
 	Decoder(p, i, o, v),
 	tune(0)
@@ -15,7 +17,7 @@ DecoderSID::DecoderSID(Player* p, Input* i, Output* o, Visualizer* v) :
 
 	// Check whether the input is seekable - if not, we can't load it
 	if (!input->getLength())
-		throw DecoderException(std::string("DecoderSID: not a seekable input"));
+		throw DecoderException(string("DecoderSID: not a seekable input"));
 
 	/*
 	 * libsidplay2 does not support streaming of any kind, so all we can do is read
@@ -25,23 +27,23 @@ DecoderSID::DecoderSID(Player* p, Input* i, Output* o, Visualizer* v) :
 	ptr = (char*)malloc(input->getLength());
 	buffer = (char*)malloc(DECODE_SID_BUFFER_LENGTH);
 	if (ptr == NULL || buffer == NULL)
-		throw DecoderException(std::string("DecoderSID: out of memory"));
+		throw DecoderException(string("DecoderSID: out of memory"));
 	if (!input->read(ptr, input->getLength())) {
 		free(ptr);
-		throw DecoderException(std::string("DecoderSID: input error"));
+		throw DecoderException(string("DecoderSID: input error"));
 	}
 
 	/* Feed the data to tune parser */
 	if (!tune.read((const uint_least8_t*)ptr, (const uint_least32_t)input->getLength())) {
 		free(ptr);
-		throw DecoderException(std::string("DecoderSID: can't read input"));
+		throw DecoderException(string("DecoderSID: can't read input"));
 	}
 	free(ptr);
 
 	/* Tell the player to load out tune */
 	tune.selectSong(1);
 	if (player.load(&tune))
-		throw DecoderException(std::string("DecoderSID: can't load input"));
+		throw DecoderException(string("DecoderSID: can't load input"));
 
 	/* Create a SID emulator */
 	ReSIDBuilder* rs = new ReSIDBuilder("ReSID");
@@ -89,10 +91,10 @@ DecoderSID::run()
 	}
 }
 
-std::list<std::string> 
+list<string> 
 DecoderSID::getExtensions()
 {
-	std::list<std::string> l;
+	list<string> l;
 	l.push_back("sid");
 	return l;
 }

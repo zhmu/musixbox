@@ -8,6 +8,8 @@
 #include "input.h"
 #include "output.h"
 
+using namespace std;
+
 size_t
 ov_wrap_read(void* ptr, size_t size, size_t nmemb, void* datasource)
 {
@@ -58,7 +60,7 @@ DecoderOgg::DecoderOgg(Player* p, Input* i, Output* o, Visualizer* v) :
 	Decoder(p, i, o, v)
 {
 	if (ov_open_callbacks(input, &ovf, NULL, 0, ov_input_wrapper) < 0)
-		throw DecoderException(std::string("ov_open_callbacks() failed"));
+		throw DecoderException(string("ov_open_callbacks() failed"));
 }
 
 void
@@ -92,10 +94,10 @@ DecoderOgg::getComments()
 	return ov_comment(&ovf, -1);
 }
 
-std::list<std::string> 
+list<string> 
 DecoderOgg::getExtensions()
 {
-	std::list<std::string> l;
+	list<string> l;
 	l.push_back("ogg");
 	return l;
 }

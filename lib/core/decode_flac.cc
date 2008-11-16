@@ -7,6 +7,8 @@
 #include "output.h"
 #include "visualize.h"
 
+using namespace std;
+
 DecoderFLAC::DecoderFLAC(Player* p, Input* i, Output* o, Visualizer* v)
 	: Decoder(p, i, o, v)
 {
@@ -77,12 +79,12 @@ void
 DecoderFLAC::error_callback(FLAC__StreamDecoderErrorStatus status)
 {
 	switch(status) {
-		         case FLAC__STREAM_DECODER_ERROR_STATUS_LOST_SYNC: throw DecoderException(std::string("DecoderFLAC: Synchronization lost"));
-		        case FLAC__STREAM_DECODER_ERROR_STATUS_BAD_HEADER: throw DecoderException(std::string("DecoderFLAC: Corrupted header encountered"));
-		case FLAC__STREAM_DECODER_ERROR_STATUS_FRAME_CRC_MISMATCH: throw DecoderException(std::string("DecoderFLAC: CRC error"));
-		case FLAC__STREAM_DECODER_ERROR_STATUS_UNPARSEABLE_STREAM: throw DecoderException(std::string("DecoderFLAC: Unparsable stream"));
+		         case FLAC__STREAM_DECODER_ERROR_STATUS_LOST_SYNC: throw DecoderException(string("DecoderFLAC: Synchronization lost"));
+		        case FLAC__STREAM_DECODER_ERROR_STATUS_BAD_HEADER: throw DecoderException(string("DecoderFLAC: Corrupted header encountered"));
+		case FLAC__STREAM_DECODER_ERROR_STATUS_FRAME_CRC_MISMATCH: throw DecoderException(string("DecoderFLAC: CRC error"));
+		case FLAC__STREAM_DECODER_ERROR_STATUS_UNPARSEABLE_STREAM: throw DecoderException(string("DecoderFLAC: Unparsable stream"));
 	}
-	throw DecoderException(std::string("DecoderFLAC: unknown error"));
+	throw DecoderException(string("DecoderFLAC: unknown error"));
 }
 
 void
@@ -117,10 +119,10 @@ DecoderFLAC::metadata_callback(const FLAC__StreamMetadata* metadata)
 	}
 }
 
-std::list<std::string> 
+list<string> 
 DecoderFLAC::getExtensions()
 {
-	std::list<std::string> l;
+	list<string> l;
 	l.push_back("flac");
 	return l;
 }

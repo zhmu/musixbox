@@ -7,6 +7,8 @@
 #include "exceptions.h"
 #include "input_remote.h"
 
+using namespace std;
+
 #define MIN(a,b) ((a)<(b) ? (a) : (b))
 
 size_t
@@ -106,16 +108,16 @@ remote_fetcher(void* ptr)
 	pthread_exit(NULL);
 }
 
-InputRemote::InputRemote(std::string resource) :
+InputRemote::InputRemote(string resource) :
 	Input(resource)
 {
 	if (curl_global_init(CURL_GLOBAL_ALL))
-		throw InputException(std::string("InputRemote: unable to initialize curl library"));
+		throw InputException(string("InputRemote: unable to initialize curl library"));
 	curl = curl_easy_init();
 	if (curl == NULL)
-		throw InputException(std::string("InputRemote: unable to create curl object"));
+		throw InputException(string("InputRemote: unable to create curl object"));
 	if ((cache = (char*)malloc(INPUT_REMOTE_CACHESIZE)) == NULL)
-		throw InputException(std::string("InputRemote: out of memory"));
+		throw InputException(string("InputRemote: out of memory"));
 
 	/* We are at the start of the buffer, and have not completed */
 	read_pos = 0; write_pos = 0; bytes_avail = 0; completed = false; terminating = false;
@@ -130,7 +132,7 @@ InputRemote::InputRemote(std::string resource) :
 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, remote_process_data);
 	curl_easy_setopt(curl, CURLOPT_WRITEDATA, this);
 	if (pthread_create(&thr_fetcher, NULL, remote_fetcher, this))
-		throw InputException(std::string("InputRemote: unable to create thread"));
+		throw InputException(string("InputRemote: unable to create thread"));
 }
 
 InputRemote::~InputRemote()

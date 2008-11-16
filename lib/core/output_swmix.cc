@@ -1,6 +1,8 @@
 #include "exceptions.h"
 #include "output_swmixer.h"
 
+using namespace std;
+
 OutputSWMixer::OutputSWMixer(Output* o) : Output()
 {
 	output = o; volume = 100;

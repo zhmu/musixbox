@@ -11,6 +11,8 @@
 
 #undef DEBUG
 
+using namespace std;
+
 /*
  * struct COMMANDMAP is used to look up the corresponding aergument length
  * per command.
@@ -124,12 +126,12 @@ InteractionAVR::InteractionAVR(const char* device)
 
 	fd = open(device, O_RDWR | O_NOCTTY| O_NDELAY);
 	if (fd < 0)
-		throw InteractionException(std::string("Unable to open device ") + device);
+		throw InteractionException(string("Unable to open device ") + device);
 
 	tcflush(fd, TCIOFLUSH);
 
 	if (tcgetattr(fd, &opt) < 0)
-		throw InteractionException(std::string("tcgetattr() failure for ") + device);
+		throw InteractionException(string("tcgetattr() failure for ") + device);
 
 	/* 57600 baud */
 	cfsetispeed(&opt, B57600);
@@ -154,15 +156,15 @@ InteractionAVR::InteractionAVR(const char* device)
 	opt.c_cc[VMIN] = 60;
 
 	if (tcsetattr(fd, TCSANOW, &opt) < 0)
-		throw InteractionException(std::string("tcsetattr() failure for ") + device);
+		throw InteractionException(string("tcsetattr() failure for ") + device);
 
 	displaydata = (unsigned char*)malloc((getHeight() / 8) * getWidth());
 	if (displaydata == NULL)
-		throw InteractionException(std::string("Out of memory"));
+		throw InteractionException(string("Out of memory"));
 
 	currentDisplayData = (unsigned char*)malloc((getHeight() / 8) * getWidth());
 	if (currentDisplayData == NULL)
-		throw InteractionException(std::string("Out of memory"));
+		throw InteractionException(string("Out of memory"));
 
 	/* We want a clear display, so ensure we overwrite every little byte on there */
 	memset(displaydata, 0, (getHeight() / 8) * getWidth());

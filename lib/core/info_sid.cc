@@ -4,8 +4,10 @@
 #include "decode_sid.h"
 #include "info_sid.h"
 
+using namespace std;
+
 void
-InfoSID::load(std::string res)
+InfoSID::load(string res)
 {
 	const SidTuneInfo tuneinfo = (reinterpret_cast<DecoderSID*> (decoder))->getTuneInfo();
 

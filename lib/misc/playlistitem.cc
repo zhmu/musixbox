@@ -1,7 +1,9 @@
 #include "core/decoderfactory.h"
 #include "misc/playlistitem.h"
 
-PlaylistItem::PlaylistItem(std::string res)
+using namespace std;
+
+PlaylistItem::PlaylistItem(string res)
 {
 	Input* input;
 	Decoder* decoder;
@@ -30,7 +32,7 @@ PlaylistItem::PlaylistItem(std::string res)
 	
 }
 
-std::string
+string
 PlaylistItem::getDisplayText()
 {
 	if (title == "")

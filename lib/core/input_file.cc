@@ -2,12 +2,14 @@
 #include "exceptions.h"
 #include "input_file.h"
 
-InputFile::InputFile(std::string resource) :
+using namespace std;
+
+InputFile::InputFile(string resource) :
 	Input(resource)
 {
 	f = fopen(resource.c_str(), "rb");
 	if (f == NULL)
-		throw InputException(std::string("Unable to open file ") + resource);
+		throw InputException(string("Unable to open file ") + resource);
 
 	fseek(f, 0, SEEK_END);length = ftell(f); rewind(f);
 }

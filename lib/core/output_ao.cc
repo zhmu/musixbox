@@ -2,6 +2,8 @@
 #include "exceptions.h"
 #include "output_ao.h"
 
+using namespace std;
+
 OutputAO::OutputAO() : Output()
 {
 	int drvid;

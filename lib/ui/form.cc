@@ -3,6 +3,8 @@
 #include "ui/form.h"
 #include "ui/interaction.h"
 
+using namespace std;
+
 void
 Form::add(Control* c)
 {
@@ -29,7 +31,7 @@ Form::putpixel(unsigned int x, unsigned int y, unsigned int c)
 }
 
 void
-Form::puttext(unsigned int x, unsigned int y, std::string s)
+Form::puttext(unsigned int x, unsigned int y, string s)
 {
 	interaction->puttext(x, y, s.c_str());
 }

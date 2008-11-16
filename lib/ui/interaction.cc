@@ -2,6 +2,8 @@
 #include "ui/font.h"
 #include "ui/interaction.h"
 
+using namespace std;
+
 void
 Interaction::puttext(unsigned int x, unsigned int y, const char* s)
 {

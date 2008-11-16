@@ -1,6 +1,8 @@
 #include <unistd.h>
 #include "ui/interaction_chain.h"
 
+using namespace std;
+
 InteractionChain::~InteractionChain()
 {
 	for (unsigned int i = 0; i < provider.size(); i++) {

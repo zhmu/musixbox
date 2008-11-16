@@ -3,8 +3,10 @@
 #include "folder_fs.h"
 #include "folderfactory.h"
 
+using namespace std;
+
 void
-FolderFactory::construct(std::string resource, Folder** folder)
+FolderFactory::construct(string resource, Folder** folder)
 {
 	*folder = new FolderFS(resource);
 }

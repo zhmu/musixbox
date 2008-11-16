@@ -4,8 +4,10 @@
 #include "exceptions.h"
 #include "info_mp3.h"
 
+using namespace std;
+
 void
-InfoMP3::load(std::string res)
+InfoMP3::load(string res)
 {
 	struct id3_file* id3;
 	struct id3_tag* tag;
@@ -13,7 +15,7 @@ InfoMP3::load(std::string res)
 
 	id3 = id3_file_open(res.c_str(), ID3_FILE_MODE_READONLY);
 	if (id3 == NULL)
-		throw InfoException(std::string("InfoMP3: Unable to open ") + res);
+		throw InfoException(string("InfoMP3: Unable to open ") + res);
 	tag = id3_file_tag(id3);
 
 	/* Handle all tags, one by one... */

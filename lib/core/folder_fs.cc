@@ -5,7 +5,9 @@
 #include "exceptions.h"
 #include "folder_fs.h"
 
-FolderFS::FolderFS(std::string r) :
+using namespace std;
+
+FolderFS::FolderFS(string r) :
 	Folder(r)
 {
 	/*
@@ -23,7 +25,7 @@ FolderFS::retrieveEntries()
 
 	dir = opendir(current.c_str());
 	if (dir == NULL)
-		throw FolderException(std::string("FolderFS: unable to open folder ") + current);
+		throw FolderException(string("FolderFS: unable to open folder ") + current);
 
 	while((dent = readdir(dir)) != NULL) {
 		// Never show the current directory '.'
@@ -38,12 +40,12 @@ FolderFS::retrieveEntries()
 }
 
 bool
-FolderFS::isFolder(std::string entry)
+FolderFS::isFolder(string entry)
 {
 	struct stat fs;
 
 	if (stat(getFullPath(entry).c_str(), &fs) < 0)
-		throw FolderException(std::string("FolderFS: can't stat ") + getFullPath(entry));
+		throw FolderException(string("FolderFS: can't stat ") + getFullPath(entry));
 
 	return S_ISDIR(fs.st_mode) ? true : false;
 }

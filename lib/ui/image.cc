@@ -1,5 +1,7 @@
 #include "ui/image.h"
 
+using namespace std;
+
 void
 Image::draw()
 {

@@ -7,6 +7,8 @@
 #include "exceptions.h"
 #include "output.h"
 
+using namespace std;
+
 signed int
 DecoderMP3::scaleFrequency(mad_fixed_t s)
 {
@@ -86,7 +88,7 @@ DecoderMP3::DecoderMP3(Player* p, Input* i, Output* o, Visualizer* v) :
 {
 	music_chunk = (char*)malloc(CHUNK_SIZE);
 	if (music_chunk == NULL)
-		throw DecoderException(std::string("DecodeMP3: out of memory"));
+		throw DecoderException(string("DecodeMP3: out of memory"));
 }
 
 DecoderMP3::~DecoderMP3()
@@ -230,10 +232,10 @@ DecoderMP3::parseXingTag(struct mad_stream* stream, struct mad_frame* frame)
 		((frame->header.flags & MAD_FLAG_LSF_EXT) ? 576 : 1152)) / frame->header.samplerate);
 }
 
-std::list<std::string> 
+list<string> 
 DecoderMP3::getExtensions()
 {
-	std::list<std::string> l;
+	list<string> l;
 	l.push_back("mp3");
 	return l;
 }

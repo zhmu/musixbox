@@ -5,6 +5,8 @@
 #include "decode_module.h"
 #include "exceptions.h"
 
+using namespace std;
+
 /*
  * This is an incredibly dirty hack, but there does not seem to be a cleaner
  * way to do this using the libmikmod API; it was definately not designed
@@ -162,15 +164,15 @@ DecoderModule::DecoderModule(Player* p, Input* i, Output* o, Visualizer* v) :
 
 	buffer = (char*)malloc(DECODER_MODULE_BUFFER_SIZE);
 	if (buffer == NULL)
-		throw DecoderException(std::string("DecoderModule: out of memory"));
+		throw DecoderException(string("DecoderModule: out of memory"));
 
 	if (MikMod_Init((CHAR*)""))
-		throw DecoderException(std::string("DecoderModule: unable to initialize MikMod library: ") + MikMod_strerror(MikMod_errno));
+		throw DecoderException(string("DecoderModule: unable to initialize MikMod library: ") + MikMod_strerror(MikMod_errno));
 
 	/* Load the module */
 	module = Player_LoadGeneric(&mreader_input_wrapper, 64, 0);
 	if (module == NULL)
-		throw DecoderException(std::string("DecoderModule: unable to load module"));
+		throw DecoderException(string("DecoderModule: unable to load module"));
 }
 
 DecoderModule::~DecoderModule()
@@ -198,10 +200,10 @@ DecoderModule::run()
 	Player_Stop();
 }
 
-std::list<std::string> 
+list<string> 
 DecoderModule::getExtensions()
 {
-	std::list<std::string> l;
+	list<string> l;
 	l.push_back("669"); l.push_back("amf"); l.push_back("apun");
 	l.push_back("dsm"); l.push_back("far"); l.push_back("gdm");
 	l.push_back("it");  l.push_back("imf"); l.push_back("mod");

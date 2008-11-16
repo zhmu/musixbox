@@ -2,16 +2,18 @@
 #include "core/exceptions.h"
 #include "ui/interaction_sdl.h"
 
+using namespace std;
+
 InteractionSDL::InteractionSDL() : Interaction()
 {
 	if (SDL_Init(SDL_INIT_VIDEO) < 0)
-		throw InteractionException(std::string("SDL_Init() failure: ") + SDL_GetError());
+		throw InteractionException(string("SDL_Init() failure: ") + SDL_GetError());
 
 	screen = SDL_SetVideoMode(getWidth(), getHeight(), 32, SDL_SWSURFACE);
 	if (screen == NULL)
-		throw InteractionException(std::string("SDL_SetVideoMode() failure: ") + SDL_GetError());
+		throw InteractionException(string("SDL_SetVideoMode() failure: ") + SDL_GetError());
 	if (screen->format->BytesPerPixel != 4)
-		throw InteractionException(std::string("FIXME: SDL non-32-bit pixels are not yet supported"));
+		throw InteractionException(string("FIXME: SDL non-32-bit pixels are not yet supported"));
 
         if (SDL_MUSTLOCK(screen))
                 SDL_LockSurface(screen);

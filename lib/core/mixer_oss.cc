@@ -5,12 +5,14 @@
 #include "exceptions.h"
 #include "mixer_oss.h"
 
-MixerOSS::MixerOSS(std::string device)
+using namespace std;
+
+MixerOSS::MixerOSS(string device)
 	 : Mixer()
 {
 	fd = open(device.c_str(), O_RDWR);
 	if (fd < 0)
-		throw MixerException(std::string("Unable to open mixer device " + device));
+		throw MixerException(string("Unable to open mixer device " + device));
 }
 
 MixerOSS::~MixerOSS()
@@ -25,7 +27,7 @@ MixerOSS::getVolume()
 	unsigned int i;
 
 	if (ioctl(fd, MIXER_READ(SOUND_MIXER_VOLUME), &i) < 0)
-		throw MixerException(std::string("Unable to read volume"));
+		throw MixerException(string("Unable to read volume"));
 
 	return i >> 8;
 }
@@ -41,5 +43,5 @@ MixerOSS::setVolume(unsigned int volume)
 	i = volume | (volume << 8);
 
 	if (ioctl(fd, MIXER_WRITE(SOUND_MIXER_VOLUME), &i) < 0)
-		throw MixerException(std::string("Unable to set volume"));
+		throw MixerException(string("Unable to set volume"));
 }

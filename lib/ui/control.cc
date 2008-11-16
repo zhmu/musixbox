@@ -3,6 +3,8 @@
 #include "ui/form.h"
 #include "ui/control.h"
 
+using namespace std;
+
 Control::Control(unsigned int x, unsigned int y, unsigned int width, unsigned int height) {
 	this->form = NULL; this->x = x; this->y = y;
 	this->width = width; this->height = height;
@@ -18,7 +20,7 @@ Control::putpixel(unsigned int x, unsigned int y, unsigned int c)
 }
 
 void 
-Control::puttext(unsigned int x, unsigned int y, std::string s)
+Control::puttext(unsigned int x, unsigned int y, string s)
 {
 	if (form == NULL)
 		return;

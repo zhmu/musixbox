@@ -2,6 +2,8 @@
 #include "decode.h"
 #include "player.h"
 
+using namespace std;
+
 Decoder::Decoder(Player* p, Input* i, Output* o, Visualizer* v) {
 	player = p; input = i; output = o; visualizer = v; terminating = false;
 	out_buffer = (char*)malloc(DECODER_OUTBUF_SIZE);

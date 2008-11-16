@@ -1,7 +1,7 @@
 AC_INIT(src/musixbox/main.cc)
 
 AM_CONFIG_HEADER(include/config.h)
-AM_INIT_AUTOMAKE(musicd,0.1)
+AM_INIT_AUTOMAKE(musixbox,0.1)
 AC_PROG_CC
 AC_PROG_CXX
 AC_PROG_RANLIB
@@ -247,4 +247,7 @@ fi
 echo
 
 AC_OUTPUT([Makefile lib/Makefile lib/core/Makefile lib/ui/Makefile src/Makefile
-	   lib/misc/Makefile src/musixbox/Makefile src/musixcurses/Makefile])
+	   lib/misc/Makefile src/musixbox/Makefile src/musixcurses/Makefile
+           include/Makefile include/core/Makefile include/misc/Makefile
+           include/ui/Makefile include/musixbox/Makefile
+           include/musixcurses/Makefile])

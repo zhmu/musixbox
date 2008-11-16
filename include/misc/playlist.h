@@ -31,16 +31,16 @@ public:
 	void clear();
 
 	/*! \brief Get the number of the current play item */
-	int getCurrentPlayItem() { return currentPlayItem; }
+	unsigned int getCurrentPlayItem() { return currentPlayItem; }
 
 	/*! \brief Set the current play item */
-	void setCurrentPlayItem(int n) { currentPlayItem = n; }
+	void setCurrentPlayItem(unsigned int n) { currentPlayItem = n; }
 
 	//! \brief Get the number of the next item to play
-	int getNextPlayItem() { return nextPlayItem; }
+	unsigned int getNextPlayItem() { return nextPlayItem; }
 
 	//! \brief Set the next item to play */
-	void setNextPlayItem(int n) { nextPlayItem = n; }
+	void setNextPlayItem(unsigned int n) { nextPlayItem = n; }
 
 	/*! \brief Retrieves the next resources to play and advances pointer
 	 * 
@@ -59,10 +59,10 @@ protected:
 	std::vector<PlaylistItem*> items;
 
 	//! \brief Item we are currently playing
-	int currentPlayItem;
+	unsigned int currentPlayItem;
 
 	//! \brief Item we will play next
-	int nextPlayItem;
+	unsigned int nextPlayItem;
 };
 
 #endif /* __PLAYLIST_H__ */

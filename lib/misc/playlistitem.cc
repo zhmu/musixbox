@@ -1,26 +1,33 @@
-#include "core/player.h"
+#include "core/decoderfactory.h"
 #include "misc/playlistitem.h"
 
 PlaylistItem::PlaylistItem(std::string res)
 {
+	Input* input;
+	Decoder* decoder;
+	Info* info;
+
 	resource = res;
         artist = ""; album = ""; title = "";
 
 	/*
-	 * XXX This is kind of evil: we simply launch a player and retrieve
-	 * it's information object, after which we throw it away...
+	 * Construct a decoder and an information object. We simply pass NULL as the
+	 * Player, Output and Visualizer objects as we aren't interested in playing
+	 * the item, only the Info objection.
 	 */
-	Player* player = new Player(resource, NULL, NULL);
-	if (player->getInfo()) {
-		if (player->getInfo()->getArtist() != NULL)
-			artist = player->getInfo()->getArtist();
-		if (player->getInfo()->getAlbum() != NULL)
-			album = player->getInfo()->getAlbum();
-		if (player->getInfo()->getTitle() != NULL)
-			title = player->getInfo()->getTitle();
-		
+	DecoderFactory::construct(resource, NULL, NULL, NULL, &input, &decoder, &info);
+	if (info != NULL) {
+		if (info->getArtist() != NULL)
+			artist = info->getArtist();
+		if (info->getAlbum() != NULL)
+			album = info->getAlbum();
+		if (info->getTitle() != NULL)
+			title = info->getTitle();
+		delete info;
 	}
-	delete player;
+	delete decoder;
+	delete input;
+	
 }
 
 std::string

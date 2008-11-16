@@ -234,11 +234,13 @@ Interface::handleCommonInput(int c)
 
 	switch(c) {
 		case ' ': /* space */
-			if (player != NULL)
-				if (player->isPaused())
+			if (player != NULL) {
+				if (player->isPaused()) {
 					player->cont();
-				else
+				} else {
 					player->pause();
+				}
+			}
 			break;
 		case '+':
 		case '-':

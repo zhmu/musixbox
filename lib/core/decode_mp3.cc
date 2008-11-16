@@ -81,7 +81,8 @@ DecoderMP3::handleInput(struct mad_stream* stream)
 	return 1;
 }
 
-DecoderMP3::DecoderMP3(Input* i, Output* o, Visualizer* v) : Decoder(i, o, v)
+DecoderMP3::DecoderMP3(Player* p, Input* i, Output* o, Visualizer* v) :
+	Decoder(p, i, o, v)
 {
 	music_chunk = (char*)malloc(CHUNK_SIZE);
 	if (music_chunk == NULL)
@@ -154,6 +155,7 @@ DecoderMP3::run()
 			goto fail;
 
 		while (!terminating) {
+			handlePause();
 			if (mad_frame_decode(&frame, &stream) == -1) {
 				if (!MAD_RECOVERABLE(stream.error))
 					break;

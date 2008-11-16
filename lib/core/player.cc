@@ -35,8 +35,9 @@ Player::Player(std::string resource, Output* o, Visualizer* v)
 	output = o; visualizer = v; input = NULL; decoder = NULL; info = NULL;
 	playerPaused = false; havePlayerThread = false;
 	pthread_mutex_init(&mtx_data, NULL);
+	pthread_cond_init(&cv_suspend, NULL);
 
-	DecoderFactory::construct(resource, output, visualizer, &input, &decoder, &info);
+	DecoderFactory::construct(resource, this, output, visualizer, &input, &decoder, &info);
 }
 
 Player::~Player()
@@ -45,8 +46,10 @@ Player::~Player()
 
 	/* get rid of the player, if any - this will remove any lingering objects */
 	stop_locked();
+	pthread_mutex_unlock(&mtx_data);
 
 	pthread_mutex_destroy(&mtx_data);
+	pthread_cond_destroy(&cv_suspend);
 }
 
 void
@@ -66,7 +69,16 @@ Player::stop_locked()
 	/* Ask the decoder thread to terminate, and wait until it is gone */
 	decoder->terminate();
 	cont_locked();
+
+	/*
+	 * Note that while waiting for the thread to die, we have to let go of
+	 * the mutex. This is because it may be waiting for a condition variable
+	 * (for example, if it was paused) and we don't want it to get stuck
+	 * waiting for a mutex that never gets unlocked...
+	 */
+	pthread_mutex_unlock(&mtx_data);
 	pthread_join(playerThread, NULL);
+	pthread_mutex_lock(&mtx_data);
 
 	delete input; delete info; delete decoder;
 	input = NULL; info = NULL; decoder = NULL;
@@ -91,10 +103,12 @@ Player::cont_locked()
 	if (!playerPaused || !havePlayerThread)
 		return;
 
+	playerPaused = false;
 #ifdef WITH_PTHREAD_NP
 	pthread_resume_np(playerThread);
+#else
+	pthread_cond_signal(&cv_suspend);
 #endif
-	playerPaused = false;
 }
 
 unsigned int
@@ -175,5 +189,31 @@ Player::cont()
 {
 	pthread_mutex_lock(&mtx_data);
 	cont_locked();
+	pthread_mutex_unlock(&mtx_data);
+}
+
+void
+Player::handleUnpause()
+{
+	/*
+	 * Our pausing/resuming works by having the decoder thread
+	 * check whether the player should be paused. If this is the
+	 * cause, it waits until the 'suspend' condition variable
+	 * is signalled.
+	 *
+	 * Thus, in order to pause, all we need to do is set the
+	 * player paused variable to true, which will cause this code
+	 * to suspend the decoder.
+	 *
+	 * As to unpause, we first set the paused variable to false,
+	 * and signal the 'suspend' condition variable. This causes
+	 * the player to resume itself, yet it will immediately
+	 * continue playing since the paused variable is false.
+	 */
+	pthread_mutex_lock(&mtx_data);
+	if (playerPaused) {
+		/* We are paused - wait until we can play again */
+		pthread_cond_wait(&cv_suspend, &mtx_data);
+	}
 	pthread_mutex_unlock(&mtx_data);
 }

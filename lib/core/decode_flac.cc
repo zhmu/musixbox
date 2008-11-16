@@ -7,8 +7,8 @@
 #include "output.h"
 #include "visualize.h"
 
-DecoderFLAC::DecoderFLAC(Input* i, Output* o, Visualizer* v)
-	: Decoder(i, o, v)
+DecoderFLAC::DecoderFLAC(Player* p, Input* i, Output* o, Visualizer* v)
+	: Decoder(p, i, o, v)
 {
 	artist = NULL; album = NULL; title = NULL;
 
@@ -30,7 +30,8 @@ void
 DecoderFLAC::run()
 {
 	while (!terminating && process_single()) {
-		/* keep rolling */
+		/* keep rolling - stop only for pauses */
+		handlePause();
 	}
 }
 

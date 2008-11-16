@@ -76,6 +76,14 @@ public:
 	//! \brief Called if the player successfully terminated
 	virtual void terminated() { }
 
+	/*! \brief Called to handle pausing/unpausing
+	 *
+	 *  This is designed to be called from the playing thread context! It
+	 *  only exists here since the calling thread needs the same
+	 *  synchronization primitives which really shouldn't be public.
+	 */
+	void handleUnpause();
+
 protected:
 	//! \brief Output object used
 	Output* output;
@@ -103,6 +111,9 @@ protected:
 
 	//! \brief Mutex used to protect data fields
 	pthread_mutex_t mtx_data;
+
+	//! \brief Condition variable used to suspend the player
+	pthread_cond_t cv_suspend;
 
 private:
 	//! \brief Implementation of play() where the mutex is already held

@@ -6,8 +6,8 @@
 #include "decode_sid.h"
 #include "exceptions.h"
 
-DecoderSID::DecoderSID(Input* i, Output* o, Visualizer* v) :
-	Decoder(i, o, v),
+DecoderSID::DecoderSID(Player* p, Input* i, Output* o, Visualizer* v) :
+	Decoder(p, i, o, v),
 	tune(0)
 {
 	char* ptr;
@@ -77,6 +77,7 @@ void
 DecoderSID::run()
 {
 	while (!terminating) {
+		handlePause();
 		unsigned int len = player.play(buffer, DECODE_SID_BUFFER_LENGTH);
 
 		if (visualizer != NULL)

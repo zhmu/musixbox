@@ -8,7 +8,7 @@
 //! \brief Simple tone generator 
 class DecoderTone : public Decoder {
 public:
-	DecoderTone(Input* i, Output* o, Visualizer* v) : Decoder(i, o, v) { freq = 1000; }
+	DecoderTone(Player* p, Input* i, Output* o, Visualizer* v) : Decoder(p, i, o, v) { freq = 1000; }
 
 	//! \brief Performs a tone generator run
 	void run();

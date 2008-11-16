@@ -30,7 +30,7 @@
 #include "core/exceptions.h"
 
 void
-DecoderFactory::construct(std::string resource, Output* output, Visualizer* visualizer, Input** input, Decoder** decoder, Info** info)
+DecoderFactory::construct(std::string resource, Player* player, Output* output, Visualizer* visualizer, Input** input, Decoder** decoder, Info** info)
 {
 	/* Initially, nothing has been constructed yet */
 	*input = NULL; *decoder = NULL; *info = NULL;
@@ -50,13 +50,13 @@ DecoderFactory::construct(std::string resource, Output* output, Visualizer* visu
 	try {
 #ifdef WITH_VORBIS
 		if (!strcasecmp(extension.c_str(), "ogg")) {
-			*decoder = new DecoderOgg(*input, output, visualizer);
+			*decoder = new DecoderOgg(player, *input, output, visualizer);
 			*info = new InfoOgg(*decoder);
 		} else
 #endif /* WITH_VORBIS */
 #ifdef WITH_FLAC
 		if (!strcasecmp(extension.c_str(), "flac")) {
-			*decoder = new DecoderFLAC(*input, output, visualizer);
+			*decoder = new DecoderFLAC(player, *input, output, visualizer);
 			*info = new InfoFLAC(*decoder);
 		} else
 #endif /* WITH_FLAC */
@@ -70,20 +70,20 @@ DecoderFactory::construct(std::string resource, Output* output, Visualizer* visu
 		    !strcasecmp(extension.c_str(), "s3m")  || !strcasecmp(extension.c_str(), "stm") ||
 		    !strcasecmp(extension.c_str(), "stx")  || !strcasecmp(extension.c_str(), "ult") ||
 		    !strcasecmp(extension.c_str(), "uni")  || !strcasecmp(extension.c_str(), "xm")) {
-			*decoder = new DecoderModule(*input, output, visualizer);
+			*decoder = new DecoderModule(player, *input, output, visualizer);
 			*info = new InfoModule(*decoder);
 		} else
 #endif /* WITH_MIKMOD */
 #ifdef WITH_SIDPLAY2
 		if (!strcasecmp(extension.c_str(), "sid")) {
-			*decoder = new DecoderSID(*input, output, visualizer);
+			*decoder = new DecoderSID(player, *input, output, visualizer);
 			*info = new InfoSID(*decoder);
 		} else
 #endif /* WITH_SIDPLAY2 */
 #ifdef WITH_MAD
 		{
 			/* assume MP3 */
-			*decoder = new DecoderMP3(*input, output, visualizer);
+			*decoder = new DecoderMP3(player, *input, output, visualizer);
 #ifdef WITH_ID3TAG
 			*info = new InfoMP3(*decoder);
 #endif

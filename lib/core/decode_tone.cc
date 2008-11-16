@@ -9,6 +9,7 @@ void
 DecoderTone::run()
 {
 	while (1) {
+		handlePause();
 		int buflen = DECODER_OUTBUF_SIZE / 4;
 		for (int i = 0; i < buflen; i++) {
 			int sample = (int)(0.75 * 32768.0 * 

@@ -54,8 +54,8 @@ DecoderOgg::~DecoderOgg()
 	ov_clear(&ovf);
 }
 
-DecoderOgg::DecoderOgg(Input* i, Output* o, Visualizer* v) :
-	Decoder(i, o, v)
+DecoderOgg::DecoderOgg(Player* p, Input* i, Output* o, Visualizer* v) :
+	Decoder(p, i, o, v)
 {
 	if (ov_open_callbacks(input, &ovf, NULL, 0, ov_input_wrapper) < 0)
 		throw DecoderException(std::string("ov_open_callbacks() failed"));
@@ -71,6 +71,7 @@ DecoderOgg::run()
 		totaltime = 0;
 
 	while (!terminating) {
+		handlePause();
 		size_t len = ov_read(&ovf, out_buffer, DECODER_OUTBUF_SIZE, 0, 2, 1, &current);
 		if (len <= 0)
 			/* end of file or error */

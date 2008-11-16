@@ -13,7 +13,7 @@
 class DecoderSID : public Decoder {
 	friend class InfoSID;
 public:
-	DecoderSID(Input* i, Output* o, Visualizer* v);
+	DecoderSID(Player* p, Input* i, Output* o, Visualizer* v);
 	~DecoderSID();
 
 	//! \brief Performs a SID decoding run

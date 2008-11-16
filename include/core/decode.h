@@ -8,15 +8,20 @@
 //! \brief Size of a temporary buffer every decoder may use
 #define DECODER_OUTBUF_SIZE	8192
 
+class Player;
+
 /*! \brief Abstract decoder object
  *
  *  A decoder is reponsible for reading data from an Input object, decoding it
  *  to 16 bit PCM stereo data and feeding the raw PCM data to an Output object
  *  and Visualizer object.
+ *
+ *  Note that a decoder has a reference to its corresponding Player object, as
+ *  it is able to pause / continue but needs a mutex to safely do so.
  */
 class Decoder {
 public:
-	Decoder(Input* i, Output* o, Visualizer* v);
+	Decoder(Player* p, Input* i, Output* o, Visualizer* v);
 	virtual ~Decoder();
 
 	//! \brief Decode the input stream until the end
@@ -34,7 +39,11 @@ public:
 	//! \brief Retrieve number of seconds this file lasts
 	inline int getTotalTime() { return totaltime; }
 
+	//! \brief Handle pausing/unpausing in the decoder context
+	void handlePause();
+
 protected:
+	Player* player;
 	Input* input;
 	Output* output;
 	Visualizer* visualizer;

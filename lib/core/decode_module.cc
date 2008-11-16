@@ -140,8 +140,8 @@ MDRIVER mdriver_output_wrapper = {
 	VC_VoiceRealVolume
 };
 
-DecoderModule::DecoderModule(Input* i, Output* o, Visualizer* v) :
-	Decoder(i, o, v)
+DecoderModule::DecoderModule(Player* p, Input* i, Output* o, Visualizer* v) :
+	Decoder(p, i, o, v)
 {
 	static int _init = 0;
 
@@ -189,6 +189,7 @@ DecoderModule::run()
 	Player_Start(module);
 	while (!terminating && Player_Active()) {
 		MikMod_Update();
+		handlePause();
 
 		playingtime = module->sngtime / 1024;
 		usleep(500);

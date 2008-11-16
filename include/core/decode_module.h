@@ -19,7 +19,7 @@ class DecoderModule : public Decoder {
 	friend void MBX_Update();
 
 public:
-	DecoderModule(Input* i, Output* o, Visualizer* v);
+	DecoderModule(Player* p, Input* i, Output* o, Visualizer* v);
 	~DecoderModule();
 
 	//! \brief Performs a module decoding run

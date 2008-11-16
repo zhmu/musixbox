@@ -12,7 +12,7 @@ class DecoderFLAC : public Decoder, public FLAC::Decoder::Stream {
 	friend class InfoFLAC;
 
 public:
-	DecoderFLAC(Input* i, Output* o, Visualizer* v);
+	DecoderFLAC(Player* p, Input* i, Output* o, Visualizer* v);
 	~DecoderFLAC();
 
 	//! \brief Performs a FLAC decoding run

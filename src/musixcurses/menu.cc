@@ -6,7 +6,7 @@ using namespace std;
 void
 Menu::draw()
 {
-	int num_cols;
+	unsigned int num_cols;
 	unsigned int line = 0;
 
 	getmaxyx(window, num_lines, num_cols);

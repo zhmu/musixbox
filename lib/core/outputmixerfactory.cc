@@ -9,6 +9,7 @@
 #endif
 #include "core/output_swmixer.h"
 #include "core/output_null.h"
+#include "core/output_oss.h"
 #include "core/outputmixerfactory.h"
 #include "core/mixer.h"
 #include "core/mixer_oss.h"
@@ -22,6 +23,9 @@ OutputMixerFactory::construct(string resource, Output** output, Mixer** mixer)
 	*output = NULL; *mixer = NULL;
 	if (resource == "null") {
 		*output = new OutputNull();
+	} else if (resource == "oss") {
+		*output = new OutputOSS();
+		*mixer = new MixerOSS("/dev/mixer0" /* XXX */);
 #ifdef WITH_AO
 	} else if (resource == "ao") {
 		*output = new OutputAO();
@@ -55,4 +59,5 @@ OutputMixerFactory::getAvailable(list<string>& o)
 #ifdef WITH_ALSA
 	o.push_front("alsa");
 #endif
+	o.push_front("oss");
 }

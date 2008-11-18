@@ -5,4 +5,4 @@ noinst_HEADERS = \
 	info_module.h info_mp3.h info_ogg.h info_sid.h input_file.h \
 	input.h input_remote.h mixer.h mixer_oss.h mixer_sw.h output_ao.h \
 	output.h outputmixerfactory.h output_null.h output_swmixer.h \
-	player.h visualize.h visualize_spectrum.h
+	player.h visualize.h visualize_spectrum.h output_alsa.h

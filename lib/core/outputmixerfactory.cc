@@ -4,6 +4,9 @@
 #ifdef WITH_AO
 #include "core/output_ao.h"
 #endif
+#ifdef WITH_ALSA
+#include "core/output_alsa.h"
+#endif
 #include "core/output_swmixer.h"
 #include "core/output_null.h"
 #include "core/outputmixerfactory.h"
@@ -32,6 +35,11 @@ OutputMixerFactory::construct(string resource, Output** output, Mixer** mixer)
 		*output = new OutputSWMixer(new OutputAO());
 		*mixer = new MixerSW((OutputSWMixer*)*output);
 #endif /* WITH_AO */
+#ifdef WITH_ALSA
+	} else if (resource == "alsa") {
+		*output = new OutputALSA();
+		*mixer = NULL;
+#endif /* WITH_ALSA */
 	} else 
 		throw FactoryException("unsupport output requested");
 }
@@ -43,5 +51,8 @@ OutputMixerFactory::getAvailable(list<string>& o)
 #ifdef WITH_AO
 	o.push_front("ao");
 	o.push_front("ao-swmixer");
+#endif
+#ifdef WITH_ALSA
+	o.push_front("alsa");
 #endif
 }

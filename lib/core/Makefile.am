@@ -35,3 +35,6 @@ endif
 if CURL
 libcore_a_SOURCES+=	input_remote.cc
 endif
+if ALSA
+libcore_a_SOURCES+=	output_alsa.cc
+endif

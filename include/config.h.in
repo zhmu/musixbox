@@ -21,6 +21,9 @@
 /* Version number of package */
 #undef VERSION
 
+/* Output using ALSA */
+#undef WITH_ALSA
+
 /* Output using libao */
 #undef WITH_AO
 

@@ -70,6 +70,12 @@ AC_ARG_WITH(curl,
 	LDFLAGS="$LDFLAGS -L$with_curl/lib"
 	CPPFLAGS="$CPPFLAGS -I$with_curl/include"
 ])
+AC_ARG_WITH(alsa,
+[  --with-alsa=dir             Output using ALSA], 
+[
+	LDFLAGS="$LDFLAGS -L$with_alsa/lib"
+	CPPFLAGS="$CPPFLAGS -I$with_alsa/include"
+])
 
 # we need pthreads
 AC_SEARCH_LIBS([pthread_create], [pthread], [],
@@ -132,6 +138,13 @@ AC_CHECK_LIB([curl], [curl_global_init], [
 	AM_CONDITIONAL([CURL], [true])
 ], [
 	AM_CONDITIONAL([CURL], [false])
+])
+AC_CHECK_LIB([asound], [snd_pcm_open], [
+	AC_DEFINE(WITH_ALSA, [], [Output using ALSA])
+	LDFLAGS="$LDFLAGS -lasound"
+	AM_CONDITIONAL([ALSA], [true])
+], [
+	AM_CONDITIONAL([ALSA], [false])
 ])
 
 AC_MSG_CHECKING(for whether FLAC++ is usuable)
@@ -223,6 +236,12 @@ echo
 echo -n "AO output:            "
 if test "x${AO_FALSE}" != "x"; then
 	echo "Yes (libao)"
+else
+	echo "No"
+fi
+echo -n "ALSA output:          "
+if test "x${ALSA_FALSE}" != "x"; then
+	echo "Yes (libasound)"
 else
 	echo "No"
 fi

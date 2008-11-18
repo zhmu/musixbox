@@ -7,7 +7,7 @@
 #define __DECODE_H__
 
 //! \brief Size of a temporary buffer every decoder may use
-#define DECODER_OUTBUF_SIZE	8192
+#define DECODER_OUTBUF_SIZE	32768
 
 class Player;
 

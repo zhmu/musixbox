@@ -1,5 +1,6 @@
 #include "config.h"
 #include <pthread.h>
+#include <signal.h>
 #include "decoderfactory.h"
 #include "player.h"
 
@@ -9,6 +10,21 @@ void*
 player_wrapper(void* data)
 {
 	Player* player = (Player*)data;
+
+	/*
+	 * Explicitely block most signals from reaching us. This causes
+	 * possible stuttering if the application uses things like SIGALRM,
+	 * SIGHUP etc while we are being suspended.
+	 *
+	 * One may argue whether this is the correct place to do this; one
+	 * way of reasoning is that only a Player thread suffers from these
+	 * problems, so it wouldn't be fair to force an application to block
+	 * signals only because this thread can't deal with them...
+	 */
+	sigset_t smask;
+	sigemptyset(&smask);
+	sigaddset(&smask, SIGALRM); sigaddset(&smask, SIGHUP);
+	pthread_sigmask(SIG_BLOCK, &smask, NULL);
 
 	/*
 	 * XXX We do not acquire any locks here

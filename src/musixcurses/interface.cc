@@ -88,13 +88,13 @@ Interface::fillStatus()
 	box(winStatus, 0, 0);
 	s = "Unknown Artist";
 	if (info != NULL && info->getArtist() != NULL) s = info->getArtist();
-	mvwprintw(winStatus, 1, 2, s);
+	mvwprintw(winStatus, 1, 2, "%s", s);
 	s = "Unknown Album";
 	if (info != NULL && info->getAlbum() != NULL) s = info->getAlbum();
-	mvwprintw(winStatus, 2, 2, s);
+	mvwprintw(winStatus, 2, 2, "%s", s);
 	s = "Unknown Title";
 	if (info != NULL && info->getTitle() != NULL) s = info->getTitle();
-	mvwprintw(winStatus, 3, 2, s);
+	mvwprintw(winStatus, 3, 2, "%s", s);
 
 	snprintf(temp, sizeof(temp), "%u:%02u / %u:%02u", playingTime / 60, playingTime % 60, totalTime / 60, totalTime % 60);
 	mvwprintw(winStatus, 5, 2, temp);

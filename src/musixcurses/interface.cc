@@ -126,12 +126,13 @@ Interface::requestUpdate()
 void
 Interface::signalResize()
 {
-
+#ifndef __CYGWIN__
 	struct winsize ws;
 	if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws) == 0) {
 		resizeterm(ws.ws_row, ws.ws_col);
 		wrefresh(curscr);
 	}
+#endif /* __CYGWIN__ */
 }
 
 void

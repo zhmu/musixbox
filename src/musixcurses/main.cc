@@ -48,6 +48,7 @@ usage()
 	}
 	fprintf(stderr, "\n");
 	fprintf(stderr, " -p path        path to media files\n");
+	fprintf(stderr, " -l path        path to program used to fetch lyrics\n");
 	fprintf(stderr, " -c config      location of configuration file\n");
 	fprintf(stderr, "                default: ~/%s\n", DEFAULT_CONFIG_FILE);
 	fprintf(stderr, " -n             clear configuration file\n");
@@ -70,10 +71,11 @@ main(int argc, char** argv)
 	try {
 		Folder* folder = NULL;
 		Output* output = NULL;
+		Lyrics* lyrics;
 		Mixer* mixer;
 		int c;
 
-		while ((c = getopt(argc, argv, "?hnc:o:p:")) != -1) {
+		while ((c = getopt(argc, argv, "?hnc:l:o:p:")) != -1) {
 			switch(c) {
 				case 'h':
 				case '?': usage();
@@ -85,6 +87,8 @@ main(int argc, char** argv)
 				case 'p': FolderFactory::construct(optarg, &folder);
 					  /* If we got here, this worked - so store the path */
 					  config->setString("media path", optarg);
+					  break;
+				case 'l': config->setString("lyrics fetcher", optarg);
 					  break;
 				case 'c': delete config;
 					  config = new Configuration(optarg);
@@ -113,12 +117,13 @@ main(int argc, char** argv)
 			}
 			FolderFactory::construct(str, &folder);
 		}
+		lyrics = new Lyrics(config->getString("lyrics fetcher"));
 
 		signal(SIGQUIT, SIG_IGN);
 		signal(SIGALRM, handle_update);
 		signal(SIGWINCH, handle_resize);
 
-		interface = new Interface(output, mixer, folder, (argc > 0) ? argv[0] : NULL);
+		interface = new Interface(output, mixer, folder, lyrics, (argc > 0) ? argv[0] : NULL);
 		interface->run();
 
 		/* Only store the configuration on successful termination */
@@ -126,6 +131,7 @@ main(int argc, char** argv)
 
 		delete config;
 		delete interface;
+		delete lyrics;
 		delete output;
 		delete folder;
 	} catch (MusixBoxException& e) {

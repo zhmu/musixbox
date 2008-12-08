@@ -8,10 +8,13 @@
 
 using namespace std;
 
-Interface::Interface(Output* o, Mixer* m, Folder* f, const char* resource)
+Interface::Interface(Output* o, Mixer* m, Folder* f, Lyrics* l, const char* resource)
 {
-	output = o; mixer = m; folder = f; player = NULL;
-	showingPlaylist = false; showHelp = true; winMsg = NULL;
+	output = o; mixer = m; folder = f; lyrics = l; player = NULL;
+	mode = MODE_BROWSER; showHelp = true; winMsg = NULL;
+
+	/* Initially, lyrics aren't dirty - this prevents us from fetching them */
+	dirtyLyrics = false;
 
 	/* Initialize curses and colors */
 	initscr();
@@ -154,7 +157,7 @@ Interface::playResource(string resource)
 	p = new CursePlayer(resource, output, this);
 	player = p;
 	player->play();
-
+	dirtyLyrics = true;
 	fillStatus();
 }
 
@@ -178,12 +181,20 @@ Interface::trackDone()
 		trackDone();
 	}
 
-	/*
-	 * If we are showing the playlist, update it so that the playing
-	 * track is correctly marked.
-	 */
-	if (showingPlaylist)
-		menuPlaylist->draw();
+	switch(mode) {
+		case MODE_PLAYLIST:
+			/*
+			 * If we are showing the playlist, update it so that the playing
+			 * track is correctly marked.
+			 */
+			menuPlaylist->draw();
+			break;
+		case MODE_LYRICS:
+			/* Fetch the new lyrics! */
+			fetchLyrics();
+			drawLyrics();
+			break;
+	}
 }
 
 void
@@ -226,6 +237,58 @@ Interface::removeFromPlaylist(string resource)
 
 	/* Get rid of the entire item */
 	playlist.removeItem(folder->getFullPath(resource));
+}
+
+void
+Interface::fetchLyrics()
+{
+	Info* info;
+
+	if (!dirtyLyrics)
+		return;
+	if (player == NULL)
+		return;
+	info = player->getInfo();
+	if (info == NULL)
+		return;
+
+	drawDialog("Fetching lyrics...");
+	lyrics->fetch(info);
+	first_lyrics_line = 0;
+	clearDialog();
+
+	dirtyLyrics = false;
+}
+
+void
+Interface::drawLyrics()
+{
+	unsigned int line = 0, y = 0;
+	unsigned int num_lines, num_cols;
+
+	getmaxyx(winBrowser, num_lines, num_cols);
+
+	string s;
+        werase(winBrowser);
+
+	string::size_type cur_index = 0;
+	while (cur_index != string::npos && y < num_lines) {
+		/* Isolate the next line */
+		string::size_type pos = lyrics->getLyrics().find_first_of("\n", cur_index);
+		if (pos != string::npos) {
+			s = lyrics->getLyrics().substr(cur_index, pos - cur_index);
+			cur_index = pos + 1;
+		} else {
+			s = lyrics->getLyrics().substr(cur_index);
+			cur_index = pos;
+		}
+		if (line++ < first_lyrics_line)
+			continue;
+
+		mvwprintw(winBrowser, y, 1, "%s", s.c_str());
+		y++;
+	}
+	wrefresh(winBrowser);
 }
 
 void
@@ -316,7 +379,7 @@ Interface::handleBrowserInput(int c)
 			break;
 		case 0x09: /* TAB */
 			menuPlaylist->draw();
-			showingPlaylist = true;
+			mode = MODE_PLAYLIST;
 			break;
 	}
 	handleCommonInput(c);
@@ -364,7 +427,34 @@ Interface::handlePlaylistInput(int c)
 			break;
 		case 0x09: /* TAB */
 			menuBrowser->draw();
-			showingPlaylist = false;
+			mode = MODE_BROWSER;
+			break;
+	}
+	handleCommonInput(c);
+}
+
+void
+Interface::handleLyricsInput(int c)
+{
+	int num_lines, num_cols;
+
+	getmaxyx(winBrowser, num_lines, num_cols);
+	switch(c) {
+		case KEY_DOWN:
+			if (first_lyrics_line + num_lines < lyrics->getNumLines()) {
+				first_lyrics_line++;
+				drawLyrics();
+			}
+			break;
+		case KEY_UP:
+			if (first_lyrics_line > 0) {
+				first_lyrics_line--;
+				drawLyrics();
+			}
+			break;
+		case 0x09: /* TAB */
+			menuBrowser->draw();
+			mode = MODE_BROWSER;
 			break;
 	}
 	handleCommonInput(c);
@@ -390,12 +480,29 @@ Interface::run()
 			continue;
 		}
 #endif
+		if (c == KEY_F(2)) {
+			if (mode != MODE_LYRICS) {
+				mode = MODE_LYRICS;
+				fetchLyrics();
+			} else {
+				mode = MODE_BROWSER;
+			}
+			redraw();
+			continue;
+		}
 		if (c == KEY_F(10))
 			break;
-		if (showingPlaylist)
-			handlePlaylistInput(c);
-		else
-			handleBrowserInput(c);
+		switch(mode) {
+			case MODE_BROWSER:
+				handleBrowserInput(c);
+				break;
+			case MODE_PLAYLIST:
+				handlePlaylistInput(c);
+				break;
+			case MODE_LYRICS:
+				handleLyricsInput(c);
+				break;
+		}
 	}
 
 }
@@ -434,10 +541,17 @@ void
 Interface::redraw()
 {
 	fillStatus();
-	if (showingPlaylist)
-		menuPlaylist->draw();
-	else
-		menuBrowser->draw();
+	switch(mode) {
+		case MODE_BROWSER:
+			menuBrowser->draw();
+			break;
+		case MODE_PLAYLIST:
+			menuPlaylist->draw();
+			break;
+		case MODE_LYRICS:
+			drawLyrics();
+			break;
+	}
 	refresh();
 }
 

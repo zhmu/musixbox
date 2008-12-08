@@ -8,6 +8,7 @@
 #include "core/player.h"
 #include "core/mixer.h"
 #include "misc/playlist.h"
+#include "lyrics.h"
 #include "menubrowser.h"
 #include "menuplaylist.h"
 
@@ -19,6 +20,10 @@
 #define PAIR_INFO		3
 #define PAIR_DIALOG		4
 
+#define MODE_BROWSER		0
+#define MODE_PLAYLIST		1
+#define MODE_LYRICS		2
+
 //! \brief Provides user interaction
 class Interface {
 public:
@@ -26,9 +31,10 @@ public:
 	 *  \param o Output object to use
 	 *  \param m Mixer object to use
 	 *  \param f Folder containing media to browse
+	 *  \param l Lyrics object to use
 	 *  \param resource Resource to play, or NULL
 	 */
-	Interface(Output* o, Mixer* m, Folder* f, const char* resource);
+	Interface(Output* o, Mixer* m, Folder* f, Lyrics* l, const char* resource);
 
 	//! \brief Destructs the interface object
 	~Interface();
@@ -90,6 +96,12 @@ protected:
 	 */
 	void dialog(std::string s);
 
+	/*! \brief Called if lyrics need fetching */
+	void fetchLyrics();
+
+	/*! \brief Redraw lyrics display */
+	void drawLyrics();
+
 private:
 	//! \brief Fill status window
 	void fillStatus();
@@ -111,6 +123,11 @@ private:
 	 *  \param c Keystroke to handle
 	 */
 	void handlePlaylistInput(int c);
+
+	/*! \brief Handle a keystroke in the lyrics browser
+	 *  \param c Keystroke to handle
+	 */
+	void handleLyricsInput(int c);
 
 	//! \brief Forcefully update all content
 	void redraw();
@@ -139,8 +156,8 @@ private:
 	//! \brief Playlist
 	Playlist playlist;
 	
-	//! \brief Are we showing the playlist
-	bool showingPlaylist;
+	//! \brief Current display mode
+	int mode;
 
 	//! \brief Browser menu
 	MenuBrowser* menuBrowser;
@@ -148,11 +165,20 @@ private:
 	//! \brief Playlist menu
 	MenuPlaylist* menuPlaylist;
 
+	//! \brief Lyrics object
+	Lyrics* lyrics;
+
 	//! \brief Are we playing from the playlist?
 	bool playingFromList;
 
 	//! \brief Do we show the show the help?
 	bool showHelp;
+
+	//! \brief First lyrics line to draw
+	unsigned int first_lyrics_line;
+
+	//! \brief If set, lyrics are dirty and need to be refetched
+	bool dirtyLyrics;
 };
 
 #endif /* __INTERFACE_H__ */

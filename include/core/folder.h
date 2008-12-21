@@ -17,18 +17,18 @@ public:
 	inline virtual ~Folder() { }
 
 	//! \brief Goes one level up
-	void goUp();
+	virtual void goUp();
 
 	/*! \brief Selects a child directory to visit
 	 *  \param dir Child directory
 	 */
-	void select(std::string dir);
+	virtual void select(std::string dir);
 
 	//! \brief Retrieve the current path
-	std::string getPath() { return current; }
+	virtual std::string getPath() { return current; }
 
 	//! \brief Retrieve full path of an entry
-	std::string getFullPath(std::string entry);
+	virtual std::string getFullPath(std::string entry);
 
 	/*! \brief Check whether an entry is a folder
 	 *  \param entry Entry to check

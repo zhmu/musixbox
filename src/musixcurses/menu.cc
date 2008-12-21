@@ -7,7 +7,7 @@ void
 Menu::draw()
 {
 	unsigned int num_cols;
-	unsigned int line = 0;
+	unsigned int line = 0, search_line = 0 /* quench incorrect warning */;
 
 	getmaxyx(window, num_lines, num_cols);
 
@@ -25,6 +25,11 @@ Menu::draw()
 			first_item = sel_item - (num_lines / 2);
 		else
 			first_item = 0;
+	}
+
+	/* If we are searching, claim the lowest line for ourselves */
+	if (searching) {
+		search_line = --num_lines;
 	}
 
 	/*
@@ -56,6 +61,8 @@ Menu::draw()
 			wattroff(window, A_REVERSE);
 		line++;
 	}
+	if (searching)
+		mvwprintw(window, search_line, 1, "search> %s ", lookup.c_str());
 	wrefresh(window);
 }
 
@@ -69,23 +76,35 @@ Menu::handleInput(int c)
 		return false;
 
 	/*
-	 * If the user touched A-Z, attempt a lookup
+	 * If we are searching, handle adding/removing chars from the
+	 * lookup buffer.
 	 */
-	if (isalpha(c)) {
-		c = tolower(c);
-		lookup += c;
-		return tryLookup();
-		
+	if (searching) {
+		if (isalnum(c) || isblank(c)) {
+			c = tolower(c);
+			lookup += c;
+			tryLookup();
+			return true;
+		}
+		if (c == KEY_BACKSPACE) {
+			if (lookup.size() > 0) {
+				lookup.erase(lookup.size() - 1);
+			}
+			return true;
+		}
 	}
 
 	/* We are no longer looking stuff up */
-	lookup = "";
+	bool forceRedraw = searching;
+	lookup = ""; searching = false;
 
 	switch(c) {
+		case 'k':
 		case KEY_UP:
+		case 'j':
 		case KEY_DOWN:
 			/* advance menu position */
-			if (c == KEY_UP)
+			if (c == KEY_UP || c == 'k')
 				sel_item = (sel_item > 0) ? sel_item - 1 : getNumItems() - 1;
 			else
 				sel_item = (sel_item + 1) % getNumItems();
@@ -110,13 +129,16 @@ Menu::handleInput(int c)
 		case KEY_END:
 			sel_item = getNumItems() - 1;
 			break;
+		case '/':
+			searching = true;
+			break;
 		default:
-			return false;
+			return forceRedraw;
 	}
 	return true;
 }
 
-bool
+void
 Menu::tryLookup()
 {
 	size_t lookup_len = lookup.length();
@@ -128,7 +150,7 @@ Menu::tryLookup()
 	for (unsigned int i = sel_item + 1; i < getNumItems(); i++) {
 		if (!strncasecmp(getCompareItem(i).c_str(), lookup.c_str(), lookup_len)) {
 			sel_item = i;
-			return true;
+			return;
 		}
 	}
 
@@ -138,11 +160,9 @@ Menu::tryLookup()
 	for (unsigned int i = 0; i < getNumItems(); i++) {
 		if (!strncasecmp(getCompareItem(i).c_str(), lookup.c_str(), lookup_len)) {
 			sel_item = i;
-			return true;
+			return;
 		}
 	}
-
-	return false;
 }
 
 void
@@ -151,4 +171,11 @@ Menu::setSelectedItem(unsigned int num)
 	if (num >= getNumItems())
 		return;
 	sel_item = num;
+}
+
+void
+Menu::reset()
+{
+	first_item = 0; sel_item = 0;
+	lookup = ""; searching = false;
 }

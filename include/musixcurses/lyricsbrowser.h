@@ -13,7 +13,7 @@ public:
 	 *  \param l Lyrics object to use
 	 */
 	inline LyricsBrowser(WINDOW* w, Lyrics* l) {
-		window = w; lyrics = l;
+		window = w; lyrics = l; searching = false;
 	}
 
 	//! \brief Draw the lyrics
@@ -33,10 +33,8 @@ public:
 	bool handleInput(int c);
 
 protected:
-	/*! \brief Called if an attempt to look up a string is to be made
-	 *  \return true if the output should be refreshed
-	 */
-	bool tryLookup();
+	/*! \brief Called if an attempt to look up a string is to be made */
+	void tryLookup();
 
 private:
 	//! \brief Window used to draw
@@ -50,6 +48,9 @@ private:
 
 	//! \brief Current lookup string
 	std::string lookup;
+
+	//! \brief Are we in search mode?
+	bool searching;
 };
 
 #endif /* __LYRICSBROWSER_H__ */

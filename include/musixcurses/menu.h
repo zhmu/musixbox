@@ -12,7 +12,7 @@ public:
 	 */
 	inline Menu(WINDOW* w) {
 		first_item = 0; sel_item = 0; num_lines = 0; lookup = "";
-		window = w;
+		window = w; searching = false;
 	}
 
 	//! \brief Draw menu
@@ -26,9 +26,7 @@ public:
 	bool handleInput(int c);
 
 	//!  \brief Resets the menu to cope with new content
-	void reset() {
-		first_item = 0; sel_item = 0;
-	}
+	void reset();
 
 	//! \brief Retrieve the currently selected item
 	unsigned int getSelectedItem() { return sel_item; }
@@ -47,10 +45,8 @@ protected:
 	 */
 	virtual std::string getCompareItem(unsigned int num) { return getItem(num); }
 
-	/*! \brief Attempt to match the lookup buffer to user input
-	 *  \return true if the attempt was successful
-	 */
-	bool tryLookup();
+	/*! \brief Attempt to match the lookup buffer to user input */
+	void tryLookup();
 
 	/*! \brief Set the current selected item
 	 *  \item num Item to select
@@ -71,6 +67,9 @@ private:
 
 	//! \brief Number of lines in window
 	unsigned int num_lines;
+
+	//! \brief Are we in search mode?
+	bool searching;
 
 	//! \brief Current string we are looking up
 	std::string lookup;

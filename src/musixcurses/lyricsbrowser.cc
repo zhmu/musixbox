@@ -14,9 +14,14 @@ void
 LyricsBrowser::draw()
 {
 	unsigned int line = 0, y = 0;
+	unsigned int lyrics_line = 0 /* quench incorrect warning */;
 	unsigned int num_lines, num_cols;
 
 	getmaxyx(window, num_lines, num_cols);
+
+	/* If we are searching, claim the last line for our prompt */
+	if (searching)
+		lyrics_line = --num_lines;
 
 	/*
 	 * Sanitize the first line shown - this simplifies the search and
@@ -81,6 +86,8 @@ LyricsBrowser::draw()
 		}
 		y++;
 	}
+	if (searching)
+		mvwprintw(window, lyrics_line, 1, " search> %s", lookup.c_str());
 	wrefresh(window);
 }
 
@@ -90,21 +97,32 @@ LyricsBrowser::handleInput(int c)
 	unsigned int num_lines, num_cols;
 
 	/*
-	 * If the user touched A-Z, 0-9 or whitespace, attempt a lookup
+	 * If we are searching, handle adding/removing of charachters from
+	 * the lookup buffer.
 	 */
-	if (isalpha(c) || isdigit(c) || isspace(c)) {
-		c = tolower(c);
-		lookup += c;
-		return tryLookup();
-		
+	if (searching) {
+		if (isalnum(c) || isblank(c)) {
+			c = tolower(c);
+			lookup += c;
+			tryLookup();
+			return true;
+		}
+		if (c == KEY_BACKSPACE) {
+			if (lookup.size() > 0) {
+				lookup.erase(lookup.size() - 1);
+			}
+			return true;
+		}
 	}
 
 	getmaxyx(window, num_lines, num_cols);
 
 	switch(c) {
+		case 'j':
 		case KEY_DOWN:
 			first_line++;
 			break;
+		case 'k':
 		case KEY_UP:
 			if (first_line > 0) {
 				first_line--;
@@ -126,15 +144,20 @@ LyricsBrowser::handleInput(int c)
 		case KEY_END:
 			first_line = lyrics->getNumLines() - 1;
 			break;
-		default:
-			/* No specific keystroke - cancel searching */
+		case '/':
+			searching = true;
 			lookup = "";
+			break;
+		case 0x0a: /* enter */
+			searching = false;
+			break;
+		default:
 			return false;
 	}
 	return true;
 }
 
-bool
+void
 LyricsBrowser::tryLookup()
 {
 	bool gotFirstMatch = false;
@@ -192,7 +215,7 @@ LyricsBrowser::tryLookup()
 			/* If this line is visible or futher down, jump to it */
 			if (y >= first_line) {
 				first_line = y;
-				return true;
+				return;
 			}
 		}
 		y++;
@@ -204,10 +227,5 @@ LyricsBrowser::tryLookup()
 	 */
 	if (gotFirstMatch) {
 		first_line = first_match;
-		return true;
 	}
-
-	/* No lookup */
-	lookup = "";
-	return false;
 }

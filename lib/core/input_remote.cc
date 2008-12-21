@@ -234,3 +234,31 @@ InputRemote::read(char* buffer, size_t len)
 	pthread_mutex_unlock(&mtx_data);
 	return total;
 }
+
+static size_t
+string_process_data(void* buffer, size_t size, size_t nmemb, void* userp)
+{
+	((string*)userp)->append((const char*)buffer, size * nmemb);
+	return size * nmemb;
+}
+
+void
+InputRemote::fetchURLtoString(string resource, string& s)
+{
+	CURL* curl;
+
+	if (curl_global_init(CURL_GLOBAL_ALL))
+		throw FolderException(string("InputRemote: unable to initialize curl library"));
+	curl = curl_easy_init();
+	if (curl == NULL)
+		throw FolderException(string("InputRemote: unable to create curl object"));
+
+	curl_easy_setopt(curl, CURLOPT_URL, resource.c_str());
+	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, string_process_data);
+	curl_easy_setopt(curl, CURLOPT_WRITEDATA, &s);
+
+	curl_easy_perform(curl);
+
+	curl_easy_cleanup(curl);
+	curl_global_cleanup();
+}

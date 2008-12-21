@@ -39,6 +39,12 @@ public:
 	//! \brief Returns current file position, in bytes
 	inline size_t getCurrentPosition() { return 0; }
 
+	/*! \brief Fetches contents of an URL to a string
+	 *  \param resource URL to fetch
+	 *  \param s String to fill
+	 */
+	static void fetchURLtoString(std::string resource, std::string& s);
+
 protected:
 	//! \brief Mutex used to protect the data buffer
 	pthread_mutex_t mtx_data;

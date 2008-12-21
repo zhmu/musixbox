@@ -11,7 +11,7 @@ using namespace std;
 Interface::Interface(Output* o, Mixer* m, Folder* f, Lyrics* l, const char* resource)
 {
 	output = o; mixer = m; folder = f; lyrics = l; player = NULL;
-	mode = MODE_BROWSER; winMsg = NULL;
+	mode = MODE_BROWSER; winMsg = NULL; lyricsbrowser = NULL;
 
 	/* Initially, lyrics aren't dirty - this prevents us from fetching them */
 	dirtyLyrics = false;
@@ -23,6 +23,7 @@ Interface::Interface(Output* o, Mixer* m, Folder* f, Lyrics* l, const char* reso
 	init_pair(PAIR_BROWSER, COLOR_WHITE,  COLOR_BLACK);
 	init_pair(PAIR_INFO,    COLOR_YELLOW, COLOR_BLUE);
 	init_pair(PAIR_DIALOG,  COLOR_BLACK,  COLOR_WHITE);
+	init_pair(PAIR_HILIGHT, COLOR_BLACK,  COLOR_YELLOW);
 
 	/* Set our share of curses options, most notably no cursor and key input */
 	raw(); cbreak(); keypad(stdscr, TRUE);
@@ -36,9 +37,10 @@ Interface::Interface(Output* o, Mixer* m, Folder* f, Lyrics* l, const char* reso
 	winStatus = NULL; winBrowser = NULL; winBrowser = NULL;
 	reposition();
 
-	/* Initialize menu's */
+	/* Initialize menu's and lyrics browser */
 	menuBrowser = new MenuBrowser(winBrowser, folder);
 	menuPlaylist = new MenuPlaylist(winBrowser, &playlist);
+	lyricsbrowser = new LyricsBrowser(winBrowser, lyrics);
 
 	/* Dump stuff in the windows we just created and show 'em */
 	redraw();
@@ -182,7 +184,7 @@ Interface::trackDone()
 		case MODE_LYRICS:
 			/* Fetch the new lyrics! */
 			fetchLyrics();
-			drawLyrics();
+			lyricsbrowser->draw();
 			break;
 	}
 }
@@ -244,41 +246,10 @@ Interface::fetchLyrics()
 
 	drawDialog("Fetching lyrics...");
 	lyrics->fetch(info);
-	first_lyrics_line = 0;
+	lyricsbrowser->reset();
 	clearDialog();
 
 	dirtyLyrics = false;
-}
-
-void
-Interface::drawLyrics()
-{
-	unsigned int line = 0, y = 0;
-	unsigned int num_lines, num_cols;
-
-	getmaxyx(winBrowser, num_lines, num_cols);
-
-	string s;
-        werase(winBrowser);
-
-	string::size_type cur_index = 0;
-	while (cur_index != string::npos && y < num_lines) {
-		/* Isolate the next line */
-		string::size_type pos = lyrics->getLyrics().find_first_of("\n", cur_index);
-		if (pos != string::npos) {
-			s = lyrics->getLyrics().substr(cur_index, pos - cur_index);
-			cur_index = pos + 1;
-		} else {
-			s = lyrics->getLyrics().substr(cur_index);
-			cur_index = pos;
-		}
-		if (line++ < first_lyrics_line)
-			continue;
-
-		mvwprintw(winBrowser, y, 1, "%s", s.c_str());
-		y++;
-	}
-	wrefresh(winBrowser);
 }
 
 void
@@ -429,22 +400,12 @@ Interface::handlePlaylistInput(int c)
 void
 Interface::handleLyricsInput(int c)
 {
-	int num_lines, num_cols;
+	if (lyricsbrowser->handleInput(c)) {
+		lyricsbrowser->draw();
+		return;
+	}
 
-	getmaxyx(winBrowser, num_lines, num_cols);
 	switch(c) {
-		case KEY_DOWN:
-			if (first_lyrics_line + num_lines < lyrics->getNumLines()) {
-				first_lyrics_line++;
-				drawLyrics();
-			}
-			break;
-		case KEY_UP:
-			if (first_lyrics_line > 0) {
-				first_lyrics_line--;
-				drawLyrics();
-			}
-			break;
 		case 0x09: /* TAB */
 			menuBrowser->draw();
 			mode = MODE_BROWSER;
@@ -522,7 +483,7 @@ Interface::redraw()
 			menuPlaylist->draw();
 			break;
 		case MODE_LYRICS:
-			drawLyrics();
+			lyricsbrowser->draw();
 			break;
 	}
 	refresh();

@@ -9,6 +9,7 @@
 #include "core/mixer.h"
 #include "misc/playlist.h"
 #include "lyrics.h"
+#include "lyricsbrowser.h"
 #include "menubrowser.h"
 #include "menuplaylist.h"
 
@@ -19,6 +20,7 @@
 #define PAIR_BROWSER		2
 #define PAIR_INFO		3
 #define PAIR_DIALOG		4
+#define PAIR_HILIGHT		5
 
 #define MODE_BROWSER		0
 #define MODE_PLAYLIST		1
@@ -99,9 +101,6 @@ protected:
 	/*! \brief Called if lyrics need fetching */
 	void fetchLyrics();
 
-	/*! \brief Redraw lyrics display */
-	void drawLyrics();
-
 private:
 	//! \brief Fill status window
 	void fillStatus();
@@ -164,11 +163,11 @@ private:
 	//! \brief Lyrics object
 	Lyrics* lyrics;
 
+	//! \brief Lyrics browser
+	LyricsBrowser* lyricsbrowser;
+
 	//! \brief Are we playing from the playlist?
 	bool playingFromList;
-
-	//! \brief First lyrics line to draw
-	unsigned int first_lyrics_line;
 
 	//! \brief If set, lyrics are dirty and need to be refetched
 	bool dirtyLyrics;

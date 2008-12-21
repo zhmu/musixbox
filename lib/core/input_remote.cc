@@ -19,12 +19,24 @@ remote_process_data(void* buffer, size_t size, size_t nmemb, void* userp)
 	/* Ensure it is possible to store the data we get offered */
 	size_t totalsz = MIN(size * nmemb, INPUT_REMOTE_CACHESIZE);
 
-	/* Ensure we have space to store this data */
+	/*
+	 * Ensure we have space to store this data - if we need to terminate,
+	 * this suffices to break free of the loop too.
+	 */
 	pthread_mutex_lock(&input->mtx_data);
-	while (input->bytes_avail + totalsz >= INPUT_REMOTE_CACHESIZE) {
+	while (!input->terminating && input->bytes_avail + totalsz >= INPUT_REMOTE_CACHESIZE) {
 		/* Wait until data has been read */
 		pthread_cond_wait(&input->cv_data_read, &input->mtx_data);
-			
+	}
+
+	/*
+	 * It is possible that the condition variable was signalled only
+	 * because we are terminating. It makes no sense to write data
+	 * in such a context, so go for the easy way out.
+	 */
+	if (input->terminating) {
+		pthread_mutex_unlock(&input->mtx_data);
+		return CURLE_WRITE_ERROR;
 	}
 
 	/* Process all data that has been handed to us */
@@ -137,8 +149,14 @@ InputRemote::InputRemote(string resource) :
 
 InputRemote::~InputRemote()
 {
-	/* Signal the thread that we want to get rid of it */
+	/*
+	 * Signal the thread that we want to get rid of it. Give the
+	 * 'data has been read' condition variable a kick to ensure that,
+	 * should the writer thread be waiting for available buffer space,
+	 * it wakes up and continues to check for termination.
+	 */
 	terminating = true;
+	pthread_cond_signal(&cv_data_read);
 	
 	/* Wait until the thread is gone */
 	pthread_join(thr_fetcher, NULL);

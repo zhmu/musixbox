@@ -120,7 +120,10 @@ Interface::signalResize()
 	struct winsize ws;
 	if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws) == 0) {
 		resizeterm(ws.ws_row, ws.ws_col);
+		wresize(winStatus, 7, 0);
+		wresize(winBrowser, ws.ws_row - 7, 0);
 		wrefresh(curscr);
+		redraw();
 	}
 #endif /* __CYGWIN__ */
 }
@@ -304,6 +307,9 @@ Interface::handleCommonInput(int c)
 			else
 				vol = vol + 4;
 			mixer->setVolume(vol);
+			break;
+		case KEY_RESIZE:
+			signalResize();
 			break;
 	}
 }

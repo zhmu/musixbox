@@ -76,6 +76,13 @@ AC_ARG_WITH(alsa,
 	LDFLAGS="$LDFLAGS -L$with_alsa/lib"
 	CPPFLAGS="$CPPFLAGS -I$with_alsa/include"
 ])
+AC_PATH_PROG(XML_CONFIG, xml2-config, no)
+if test "$XML_CONFIG" = "no"; then
+	AC_MSG_ERROR([Cannot locate xml2-config. Did you forget to install libxml2 ?])
+else
+	LDFLAGS="$LDFLAGS `$XML_CONFIG --libs`"
+	CPPFLAGS="$CPPFLAGS `$XML_CONFIG --cflags`"
+fi
 
 # we need pthreads
 AC_SEARCH_LIBS([pthread_create], [pthread], [],
@@ -192,6 +199,13 @@ public:
 ])
 AC_LANG_POP(C++)
 
+AC_CHECK_LIB([xml2], [xmlReadMemory], [
+	AC_DEFINE(WITH_XML, [], [Parsing using libxml2])
+	AM_CONDITIONAL([XML], [true])
+], [
+	AM_CONDITIONAL([XML], [false])
+])
+
 # display an overview of how we will be builtj
 echo
 echo "Summary"
@@ -260,6 +274,12 @@ fi
 echo -n "Specium analyzer:     "
 if test "x${FFTW_FALSE}" != "x"; then
 	echo "Yes (libfftw)"
+else
+	echo "No"
+fi
+echo -n "XML support:          "
+if test "x${XML_FALSE}" != "x"; then
+	echo "Yes (libxml2)"
 else
 	echo "No"
 fi

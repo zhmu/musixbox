@@ -35,6 +35,9 @@ libcore_a_SOURCES+=	decode_sid.cc info_sid.cc
 endif
 if CURL
 libcore_a_SOURCES+=	input_remote.cc
+if XML
+libcore_a_SOURCES+=	folder_remote.cc
+endif
 endif
 if ALSA
 libcore_a_SOURCES+=	output_alsa.cc

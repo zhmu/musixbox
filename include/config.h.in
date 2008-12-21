@@ -53,3 +53,6 @@
 
 /* Decode using libvorbis */
 #undef WITH_VORBIS
+
+/* Parsing using libxml2 */
+#undef WITH_XML

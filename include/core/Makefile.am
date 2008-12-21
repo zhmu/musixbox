@@ -6,4 +6,4 @@ noinst_HEADERS = \
 	input.h input_remote.h mixer.h mixer_oss.h mixer_sw.h output_ao.h \
 	output.h outputmixerfactory.h output_null.h output_swmixer.h \
 	player.h visualize.h visualize_spectrum.h output_alsa.h \
-	output_oss.h
+	output_oss.h folder_remote.h

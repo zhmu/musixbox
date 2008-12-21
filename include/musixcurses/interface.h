@@ -106,9 +106,6 @@ private:
 	//! \brief Fill status window
 	void fillStatus();
 
-	//! \brief Fill info window
-	void fillInfo();
-
 	/*! \brief Handle a common keystroke
 	 *  \param c Keystroke to handle
 	 */
@@ -150,7 +147,6 @@ private:
 	//! \brief ncurses window references
 	WINDOW* winStatus;
 	WINDOW* winBrowser;
-	WINDOW* winInfo;
 	WINDOW* winMsg;
 
 	//! \brief Playlist
@@ -170,9 +166,6 @@ private:
 
 	//! \brief Are we playing from the playlist?
 	bool playingFromList;
-
-	//! \brief Do we show the show the help?
-	bool showHelp;
 
 	//! \brief First lyrics line to draw
 	unsigned int first_lyrics_line;

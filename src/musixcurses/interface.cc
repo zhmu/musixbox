@@ -11,7 +11,7 @@ using namespace std;
 Interface::Interface(Output* o, Mixer* m, Folder* f, Lyrics* l, const char* resource)
 {
 	output = o; mixer = m; folder = f; lyrics = l; player = NULL;
-	mode = MODE_BROWSER; showHelp = true; winMsg = NULL;
+	mode = MODE_BROWSER; winMsg = NULL;
 
 	/* Initially, lyrics aren't dirty - this prevents us from fetching them */
 	dirtyLyrics = false;
@@ -63,7 +63,7 @@ Interface::~Interface()
 	}
 
 	/* deinitialize curses, this makes our terminal happy again */
-	delwin(winInfo); delwin(winBrowser); delwin(winStatus);
+	delwin(winBrowser); delwin(winStatus);
 	if (winMsg != NULL)
 		delwin(winMsg);
 	endwin();
@@ -105,19 +105,6 @@ Interface::fillStatus()
 	/* Force an update; the alarm function ensures we trigger an update about a second later */
 	wrefresh(winStatus);
 	alarm(1);
-}
-
-void
-Interface::fillInfo()
-{
-	werase(winInfo);
-	box(winInfo, 0, 0);
-	mvwprintw(winInfo, 1, 2, "up/dn/pgup/pgdn/home/end   navigate                   space  pause/continue");
-	mvwprintw(winInfo, 2, 2, "right/enter                select                     +/-    adjust volume");
-	mvwprintw(winInfo, 3, 2, "left/backspace             leave folder               f10    exit");
-	mvwprintw(winInfo, 4, 2, "insert/delete              add/remove from playlist   *      clear playlist");
-	mvwprintw(winInfo, 5, 2, "tab                        toggle browser/playlist    f1     toggle help");
-	wrefresh(winInfo);
 }
 
 void
@@ -468,18 +455,6 @@ Interface::run()
 	 */
 	while (1) {
 		int c = getch();
-#if 0
-		if (c == KEY_F(1)) {
-			/*
-			 * Toggle help - and redraw about everything
-			 * to ensure it's immediately visibleely visible
-			 */
-			showHelp = !showHelp;
-			reposition();
-			redraw();
-			continue;
-		}
-#endif
 		if (c == KEY_F(2)) {
 			if (mode != MODE_LYRICS) {
 				mode = MODE_LYRICS;
@@ -513,7 +488,6 @@ Interface::reposition()
 	/* Get rid of the old windows first */
 	if (winStatus != NULL) delwin(winStatus);
 	if (winBrowser != NULL) delwin(winBrowser);
-	if (winInfo != NULL) delwin(winInfo);
 
 	/*
 	 * Initialize windows: status window (first 7 lines), browser window (X
@@ -522,19 +496,12 @@ Interface::reposition()
 	 * Note: if the help is hidden, the info window's doesn't exist.
 	 */	
 	winStatus  = newwin(7, 0, 0, 0);
-	winBrowser = newwin(LINES - (showHelp ? 14 : 7), 0, 7, 0);
-	if (showHelp)
-		winInfo = newwin(7, 0, LINES - 7, 0);
+	winBrowser = newwin(LINES - 7, 0, 7, 0);
 
 	/* Set colors for all windows */
 	wattrset(winStatus, COLOR_PAIR(PAIR_STATUS) | A_BOLD);
 	wbkgdset(winStatus, COLOR_PAIR(PAIR_STATUS));
 	wattron(winBrowser, COLOR_PAIR(PAIR_BROWSER));
-	if (showHelp) {
-		wattron(winInfo, COLOR_PAIR(PAIR_INFO) | A_BOLD);
-		wbkgdset(winInfo, COLOR_PAIR(PAIR_STATUS));
-		fillInfo();
-	}
 }
 
 void

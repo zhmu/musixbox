@@ -6,6 +6,9 @@
 //! \brief Abstract class to provide audio output
 class Output {
 public:
+	//! \brief Destructs the output plugin
+	inline virtual ~Output() { };
+
 	/*! \brief Plays a buffer
 	 *  \param buf Buffer to play
 	 *  \param len Number of bytes to play

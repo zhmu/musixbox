@@ -27,14 +27,6 @@ handle_update(int num)
 }
 
 void
-handle_resize(int num)
-{
-	if (interface != NULL)
-		interface->signalResize();
-	signal(SIGWINCH, handle_resize);
-}
-
-void
 usage()
 {
 	fprintf(stderr, "usage: musixcurses [-?hn] [-o type] [-p path] [resource]\n\n");
@@ -121,7 +113,6 @@ main(int argc, char** argv)
 
 		signal(SIGQUIT, SIG_IGN);
 		signal(SIGALRM, handle_update);
-		signal(SIGWINCH, handle_resize);
 
 		interface = new Interface(output, mixer, folder, lyrics, (argc > 0) ? argv[0] : NULL);
 		interface->run();

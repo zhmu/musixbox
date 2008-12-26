@@ -64,6 +64,11 @@ Interface::~Interface()
 		delete player;
 	}
 
+	/* get rid of the browsing objects */
+	delete menuBrowser;
+	delete menuPlaylist;
+	delete lyricsbrowser;
+
 	/* deinitialize curses, this makes our terminal happy again */
 	delwin(winBrowser); delwin(winStatus);
 	if (winMsg != NULL)

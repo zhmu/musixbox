@@ -39,7 +39,7 @@ public:
 	FolderRemote(std::string r);
 
 	//! \brief Destructs the directory walker
-	virtual ~FolderRemote();
+	~FolderRemote();
 
 	/*! \brief Check whether an entry is a folder
 	 *  \param entry Entry to check

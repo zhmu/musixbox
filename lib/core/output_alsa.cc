@@ -53,6 +53,16 @@ OutputALSA::OutputALSA() : Output()
 		if (err < 0)
 			throw OutputException("snd_pcm_hw_params_set_channels(): failure");
 
+		/*
+		 * Request buffering of around 0.5 seconds; otherwise we'll eat
+		 * up a lot of CPU time for nothing (and this may cause skips and
+		 * cracks on slower hardware...)
+		 */
+		unsigned int buffer_time = 500000;
+		err = snd_pcm_hw_params_set_buffer_time_near(sound_device, hw_params, &buffer_time, 0);
+		if (err < 0)
+			throw OutputException("snd_pcm_hw_params_set_buffer_time(): failure");
+
 		/* Feed the parameters back to the device */
 		err = snd_pcm_hw_params(sound_device, hw_params);
 		if (err < 0)

@@ -77,9 +77,7 @@ AC_ARG_WITH(alsa,
 	CPPFLAGS="$CPPFLAGS -I$with_alsa/include"
 ])
 AC_PATH_PROG(XML_CONFIG, xml2-config, no)
-if test "$XML_CONFIG" = "no"; then
-	AC_MSG_ERROR([Cannot locate xml2-config. Did you forget to install libxml2 ?])
-else
+if test "$XML_CONFIG" != "no"; then
 	LDFLAGS="$LDFLAGS `$XML_CONFIG --libs`"
 	CPPFLAGS="$CPPFLAGS `$XML_CONFIG --cflags`"
 fi

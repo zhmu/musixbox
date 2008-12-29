@@ -24,6 +24,8 @@ struct COMMANDMAP {
 } commandmap[] = {
 	{ CMD_NONE,   0 },
 	{ CMD_COORDS, 4 },
+	{ CMD_SYNCED, 0 },
+	{ CMD_DRAWN,  0 },
 };
 
 void*
@@ -77,12 +79,12 @@ avrRecvThread(void* ptr)
 				fprintf(stderr, "InteractionAVR: received unknown command 0x%02x, ignored\n", curCmd);
 #endif
 				curCmd = CMD_NONE;
-				break;
+				continue;
 			}
 			curByte = 0; numBytes = commandmap[idx].len;
 			if (numBytes >= CMD_MAX_DATA_LENGTH) {
 #ifdef DEBUG
-				fprintf(stderr, "InteractionAVR: command 0x%02x has argument length %u > maximum %u, adjusting!\n", curCmd, numBytes, CMD_MAX_DATA_LEN);
+				fprintf(stderr, "InteractionAVR: command 0x%02x has argument length %u > maximum %u, adjusting!\n", curCmd, numBytes, CMD_MAX_DATA_LENGTH);
 #endif
 				numBytes = CMD_MAX_DATA_LENGTH;
 			}
@@ -104,6 +106,12 @@ avrRecvThread(void* ptr)
 			/* Touchscreen coordinate storage */
 			case CMD_COORDS:
 				avr->handleTouch(argBuf);
+				break;
+			case CMD_SYNCED:
+				avr->setSynced();
+				break;
+			case CMD_DRAWN:
+				avr->setDrawn();
 				break;
 			default:
 				/*
@@ -177,8 +185,8 @@ InteractionAVR::InteractionAVR(const char* device)
 	/* Finally, launch the thread to cope with incoming data */
 	pthread_create(&recvThread, NULL, avrRecvThread, this);
 
-	/* We do not know what's on the LCD, so write whenever we can! */
-	dirty = true;
+	/* Ensure the AVR and us are in sync */
+	sync();
 }
 
 InteractionAVR::~InteractionAVR()
@@ -204,9 +212,6 @@ InteractionAVR::~InteractionAVR()
 void
 InteractionAVR::yield()
 {
-	if (!dirty)
-		return;
-
 	/*
 	 * If we have outstanding updates, write them page by page, controller
 	 * by controller. This is actually so much faster than sending updates
@@ -230,8 +235,6 @@ InteractionAVR::yield()
 			}
 		}
 	}
-
-	dirty = false;
 }
 
 void
@@ -244,8 +247,6 @@ InteractionAVR::putpixel(unsigned int x, unsigned int y, unsigned int c)
 		displaydata[x + (getWidth() * (y / 8))] |= 1 << (y % 8);
 	else
 		displaydata[x + (getWidth() * (y / 8))] &= ~(1 << (y % 8));
-
-	dirty = true;
 }
 
 void
@@ -253,11 +254,20 @@ InteractionAVR::writeAVRPage(unsigned char ic, unsigned char page, unsigned char
 {
 	unsigned char a;
 
-	a = 0x80 | (ic ? 0x40 : 0) | page;
+	a = (ic ? 0x40 : 0) | page;
 	if (!write(fd, &a, 1))
 		return;
 	if (!write(fd, data, 64))
 		return;
+
+	/* Wait until the AVR acknowledges our request */
+	for (int tries = 0; tries < 10000; tries++) {
+		if (drawn) {
+			drawn = false;
+			break;
+		}
+		usleep(10);
+	}
 }
 
 void
@@ -298,4 +308,33 @@ InteractionAVR::handleTouch(uint8_t* buf)
 
 	/* All is well => report the coordinate */
 	setInteraction(x, y, INTERACTION_TYPE_NORMAL);
+}
+
+void
+InteractionAVR::sync()
+{
+	unsigned char syncmd = CMD_SYNC;
+	int syncs = 0;
+
+	/*
+	 * Establish sync with the device: the idea is that we send up to
+	 * 65 SYNC commands. If the AVR is is still busy drawing, it'll
+	 * place these on the display and continue. However, if it's not,
+	 * it will return the 'synced' command which the receiver thread
+	 * acts on by setting the synced boolean to true.
+	 */
+	synced = false;
+	for (int syncs = 0; syncs < 65; syncs++) {
+		if (!write(fd, &syncmd, 1))
+			return;
+		usleep(10000);
+		if (synced)
+			return;
+	}
+
+	/*
+	 * Give up; the device is in such a wedged state, we can't make heads
+	 * or tails of it...
+	 */
+	throw InteractionException("Unable to synchronize with the device");
 }

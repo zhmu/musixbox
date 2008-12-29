@@ -6,6 +6,9 @@
 /* Commands send by the AVR to us */
 #define CMD_NONE		0x00
 #define CMD_COORDS		0x01
+#define CMD_SYNC		0xf0
+#define CMD_SYNCED		0xf1
+#define CMD_DRAWN		0xf2
 
 /* Maximum argument length */
 #define CMD_MAX_DATA_LENGTH	0x10
@@ -45,12 +48,27 @@ protected:
 	//! \brief Handle a touch coordinate request
 	void handleTouch(uint8_t* buf);
 
+	//! \brief Synchronized the AVR device with us
+	void sync();
+
+	//! \brief Called if we got a synced charachter
+	void setSynced() { synced = true; }
+
+	//! \brief Called if we got a drawn command
+	void setDrawn() { drawn = true; }
+
 private:
 	//! \brief File descriptor used for serial access
 	int fd;
 
 	//! \brief Need to update the display?
 	bool dirty;
+
+	//! \brief Have we gotten a sync charachter?
+	bool synced;
+
+	//! \brief Have we drawn the data?
+	bool drawn;
 
 	//! \brief Working contents of display data
 	unsigned char* displaydata;

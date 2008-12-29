@@ -18,6 +18,10 @@ Lyrics::fetch(Info* info)
 	/* Remove any old lyrics */
 	lyrics = ""; numlines = 0;
 
+	/* If the information object is not supplied or empty, nothing to do */
+	if (info == NULL || info->getArtist() == NULL || info->getTitle() == NULL)
+		return false;
+
 #define ADD(x) \
 	s += ' '; s += '\''; \
 	for (const char* ptr = x; *ptr != '\0'; ptr++) { \
@@ -40,7 +44,11 @@ Lyrics::fetch(Info* info)
 	string s = path;
 	ADD(info->getArtist());
 	ADD(info->getTitle());
-	ADD(info->getAlbum());
+	if (info->getAlbum() != NULL) {
+		ADD(info->getAlbum());
+	} else { 
+		ADD("");
+	}
 
 #undef ADD
 

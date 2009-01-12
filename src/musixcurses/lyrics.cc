@@ -24,16 +24,17 @@ Lyrics::fetch(Info* info)
 
 #define ADD(x) \
 	s += ' '; s += '\''; \
-	for (const char* ptr = x; *ptr != '\0'; ptr++) { \
-		if (*ptr == '\'') { \
-			s += '\''; \
-			s += '\\'; \
-			s += '\''; \
-			s += '\''; \
-		} else { \
-			s += *ptr; \
-		} \
-	}  \
+	if (x != NULL) \
+		for (const char* ptr = x; *ptr != '\0'; ptr++) { \
+			if (*ptr == '\'') { \
+				s += '\''; \
+				s += '\\'; \
+				s += '\''; \
+				s += '\''; \
+			} else { \
+				s += *ptr; \
+			} \
+		}  \
 	s += '\'';
 
 	/*
@@ -44,11 +45,10 @@ Lyrics::fetch(Info* info)
 	string s = path;
 	ADD(info->getArtist());
 	ADD(info->getTitle());
-	if (info->getAlbum() != NULL) {
-		ADD(info->getAlbum());
-	} else { 
-		ADD("");
-	}
+	ADD(info->getAlbum());
+
+	/* Redirect stderr, so we'll get error messages too */
+	s += " 2>&1";
 
 #undef ADD
 

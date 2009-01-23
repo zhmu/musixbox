@@ -20,7 +20,6 @@ InteractionSDL::InteractionSDL(unsigned int scale_factor)
 	if (SDL_Init(SDL_INIT_VIDEO) < 0)
 		throw InteractionException(string("SDL_Init() failure: ") + SDL_GetError());
 
-printf("scale=%u\n",getScale());
 	screen = SDL_SetVideoMode(getWidth() * getScale(),
 	                          getHeight() * getScale(),
 	                          32, SDL_SWSURFACE);

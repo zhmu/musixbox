@@ -29,10 +29,18 @@ usage()
 #ifdef WITH_SDL
 "s"
 #endif
-"] [-c config] [-a device] [-o type] [resource]\n\n");
+"] " 
+#ifdef WITH_SDLGFX
+"[-z factor] " 
+#endif
+"[-c config] [-a device] [-o type] [resource]\n\n");
 	fprintf(stderr, " -h, -?         this help\n");
 #ifdef WITH_SDL
 	fprintf(stderr, " -s             enable SDL interaction frontend\n");
+#ifdef WITH_SDLGFX
+	fprintf(stderr, " -z factor      set SDL zoom factor\n");
+	fprintf(stderr, "                (not stored in configuration!)\n");
+#endif
 #endif
 	fprintf(stderr, " -a device      enable AVR interaction frontend using device\n");
 	fprintf(stderr, " -o type        select output plugin\n");
@@ -64,6 +72,9 @@ main(int argc, char** argv)
 {
 	string cfgfile;
 	int daemonize = 0;
+#ifdef WITH_SDL
+	int zoom_factor = 1;
+#endif
 
 	if (getenv("HOME") != NULL)
 		cfgfile = string(getenv("HOME")) + "/"DEFAULT_CONFIG_FILE;
@@ -81,11 +92,14 @@ main(int argc, char** argv)
 		while ((ch = getopt(argc, argv, "?dhn"
 #ifdef WITH_SDL
 "s"
+#ifdef WITH_SDLGFX
+"z:"
+#endif
 #endif
 "a:c:o:p:")) != -1) {
 		switch(ch) {
 #ifdef WITH_SDL
-			case 's': interaction->add(new InteractionSDL());
+			case 's': interaction->add(new InteractionSDL(zoom_factor));
 			          config->setString("SDL interaction", "yes");
 			          break;
 #endif
@@ -108,6 +122,12 @@ main(int argc, char** argv)
 			          break;
 			case 'd': daemonize++;
 			          break;
+#ifdef WITH_SDLGFX
+			case 'z': zoom_factor = atoi(optarg);
+			          if (zoom_factor <= 0)
+			          	throw MusixBoxException("Invalid zoom factor");
+			          break;
+#endif
 			case 'h':
 			case '?': usage();
 			          /* NOTREACHED */
@@ -122,7 +142,7 @@ main(int argc, char** argv)
 				interaction->add(new InteractionAVR(a.c_str()));
 #ifdef WITH_SDL
 			if (config->getString("SDL interaction", "") != "")
-				interaction->add(new InteractionSDL());
+				interaction->add(new InteractionSDL(zoom_factor));
 #endif
 			if (interaction->getNumProviders() == 0) {
 				fprintf(stderr, "fatal: no interaction providers, aborting\n");

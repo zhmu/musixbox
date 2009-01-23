@@ -151,6 +151,16 @@ AC_CHECK_LIB([asound], [snd_pcm_open], [
 ], [
 	AM_CONDITIONAL([ALSA], [false])
 ])
+if test "x${SDL_FALSE}" != "x"; then
+	AC_CHECK_LIB([SDL_gfx], [pixelColor], [
+		AC_DEFINE(WITH_SDLGFX, [], [Support functions from SDL_gfx])
+		LDFLAGS="$LDFLAGS -lSDL_gfx"
+		AM_CONDITIONAL([SDLGFX], [true])
+	], [
+		AM_CONDITIONAL([SDLGFX], [false])
+	])
+	
+fi
 
 AC_MSG_CHECKING(for whether FLAC++ is usuable)
 AC_LANG_PUSH(C++)
@@ -259,7 +269,11 @@ else
 fi
 echo -n "X11 visualization:    "
 if test "x${SDL_FALSE}" != "x"; then
-	echo "Yes (libSDL)"
+	echo -n "Yes (libSDL"
+	if test "x${SDLGFX_FALSE}" != "x"; then
+		echo -n "+libSDL_gfx"
+	fi
+	echo ")"
 else
 	echo "No"
 fi

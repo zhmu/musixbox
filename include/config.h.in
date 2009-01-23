@@ -48,6 +48,9 @@
 /* Interaction using SDL */
 #undef WITH_SDL
 
+/* Support functions from SDL_gfx */
+#undef WITH_SDLGFX
+
 /* Decode using libsidplay2 */
 #undef WITH_SIDPLAY2
 

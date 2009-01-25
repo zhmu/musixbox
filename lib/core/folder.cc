@@ -46,3 +46,9 @@ Folder::getFullPath(string entry)
 {
 	return current + "/" + entry;
 }
+
+bool
+Folder::isFolderRoot()
+{
+	return current == root;
+}

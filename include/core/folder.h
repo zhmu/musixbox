@@ -42,6 +42,9 @@ public:
 	//! \brief Updates current directory contents
 	void rehash();
 
+	//! \brief Are we currently in the folder root?
+	virtual bool isFolderRoot();
+
 protected:
 	//! \brief Called to fill the current directory entries list
 	virtual void retrieveEntries() = 0;

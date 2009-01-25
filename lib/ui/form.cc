@@ -65,11 +65,13 @@ Form::run()
 
 		/*
 		 * There was interaction somewhere - find the corresponding control
-		 * and give it a spin
+		 * and give it a spin. Note that we only handle the first control
+		 * matching.
 		 */
 		for (unsigned int i = 0; i < controls.size(); i++) {
 			if (controls[i]->isVisible() && controls[i]->isTouched(cx, cy)) {
 				interact(controls[i]);
+				break;
 			}
 		}
 	}

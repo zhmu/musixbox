@@ -8,7 +8,7 @@ using namespace std;
 Control::Control(unsigned int x, unsigned int y, unsigned int width, unsigned int height) {
 	this->form = NULL; this->x = x; this->y = y;
 	this->width = width; this->height = height;
-	this->data = NULL;
+	this->data = NULL; this->visible = true;
 }
 
 void

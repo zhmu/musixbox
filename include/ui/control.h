@@ -44,8 +44,20 @@ public:
 	//! \brief Set private data
 	void setData(void* ptr) { data = ptr; }
 
-	//! b\rief Retrieve data
+	//! \brief Retrieve data
 	void* getData() { return data; }
+
+	//! \brief Show the control
+	void show() { visible = true; }
+
+	//! \brief Hide the control
+	void hide() { visible = false; }
+
+	//! \brief Is the control visible?
+	bool isVisible() { return visible; }
+
+	//! \brief Set the control visiblity
+	void setVisible(bool b) { visible = b; }
 
 protected:
 	//! \brief X and Y position
@@ -59,6 +71,9 @@ protected:
 
 	//! \brief Form we belong to
 	Form* form;
+
+	//! \brief Is the control visible?
+	bool visible;
 
 	//! \brief Control's private data;
 	void* data;

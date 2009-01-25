@@ -29,7 +29,7 @@ public:
 	virtual void redraw();
 
 	//! \brief Called to process the form
-	void run();
+	virtual void run();
 
 	//! \brief Request close of the form
 	void close() { mustClose = true; }

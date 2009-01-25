@@ -18,9 +18,10 @@ Form::redraw()
 	/* Clear everything */
        interaction->clear(0, 0, interaction->getHeight(), interaction->getWidth());
 
-	/* Let the controls draw themselves one by one */
+	/* Let the controls draw themselves one by one, if they are visible */
 	for (unsigned int i = 0; i < controls.size(); i++) {
-		controls[i]->draw();
+		if (controls[i]->isVisible())
+			controls[i]->draw();
 	}
 }
 
@@ -67,7 +68,7 @@ Form::run()
 		 * and give it a spin
 		 */
 		for (unsigned int i = 0; i < controls.size(); i++) {
-			if (controls[i]->isTouched(cx, cy)) {
+			if (controls[i]->isVisible() && controls[i]->isTouched(cx, cy)) {
 				interact(controls[i]);
 			}
 		}

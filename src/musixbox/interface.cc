@@ -13,6 +13,7 @@
 #include "core/exceptions.h"
 #include "ui/interaction.h"
 #include "interface.h"
+#include "formAlphaBrowser.h"
 #include "formBrowser.h"
 #include "formPlayer.h"
 
@@ -25,8 +26,11 @@ Interface::Interface(Interaction* i, Output* o, Mixer* m, Folder* f, const char*
 		currentFile = std::string(resource);
 	else
 		currentFile = "";
+	currentFolderChar = '\0';
 
-	browser = new formBrowser(interaction, folder);
+	fBrowser = new formBrowser(interaction, folder);
+	fPlayer = new formPlayer(interaction, this);
+	fAlphaBrowser = new formAlphaBrowser(interaction);
 }
 
 Interface::~Interface() {
@@ -39,7 +43,7 @@ Interface::~Interface() {
 void
 Interface::run()
 {
-	int state = 0;
+	int state = 2;
 
 	/* If a current file was passed, play it immediately */
 	if (currentFile != "") {
@@ -54,18 +58,34 @@ Interface::run()
 	while (!interaction->mustTerminate()) {
 		switch(state) {
 			case 0: /* browser form */
-		                browser->run();
-		                if (browser->getSelectedFile() != "") {
-	                                currentFile = browser->getSelectedFile();
-			        	playFile();
-			        }
-				state = 1;
-			        break;
+				fBrowser->setFilterChar(fAlphaBrowser->getSelectedChar());
+				fBrowser->run();
+				switch (fBrowser->getReturnCode()) {
+					case FORMBROWSER_CODE_SELECTED:
+						currentFile = fBrowser->getSelectedFile();
+						playFile();
+						state = 1;
+						break;
+					case FORMBROWSER_CODE_CANCELED:
+						state = 1;
+						break;
+					case FORMBROWSER_CODE_GOUP:
+						state = 2;
+						break;
+				}
+				break;
 			case 1: /* player form */
-				formPlayer fp(interaction, this);
-				fp.run();
-				state = 0;
-			        break;
+				fPlayer->run();
+				state = (fAlphaBrowser->getSelectedChar() == '\0') ? 2 : 0;
+				break;
+			case 2: /* alpha browser run */
+				fAlphaBrowser->run();
+				/*
+				 * If something was selected, go to player - otherwise, go to the
+				 * browser.
+				 */
+				state = (fAlphaBrowser->getSelectedChar() == '\0') ? 1 : 0;
+				break;
 		}
 	}
 }
@@ -89,7 +109,7 @@ Interface::playFile()
 void
 Interface::next()
 {
-	if (!browser->getNextFile(currentFile))
+	if (!fBrowser->getNextFile(currentFile))
 		return;
 
 	playFile();
@@ -97,7 +117,7 @@ Interface::next()
 
 void
 Interface::prev() {
-	if (!browser->getPreviousFile(currentFile))
+	if (!fBrowser->getPreviousFile(currentFile))
 		return;
 
 	playFile();

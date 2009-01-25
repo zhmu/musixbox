@@ -6,11 +6,21 @@ using namespace std;
 
 static char upbutton[8]    = { 0x08, 0x04, 0x02, 0x7f, 0x7f, 0x02, 0x04, 0x08 };
 static char downbutton[8]  = { 0x08, 0x10, 0x20, 0x7f, 0x7f, 0x20, 0x10, 0x08 };
-static char crossbutton[8] = { 0x81, 0x42, 0x24, 0x18, 0x18, 0x24, 0x42, 0x81 };
+static char imgLeave[8] = { 0x20, 0x72, 0xaa, 0x22, 0x22, 0x22, 0x3e, 0x00 };
 
 formBrowser::formBrowser(Interaction* in, Folder* f)
 	: Form(in)
 {
+	/*
+	 * First of all, introduce the buttons - this ensures that they
+	 * override any war between the 'is this a label or a button'-conflict.
+	 */
+	bUp =    new Image( 0, interaction->getHeight() - 8, 8, 8, upbutton);
+	bDown =  new Image(interaction->getWidth() / 2, interaction->getHeight() - 8, 8, 8, downbutton);
+	bLeave = new Image(interaction->getWidth() - 16, interaction->getHeight() - 12, 8, 8, imgLeave);
+	add(bLeave); add(bUp); add(bDown);
+
+	/* Place the labels on there */
 	for (unsigned int i = 0; i < (interaction->getHeight() - interaction->getTextHeight())  / interaction->getTextHeight(); i++) {
 		Label* l = new Label(0, i * interaction->getTextHeight(),
 		                     interaction->getWidth() - 8, interaction->getTextHeight());
@@ -19,53 +29,94 @@ formBrowser::formBrowser(Interaction* in, Folder* f)
 		add(l);
 	}
 
-	unsigned int sz = interaction->getWidth() / 3;
-	bUp =    new Image( 0, interaction->getHeight() - 8, sz, 8, upbutton);
-	bDown =  new Image(sz, interaction->getHeight() - 8, sz, 8, downbutton);
-	bLeave = new Image( 2 * sz, interaction->getHeight() - 8, sz, 8, crossbutton);
-	add(bLeave); add(bUp); add(bDown);
-
-	folder = f; rehash = true;
+	folder = f; rehash = true; new_visit = true;
 	selectedPath = folder->getPath();
 }
 
 void
 formBrowser::update()
 {
-	if (rehash) {
+	if (!rehash)
+		return;
+
+	if (new_visit) {
 		/*
-		 * Attempt to look up the visiting page number - if it's not
-		 * there, just default to the top.
+		 * We are entering this folder for the first time (i.e. no
+		 * next/previous page buttons were touched forcing us to
+		 * update). Attempt to look up the visiting page number - if
+		 * it's not there, just default to the first one.
 		 */
-		map<string, unsigned int>::iterator it = cachedIndexMap.find(folder->getPath());
+		map<string, unsigned int>::iterator it = cachedIndexMap.find(getIndexKey());
 
 		if(it != cachedIndexMap.end()) {
-			first_index = it->second;
+			current_page = it->second;
 		} else {
-			first_index = 0;
+			current_page  = 0;
 		}
-
-		rehash = false;
+		new_visit = false;
 	}
 
 	/*
 	 * Fill the screen until there is no more space.
 	 */
-	unsigned int last_index = first_index;
-	unsigned int index = 0;
-	while (last_index < folder->getEntries().size()) {
-		if (index * interaction->getTextHeight() >= interaction->getHeight() - interaction->getTextHeight())
-			break;
+	unsigned int cur_label = 0;
+	unsigned int max_label = (interaction->getHeight() / interaction->getTextHeight()) - 1;
+	unsigned int cur_index = 0;
+	unsigned int skip_num = current_page * max_label;
+	nextpage = false;
+	while (cur_index < folder->getEntries().size()) {
+		/*
+		 * If we are in the root folder and we have a filter char, ignore
+		 * anything that doesn't match.
+		 */
+		if (folder->isFolderRoot() && filterChar != '\0' &&
+			  folder->getEntries()[cur_index].c_str()[0] != filterChar) {
+			cur_index++;
+			continue;
+		}
 
-		dirlabel[index++]->setText(folder->getEntries()[last_index++]);
+		/*
+		 * Always skip '..' - it's always possible to go back by
+		 * hitting the return button.
+		 */
+		if (folder->getEntries()[cur_index] == "..") {
+			cur_index++;
+			continue;
+		}
+
+		/*
+		 * If we need to skip an entry, as we are trying to visit page
+		 * N, do it.
+		 */
+		if (skip_num > 0) {
+			skip_num--; cur_index++;
+			continue;
+		}
+
+		/*
+		 * If there are more entries than we can fit on our screen, we
+		 * are done. Note that we set the 'nextpage' flag as it should
+		 * be possible to visit the next page.
+		 */
+		if (cur_label == max_label) {
+			nextpage = true;
+			break;
+		}
+
+		dirlabel[cur_label++]->setText(folder->getEntries()[cur_index++]);
 	}
 
 	/*
 	 * Ensure unused items are properly nullified.
 	 */
-	while (index < (interaction->getHeight()  - interaction->getTextHeight()) / interaction->getTextHeight()) {
-		dirlabel[index++]->setText("");
+	while (cur_label < max_label) {
+		dirlabel[cur_label++]->setText("");
 	}
+
+	/* Show or hide the next/previous buttons */
+	bUp->setVisible(current_page > 0);
+	bDown->setVisible(nextpage);
+	rehash = false;
 }
 
 void
@@ -81,46 +132,45 @@ formBrowser::interact(Control* control)
 		return;
 
 	if (control == bLeave) {
-		/* Stop button - return to main screen */
-		cachedIndexMap[folder->getPath()] = first_index;
-		selectedFile = "";
-		close();
+		/* Whatever we do, first store the current page */
+		cachedIndexMap[getIndexKey()] = current_page;
+
+		/*
+		 * If we are in the root folder, exit the dialog - we need the
+		 * alphabet browser now.
+		 */
+		if (folder->isFolderRoot()) {
+			selectedFile = "";
+			returncode = FORMBROWSER_CODE_GOUP;
+			close();
+			return;
+		}
+
+		/* Simply go one level lower */
+		folder->goUp();
+		rehash = true; new_visit = true;
 		return;
 	}
 
 	if (control == bUp || control == bDown) {
-		unsigned int items_per_page = interaction->getHeight() / interaction->getTextHeight();
 		if (control == bDown) {
-			if (first_index + items_per_page <= folder->getEntries().size()) {
-				first_index = (first_index + items_per_page) % folder->getEntries().size();
-			} else {
-				first_index = 0;
-			}
+			current_page++;
 		} else {
-			if (first_index >= items_per_page) {
-				first_index = first_index - items_per_page;
-			} else {
-				first_index = folder->getEntries().size() - items_per_page;
-			}
+			current_page--;
 		}
+		rehash = true;
 		return;
 	}
 
 	/* If we got here, it must have been an item */
 	Label* l = reinterpret_cast<Label*>(control);
-	if (l->getText() == "..") {
-		/* Need to go one level lower */
-		folder->goUp();
-		rehash = true;
-		return;
-	}
 
 	/* Rememember on which page we were in the current path */
-	cachedIndexMap[folder->getPath()] = first_index;
+	cachedIndexMap[getIndexKey()] = current_page;
 	if (folder->isFolder(l->getText())) {
 		/* It's a path, so enter it */
 		folder->select(l->getText());
-		rehash = true;
+		rehash = true; new_visit = true;
 		return;
 	}
 
@@ -128,6 +178,7 @@ formBrowser::interact(Control* control)
 	direntry_index = *(reinterpret_cast<int*> (l->getData()));
 	selectedPath = folder->getPath();
 	selectedFile = folder->getFullPath(l->getText());
+	returncode = FORMBROWSER_CODE_SELECTED;
 	close();
 }
 
@@ -153,4 +204,19 @@ formBrowser::getPreviousFile(std::string& file)
 
 	file = selectedPath + "/" + folder->getEntries()[--direntry_index];
 	return true;
+}
+
+void
+formBrowser::run()
+{
+	rehash = true; new_visit = true;
+	Form::run();
+}
+
+std::string
+formBrowser::getIndexKey()
+{
+	if (folder->isFolderRoot())
+		return string(1, filterChar);
+	return folder->getPath();
 }

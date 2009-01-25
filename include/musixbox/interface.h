@@ -14,7 +14,9 @@
 
 #define INTERFACE_BROWSER_BAR_SIZE	10
 
+class formAlphaBrowser;
 class formBrowser;
+class formPlayer;
 
 //! \brief Provides user interaction
 class Interface {
@@ -56,6 +58,9 @@ protected:
 	void prev();
 
 private:
+	//! \brief Current folder charachter
+	unsigned char currentFolderChar;
+
 	//! \brief Interaction object we are using
 	Interaction* interaction;
 
@@ -78,7 +83,13 @@ private:
 	std::string currentFile;
 
 	//! \brief Browser form
-	formBrowser* browser;
+	formBrowser* fBrowser;
+
+	//! \brief Player form
+	formPlayer* fPlayer;
+
+	//! \brief Alpha browser form
+	formAlphaBrowser* fAlphaBrowser;
 };
 
 #endif /* __INTERFACE_H__ */

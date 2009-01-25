@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include "ui/font.h"
 #include "ui/interaction.h"
 
@@ -57,6 +58,12 @@ Interaction::getInteraction(unsigned int* x, unsigned int* y, unsigned int* type
 void
 Interaction::setInteraction(unsigned int x, unsigned int y, unsigned int type)
 {
+	unsigned long delta = calculateInteractionDelta();
+	gettimeofday(&intTimestamp, NULL);
+
+	if (delta < 50000UL)
+		return;
+
 	intX = x; intY = y; intType = type;
 }
 
@@ -64,4 +71,33 @@ void
 Interaction::flushInteraction()
 {
 	intType = INTERACTION_TYPE_NONE;
+}
+
+unsigned long
+Interaction::calculateInteractionDelta()
+{
+	struct timeval now;
+	gettimeofday(&now, NULL);
+
+	bool P1 = intTimestamp.tv_sec  <  now.tv_sec;
+	bool P2 = intTimestamp.tv_usec < now.tv_usec;
+
+	if (P1 && P2) {
+		return ((now.tv_sec - intTimestamp.tv_sec) * 1000000UL) +
+		        now.tv_usec - intTimestamp.tv_usec;
+	}
+
+	if (P1 && !P2) {
+		return ((now.tv_sec - intTimestamp.tv_sec) * 1000000UL) -
+		        intTimestamp.tv_usec + now.tv_usec;
+	}
+
+	if (!P1 && P2) {
+		return (now.tv_usec - intTimestamp.tv_usec);
+	}
+
+	/*
+	 * If we reach this, time has gone backwards, since !P1 && !P2 holds.
+	 */
+	return 0;
 }

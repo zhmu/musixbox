@@ -1,3 +1,5 @@
+#include <sys/time.h>
+
 #ifndef __INTERACTION_H__
 #define __INTERACTION_H__
 
@@ -11,6 +13,7 @@ public:
 	Interaction() {
 		mustBeTerminating = false; intX = 0; intY = 0;
 		intType = INTERACTION_TYPE_NONE;
+		intTimestamp.tv_sec = 0; intTimestamp.tv_usec = 0;
 	}
 
 	virtual ~Interaction() { }
@@ -83,9 +86,15 @@ protected:
 	//! \brief Determines whether we should terminate
 	bool mustBeTerminating;
 
+	/*! \brief Calculates the amount of milliseconds between now and the last interaction */
+	unsigned long calculateInteractionDelta();
+
 private:
 	//! \brief Interaction: X and Y coordinates and type
 	unsigned int intX, intY, intType;
+
+	//! \brief Timestamp of last interaction
+	struct timeval intTimestamp;
 };
 
 #endif /* __INTERACTION_H__ */

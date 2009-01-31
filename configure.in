@@ -159,7 +159,8 @@ if test "x${SDL_FALSE}" != "x"; then
 	], [
 		AM_CONDITIONAL([SDLGFX], [false])
 	])
-	
+else
+	AM_CONDITIONAL([SDLGFX], [false])
 fi
 
 AC_MSG_CHECKING(for whether FLAC++ is usuable)

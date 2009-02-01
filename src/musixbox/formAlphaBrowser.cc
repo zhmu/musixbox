@@ -1,3 +1,4 @@
+#include <string.h>
 #include "ui/form.h"
 #include "ui/interaction.h"
 #include "formAlphaBrowser.h"
@@ -11,11 +12,21 @@ static char crossbutton[8] = { 0x81, 0x42, 0x24, 0x18, 0x18, 0x24, 0x42, 0x81 };
 #endif
 static char imgLeave[8] = { 0x20, 0x72, 0xaa, 0x22, 0x22, 0x22, 0x3e, 0x00 };
 
-formAlphaBrowser::formAlphaBrowser(Interaction* in)
+formAlphaBrowser::formAlphaBrowser(Interaction* in, Folder* folder)
 	: Form(in)
 {
 	char msg[512];
+	char chars[26];
 
+	/* Make a list of all chars we have */
+	memset(chars, 0, sizeof(chars));
+	for (unsigned int i = 0; i < folder->getEntries().size(); i++) {
+		const char* entry = folder->getEntries()[i].c_str();
+		unsigned char ch = toupper(entry[0]);
+		chars[ch - 'A'] = (ch >= 'A' && ch <= 'Z');
+	}
+
+	/* Place the chars we need on the screen */
 	for (int j = 0; j < 4; j++)
 		for (int i = 0; i < 7; i++) {
 			int ch = j * 7 + i;
@@ -23,6 +34,9 @@ formAlphaBrowser::formAlphaBrowser(Interaction* in)
 			int y = j * (interaction->getTextHeight() * 2) +
 			            (interaction->getTextHeight() / 2);
 			if (ch < 26) {
+				/* If we have no folders with this char, skip it */
+				if (!chars[ch])
+					continue;
 				Label* l = new Label(x, y, 16, 16);
 				snprintf(msg, sizeof(msg), "%c", 'A' + ch);
 				l->setText(msg);

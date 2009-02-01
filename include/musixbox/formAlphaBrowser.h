@@ -10,7 +10,7 @@
 
 class formAlphaBrowser : public Form {
 public:
-	formAlphaBrowser(Interaction* in);
+	formAlphaBrowser(Interaction* in, Folder* f);
 
 	inline unsigned char getSelectedChar() { return sel_ch; }
 

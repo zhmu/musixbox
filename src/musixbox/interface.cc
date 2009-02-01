@@ -30,7 +30,7 @@ Interface::Interface(Interaction* i, Output* o, Mixer* m, Folder* f, const char*
 
 	fBrowser = new formBrowser(interaction, folder);
 	fPlayer = new formPlayer(interaction, this);
-	fAlphaBrowser = new formAlphaBrowser(interaction);
+	fAlphaBrowser = new formAlphaBrowser(interaction, folder);
 }
 
 Interface::~Interface() {

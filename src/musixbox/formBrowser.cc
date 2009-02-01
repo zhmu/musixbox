@@ -100,14 +100,16 @@ formBrowser::update()
 			break;
 		}
 
-		dirlabel[cur_label++]->setText(folder->getEntries()[cur_index++]);
+		dirlabel[cur_label]->setText(folder->getEntries()[cur_index++]);
+		dirlabel[cur_label]->show();
+		cur_label++;
 	}
 
 	/*
-	 * Ensure unused items are properly nullified.
+	 * Ensure unused items are properly hidden.
 	 */
 	while (cur_label < max_label) {
-		dirlabel[cur_label++]->setText("");
+		dirlabel[cur_label++]->hide();
 	}
 
 	/* Show or hide the next/previous buttons */

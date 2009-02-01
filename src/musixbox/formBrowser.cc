@@ -5,7 +5,7 @@
 
 using namespace std;
 
-formBrowser::formBrowser(Interaction* in, Folder* f)
+formBrowser::formBrowser(Interaction* in, Interface* iface, Folder* f)
 	: Form(in)
 {
 	/*
@@ -20,13 +20,18 @@ formBrowser::formBrowser(Interaction* in, Folder* f)
 	/* Place the labels on there */
 	for (unsigned int i = 0; i < (interaction->getHeight() - interaction->getTextHeight())  / interaction->getTextHeight(); i++) {
 		Label* l = new Label(0, i * interaction->getTextHeight(),
-		                     interaction->getWidth() - 8, interaction->getTextHeight());
-		l->setData(new int(i));
+		                     interaction->getWidth() - 10, interaction->getTextHeight());
+		l->setData(new formBrowserControlData(CD_TYPE_LABEL, i));
 		dirlabel.push_back(l);
-		add(l);
+
+		Image* q = new Image(interaction->getWidth() - 8, i * interaction->getTextHeight(),
+		                     8, 8, Images::miniPlus());
+		q->setData(new formBrowserControlData(CD_TYPE_QUEUE, i));
+		queuebtn.push_back(q);
+		add(q); add(l);
 	}
 
-	folder = f; rehash = true; new_visit = true;
+	interface = iface; folder = f; rehash = true; new_visit = true;
 	selectedPath = folder->getPath();
 }
 
@@ -100,16 +105,19 @@ formBrowser::update()
 			break;
 		}
 
-		dirlabel[cur_label]->setText(folder->getEntries()[cur_index++]);
+		dirlabel[cur_label]->setText(folder->getEntries()[cur_index]);
 		dirlabel[cur_label]->show();
-		cur_label++;
+		queuebtn[cur_label]->show();
+		cur_label++; cur_index++;
 	}
 
 	/*
 	 * Ensure unused items are properly hidden.
 	 */
 	while (cur_label < max_label) {
-		dirlabel[cur_label++]->hide();
+		dirlabel[cur_label]->hide();
+		queuebtn[cur_label]->hide();
+		cur_label++;
 	}
 
 	/* Show or hide the next/previous buttons */
@@ -161,24 +169,40 @@ formBrowser::interact(Control* control)
 		return;
 	}
 
-	/* If we got here, it must have been an item */
-	Label* l = reinterpret_cast<Label*>(control);
+	formBrowserControlData* data = (formBrowserControlData*)control->getData();
+	if (data->getType() == CD_TYPE_LABEL) {
+		/* If we got here, it must have been an item */
+		Label* l = reinterpret_cast<Label*>(control);
 
-	/* Rememember on which page we were in the current path */
-	cachedIndexMap[getIndexKey()] = current_page;
-	if (folder->isFolder(l->getText())) {
-		/* It's a path, so enter it */
-		folder->select(l->getText());
-		rehash = true; new_visit = true;
+		/* Rememember on which page we were in the current path */
+		cachedIndexMap[getIndexKey()] = current_page;
+		if (folder->isFolder(l->getText())) {
+			/* It's a path, so enter it */
+			folder->select(l->getText());
+			rehash = true; new_visit = true;
+			return;
+		}
+
+		/* We got a file! */
+		formBrowserControlData* data = (formBrowserControlData*)l->getData();
+		direntry_index = data->getValue();
+		selectedPath = folder->getPath();
+		selectedFile = folder->getFullPath(l->getText());
+		setReturnValue(FORMBROWSER_CODE_SELECTED);
+		close();
 		return;
 	}
 
-	/* We got a file! */
-	direntry_index = *(reinterpret_cast<int*> (l->getData()));
-	selectedPath = folder->getPath();
-	selectedFile = folder->getFullPath(l->getText());
-	setReturnValue(FORMBROWSER_CODE_SELECTED);
-	close();
+	/*
+	 * If we got here, it must be an enqueue link - enqueue whatever is
+	 * there
+	 */
+	Label* l = (Label*)dirlabel[data->getValue()];
+	interface->addToPlaylist(l->getText());
+
+	/* If we are silent, start playing! */
+	if (!interface->havePlayer())
+		interface->startPlaylist(0);
 }
 
 bool

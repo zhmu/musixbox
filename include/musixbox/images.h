@@ -37,6 +37,12 @@ public:
 
 	//! \brief Returns a -
 	static const char* minus();
+
+	//! \brief Returns a small +
+	static const char* miniPlus();
+
+	//! \brief Returns a playlist icon
+	static const char* playlist();
 };
 
 #endif /* __IMAGES_H__ */

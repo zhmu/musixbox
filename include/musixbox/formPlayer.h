@@ -25,13 +25,13 @@ private:
 	Label* lTitle;
 	Label* lPlayingTime;
 
+	Image* bNext;
 	Image* bPlay;
 	Image* bStop;
 	Image* bFile;
-	Image* bPrev;
-	Image* bNext;
 	Image* bVolUp;
 	Image* bVolDn;
+	Image* bPlaylist;
 };
 
 #endif /* __FORMPLAYER_H__ */

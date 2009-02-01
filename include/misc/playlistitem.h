@@ -14,6 +14,15 @@ public:
 	//! \brief Retrieve the resource to play
 	inline std::string getResource() { return resource; }
 
+	//! \brief Retrieve item's artist
+	inline std::string getArtist() { return artist; }
+
+	//! \brief Retrieve item's album
+	inline std::string getAlbum() { return album; }
+
+	//! \brief Retrieve item's title
+	inline std::string getTitle() { return title; }
+
 	//! \brief Retrieve the text to display for this item
 	std::string getDisplayText();
 

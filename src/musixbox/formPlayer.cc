@@ -21,14 +21,15 @@ formPlayer::formPlayer(Interaction* in, Interface* iface)
 	                    interaction->getWidth(), interaction->getTextHeight());
 	add(lArtist); add(lAlbum); add(lTitle); add(lPlayingTime);
 
-	bPlay  = new Image( 2, interaction->getHeight() - 12, 8, 8, Images::play());
-	bStop  = new Image(14, interaction->getHeight() - 12, 8, 8, Images::stop());
-	bPrev  = new Image(26, interaction->getHeight() - 12, 8, 8, Images::prev());
-	bNext  = new Image(38, interaction->getHeight() - 12, 8, 8, Images::next());
-	bFile  = new Image(50, interaction->getHeight() - 12, 8, 8, Images::file());
-	bVolUp = new Image(62, interaction->getHeight() - 12, 8, 8, Images::plus());
-	bVolDn = new Image(74, interaction->getHeight() - 12, 8, 8, Images::minus());
-	add(bPlay); add(bStop); add(bNext); add(bPrev); add(bFile); add(bVolUp); add(bVolDn);
+	bPlay     = new Image( 2, interaction->getHeight() - 12, 8, 8, Images::play());
+	bStop     = new Image(14, interaction->getHeight() - 12, 8, 8, Images::stop());
+	bNext     = new Image(26, interaction->getHeight() - 12, 8, 8, Images::next());
+	bFile     = new Image(38, interaction->getHeight() - 12, 8, 8, Images::file());
+	bVolUp    = new Image(50, interaction->getHeight() - 12, 8, 8, Images::plus());
+	bVolDn    = new Image(62, interaction->getHeight() - 12, 8, 8, Images::minus());
+	bPlaylist = new Image(74, interaction->getHeight() - 12, 8, 8, Images::playlist());
+	add(bPlay); add(bStop); add(bNext); add(bFile); add(bVolUp); add(bVolDn);
+	add(bPlaylist);
 }
 
 void
@@ -78,7 +79,7 @@ formPlayer::interact(Control* control)
 				interface->getPlayer()->pause();
 			}
 		} else {
-			interface->playFile();
+			interface->playResource(interface->getCurrentFile());
 		}
 		return;
 	}
@@ -94,12 +95,14 @@ formPlayer::interact(Control* control)
 		return;
 	}
 
-	if (control == bPrev) {
-		interface->prev();
+	if (control == bFile) {
+		setReturnValue(0);
+		close();
 		return;
 	}
 
-	if (control == bFile) {
+	if (control == bPlaylist) {
+		setReturnValue(1);
 		close();
 		return;
 	}

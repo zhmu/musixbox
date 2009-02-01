@@ -6,6 +6,7 @@
 #include "core/visualize.h"
 #include "core/decode.h"
 #include "core/mixer.h"
+#include "misc/playlist.h"
 #include "ui/interaction.h"
 #include "boxplayer.h"
 
@@ -17,6 +18,7 @@
 class formAlphaBrowser;
 class formBrowser;
 class formPlayer;
+class formPlaylist;
 
 //! \brief Provides user interaction
 class Interface {
@@ -41,9 +43,39 @@ public:
 	//! \brief Called if the current track finished playing
 	void trackDone();
 
+	//! \brief Retrieve the playlist
+	Playlist* getPlaylist() { return &playlist; }
+
+	//! \brief Current file being played
+	std::string getCurrentFile() { return currentFile; }
+
+
+	/*! \brief Add a resource in the current folder to the playlist
+	 *  \param resource Resource to add
+	 *
+	 *  Items in the subfolder are added as well.
+	 */
+	void addToPlaylist(std::string resource);
+
+	/*! \brief Start playing form the playlist
+	 *  \param num Entry to play
+	 *
+	 *  After [num] is done, [num+1] will be played, etc.
+	 */
+	void startPlaylist(int num);
+
+	/*! \brief Do we have a current plaything?
+	 *
+	 *  If this returns true, it means we are playing or paused on a
+	 *  resource.
+	 */
+	bool havePlayer() { return player != NULL; }
+
 protected:
-	//! \brief Plays the current file
-	void playFile();
+	/*! \brief Plays a resource
+	 *  \param resource Resource to play
+	 */
+	void playResource(std::string resource);
 
 	//! \brief Retrieve mixer object
 	inline Mixer* getMixer() { return mixer; }
@@ -90,6 +122,15 @@ private:
 
 	//! \brief Alpha browser form
 	formAlphaBrowser* fAlphaBrowser;
+
+	//! \brief Playlist form
+	formPlaylist* fPlaylist;
+
+	//! \brief Playlist in use
+	Playlist playlist;
+
+	//! \brief Are we playing the playlist?
+	bool playingFromPlaylist;
 };
 
 #endif /* __INTERFACE_H__ */

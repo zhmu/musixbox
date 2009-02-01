@@ -16,6 +16,7 @@
 #include "formAlphaBrowser.h"
 #include "formBrowser.h"
 #include "formPlayer.h"
+#include "formPlaylist.h"
 
 using namespace std;
 
@@ -28,9 +29,11 @@ Interface::Interface(Interaction* i, Output* o, Mixer* m, Folder* f, const char*
 		currentFile = "";
 	currentFolderChar = '\0';
 
-	fBrowser = new formBrowser(interaction, folder);
+	fBrowser = new formBrowser(interaction, this, folder);
 	fPlayer = new formPlayer(interaction, this);
 	fAlphaBrowser = new formAlphaBrowser(interaction, folder);
+	fPlaylist = new formPlaylist(interaction, this);
+	playingFromPlaylist = false;
 }
 
 Interface::~Interface() {
@@ -48,7 +51,7 @@ Interface::run()
 	/* If a current file was passed, play it immediately */
 	if (currentFile != "") {
 		try {
-			playFile();
+			playResource(currentFile);
 			state = 1;
 		} catch (MusixBoxException& e) {
 			fprintf(stderr, "musixbox: unable to play initial file: %s\n", e.what());
@@ -62,7 +65,7 @@ Interface::run()
 				switch (fBrowser->run()) {
 					case FORMBROWSER_CODE_SELECTED:
 						currentFile = fBrowser->getSelectedFile();
-						playFile();
+						playResource(currentFile);
 						state = 1;
 						break;
 					case FORMBROWSER_CODE_CANCELED:
@@ -71,11 +74,20 @@ Interface::run()
 					case FORMBROWSER_CODE_GOUP:
 						state = 2;
 						break;
+					case FORMBROWSER_CODE_QUEUED:
+						state = 1;
+						break;
 				}
 				break;
 			case 1: /* player form */
-				fPlayer->run();
-				state = (fAlphaBrowser->getSelectedChar() == '\0') ? 2 : 0;
+				switch (fPlayer->run()) {
+					case 0:
+						state = (fAlphaBrowser->getSelectedChar() == '\0') ? 2 : 0;
+						break;
+					case 1:
+						state = 3;
+						break;
+				}
 				break;
 			case 2: /* alpha browser run */
 				fAlphaBrowser->run();
@@ -85,12 +97,16 @@ Interface::run()
 				 */
 				state = (fAlphaBrowser->getSelectedChar() == '\0') ? 1 : 0;
 				break;
+			case 3: /* playlist form */
+				fPlaylist->run();
+				state = 1;
+				break;
 		}
 	}
 }
 
 void
-Interface::playFile()
+Interface::playResource(string resource)
 {
 	if (player != NULL) {
 		player->stop();
@@ -98,28 +114,27 @@ Interface::playFile()
 		player = NULL;
 	}
 
-	if (currentFile == "")
+	if (resource == "")
 		return;
 
-	player = new BoxPlayer(currentFile, output, visualizer, this);
+	player = new BoxPlayer(resource, output, visualizer, this);
 	player->play();
 }
 
 void
 Interface::next()
 {
-	if (!fBrowser->getNextFile(currentFile))
+	if (!playingFromPlaylist)
 		return;
 
-	playFile();
-}
-
-void
-Interface::prev() {
-	if (!fBrowser->getPreviousFile(currentFile))
+	string resource = playlist.getNextResource();
+	if (resource == "") {
+		/* End of playlist */
+		playingFromPlaylist = false;
 		return;
+	}
 
-	playFile();
+	playResource(resource);
 }
 
 void
@@ -127,4 +142,39 @@ Interface::trackDone()
 {
 	/* The current track finished - let's try the next one */
 	next();
+}
+
+void
+Interface::addToPlaylist(string resource)
+{
+	if (resource == "." || resource == "..")
+		return;
+
+	/* If the resource is a folder, enter it and recursively add */
+	if (folder->isFolder(resource)) {
+		folder->select(resource);
+		for (unsigned int i = 0; i < folder->getEntries().size(); i++)
+			addToPlaylist(folder->getEntries()[i]);
+		folder->goUp();
+		return;
+	}
+
+	/* Upon adding, resolve the complete path */
+	try {
+		playlist.addItem(new PlaylistItem(folder->getFullPath(resource)));
+	} catch (DecoderException& e) {
+		/* Something made the decoder unhappy - just skip the file */
+	}
+}
+
+void
+Interface::startPlaylist(int num) {
+	playlist.setCurrentPlayItem(num);
+	playlist.setNextPlayItem(num + 1);
+	string resource = playlist.getCurrentResource();
+	if (resource == "")
+		return;
+
+	playResource(resource);
+	playingFromPlaylist = true;
 }

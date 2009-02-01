@@ -2,15 +2,9 @@
 #include "ui/form.h"
 #include "ui/interaction.h"
 #include "formAlphaBrowser.h"
+#include "images.h"
 
 using namespace std;
-
-#if 0
-static char upbutton[8]    = { 0x08, 0x04, 0x02, 0x7f, 0x7f, 0x02, 0x04, 0x08 };
-static char downbutton[8]  = { 0x08, 0x10, 0x20, 0x7f, 0x7f, 0x20, 0x10, 0x08 };
-static char crossbutton[8] = { 0x81, 0x42, 0x24, 0x18, 0x18, 0x24, 0x42, 0x81 };
-#endif
-static char imgLeave[8] = { 0x20, 0x72, 0xaa, 0x22, 0x22, 0x22, 0x3e, 0x00 };
 
 formAlphaBrowser::formAlphaBrowser(Interaction* in, Folder* folder)
 	: Form(in)
@@ -45,7 +39,7 @@ formAlphaBrowser::formAlphaBrowser(Interaction* in, Folder* folder)
 				add(l);
 			}
 			if (ch ==  27) {
-				bLeave = new Image(x, y, 8, 8, imgLeave);
+				bLeave = new Image(x, y, 8, 8, Images::leave());
 				add(bLeave);
 			}
 	}

@@ -1,12 +1,9 @@
 #include "ui/form.h"
 #include "ui/interaction.h"
 #include "formBrowser.h"
+#include "images.h"
 
 using namespace std;
-
-static char upbutton[8]    = { 0x08, 0x04, 0x02, 0x7f, 0x7f, 0x02, 0x04, 0x08 };
-static char downbutton[8]  = { 0x08, 0x10, 0x20, 0x7f, 0x7f, 0x20, 0x10, 0x08 };
-static char imgLeave[8] = { 0x20, 0x72, 0xaa, 0x22, 0x22, 0x22, 0x3e, 0x00 };
 
 formBrowser::formBrowser(Interaction* in, Folder* f)
 	: Form(in)
@@ -15,9 +12,9 @@ formBrowser::formBrowser(Interaction* in, Folder* f)
 	 * First of all, introduce the buttons - this ensures that they
 	 * override any war between the 'is this a label or a button'-conflict.
 	 */
-	bUp =    new Image( 0, interaction->getHeight() - 8, 8, 8, upbutton);
-	bDown =  new Image(interaction->getWidth() / 2, interaction->getHeight() - 8, 8, 8, downbutton);
-	bLeave = new Image(interaction->getWidth() - 16, interaction->getHeight() - 12, 8, 8, imgLeave);
+	bUp =    new Image( 0, interaction->getHeight() - 8, 8, 8, Images::up());
+	bDown =  new Image(interaction->getWidth() / 2, interaction->getHeight() - 8, 8, 8, Images::down());
+	bLeave = new Image(interaction->getWidth() - 16, interaction->getHeight() - 12, 8, 8, Images::leave());
 	add(bLeave); add(bUp); add(bDown);
 
 	/* Place the labels on there */

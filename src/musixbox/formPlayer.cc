@@ -2,17 +2,9 @@
 #include "ui/form.h"
 #include "formPlayer.h"
 #include "interface.h"
+#include "images.h"
 
 using namespace std;
-
-char playbutton[8]  = { 0xff, 0x7f, 0x3e, 0x1c, 0x08, 0x00, 0x00 ,0x00 };
-char pausebutton[8] = { 0x00, 0xff, 0xff, 0x00, 0x00, 0xff, 0xff, 0x00 };
-char stopbutton[8]  = { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
-char filebutton[8]  = { 0x40, 0x60, 0x7f, 0x01, 0x01, 0x01, 0xe1, 0x7f };
-char nextbutton[8]  = { 0xff, 0x7f, 0x3e, 0x1c, 0x08, 0x7e, 0x00, 0x00 };
-char prevbutton[8]  = { 0x00, 0x00, 0x7e, 0x08, 0x1c, 0x3e, 0x7f, 0xff };
-char volupbutton[8] = { 0x18, 0x18, 0x18, 0xff, 0xff, 0x18, 0x18, 0x18 };
-char voldnbutton[8] = { 0x18, 0x18, 0x18, 0x18, 0x18, 0x18, 0x18, 0x18 };
 
 formPlayer::formPlayer(Interaction* in, Interface* iface)
 	: Form(in)
@@ -29,13 +21,13 @@ formPlayer::formPlayer(Interaction* in, Interface* iface)
 	                    interaction->getWidth(), interaction->getTextHeight());
 	add(lArtist); add(lAlbum); add(lTitle); add(lPlayingTime);
 
-	bPlay  = new Image( 2, interaction->getHeight() - 12, 8, 8, playbutton);
-	bStop  = new Image(14, interaction->getHeight() - 12, 8, 8, stopbutton);
-	bPrev  = new Image(26, interaction->getHeight() - 12, 8, 8, prevbutton);
-	bNext  = new Image(38, interaction->getHeight() - 12, 8, 8, nextbutton);
-	bFile  = new Image(50, interaction->getHeight() - 12, 8, 8, filebutton);
-	bVolUp = new Image(62, interaction->getHeight() - 12, 8, 8, volupbutton);
-	bVolDn = new Image(74, interaction->getHeight() - 12, 8, 8, voldnbutton);
+	bPlay  = new Image( 2, interaction->getHeight() - 12, 8, 8, Images::play());
+	bStop  = new Image(14, interaction->getHeight() - 12, 8, 8, Images::stop());
+	bPrev  = new Image(26, interaction->getHeight() - 12, 8, 8, Images::prev());
+	bNext  = new Image(38, interaction->getHeight() - 12, 8, 8, Images::next());
+	bFile  = new Image(50, interaction->getHeight() - 12, 8, 8, Images::file());
+	bVolUp = new Image(62, interaction->getHeight() - 12, 8, 8, Images::plus());
+	bVolDn = new Image(74, interaction->getHeight() - 12, 8, 8, Images::minus());
 	add(bPlay); add(bStop); add(bNext); add(bPrev); add(bFile); add(bVolUp); add(bVolDn);
 }
 
@@ -56,7 +48,7 @@ formPlayer::update()
 		info = NULL;
 	}
 
-	bPlay->setImage(isPaused ? pausebutton : playbutton);
+	bPlay->setImage(isPaused ? Images::pause() : Images::play());
 
 	const char* s;
 	s = "Unknown Artist";

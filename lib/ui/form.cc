@@ -37,14 +37,14 @@ Form::puttext(unsigned int x, unsigned int y, string s)
 	interaction->puttext(x, y, s.c_str());
 }
 
-void
+int
 Form::run()
 {
 	/*
 	 * Ensure we do at least one run of the form - and don't trust lingering
 	 * coordinates
 	 */
-	mustClose = false;
+	mustClose = false; return_value = 0;
 	interaction->flushInteraction();
 
 	while (!mustBeClosed()) {
@@ -71,10 +71,10 @@ Form::run()
 		for (unsigned int i = 0; i < controls.size(); i++) {
 			if (controls[i]->isVisible() && controls[i]->isTouched(cx, cy)) {
 				interact(controls[i]);
-				break;
 			}
 		}
 	}
+	return return_value;
 }
 
 void

@@ -14,7 +14,7 @@ friend class Control;
 public:
 	//! \brief Initialize the form
 	Form(Interaction* i) {
-		interaction = i; mustClose = false;
+		interaction = i; mustClose = false; return_value = 0;
 	};
 
 	//! \brief Deinitialize the form
@@ -28,11 +28,18 @@ public:
 	//! \brief Called to redraw the form;
 	virtual void redraw();
 
-	//! \brief Called to process the form
-	virtual void run();
+	/*! \brief Called to process the form
+	 *  \returns The return code as set using setReturnValue()
+	 *
+	 *  Calling this function will reset the return code to zero.
+	 */
+	virtual int run();
 
 	//! \brief Request close of the form
 	void close() { mustClose = true; }
+
+	//! \brief Sets the return value
+	void setReturnValue(int i) { return_value = i; }
 
 	//! \brief Does the form has to be closed?
 	bool mustBeClosed() { return mustClose; };
@@ -62,11 +69,14 @@ protected:
 
 	//! \brief Interaction provider
 	Interaction* interaction;
-private:
 
+private:
 	//! \brief Controls on the form
 	std::vector<Control*> controls;
 
+	//! \brief Return value of the run() function
+	int return_value;
+	
 	//! \brief Does the form has to be closed
 	bool mustClose;
 };

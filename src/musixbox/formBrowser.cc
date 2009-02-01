@@ -138,7 +138,7 @@ formBrowser::interact(Control* control)
 		 */
 		if (folder->isFolderRoot()) {
 			selectedFile = "";
-			returncode = FORMBROWSER_CODE_GOUP;
+			setReturnValue(FORMBROWSER_CODE_GOUP);
 			close();
 			return;
 		}
@@ -175,7 +175,7 @@ formBrowser::interact(Control* control)
 	direntry_index = *(reinterpret_cast<int*> (l->getData()));
 	selectedPath = folder->getPath();
 	selectedFile = folder->getFullPath(l->getText());
-	returncode = FORMBROWSER_CODE_SELECTED;
+	setReturnValue(FORMBROWSER_CODE_SELECTED);
 	close();
 }
 
@@ -203,11 +203,11 @@ formBrowser::getPreviousFile(std::string& file)
 	return true;
 }
 
-void
+int
 formBrowser::run()
 {
 	rehash = true; new_visit = true;
-	Form::run();
+	return Form::run();
 }
 
 std::string

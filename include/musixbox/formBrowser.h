@@ -8,8 +8,8 @@
 #ifndef __FORMBROWSER_H__
 #define __FORMBROWSER_H__
 
-#define FORMBROWSER_CODE_SELECTED 0
-#define FORMBROWSER_CODE_CANCELED 1
+#define FORMBROWSER_CODE_CANCELED 0
+#define FORMBROWSER_CODE_SELECTED 1
 #define FORMBROWSER_CODE_GOUP     2
 
 class formBrowser : public Form {
@@ -20,10 +20,9 @@ public:
 	bool getNextFile(std::string& file);
 	bool getPreviousFile(std::string& file);
 
-	inline int getReturnCode() { return returncode; }
 	inline void setFilterChar(unsigned char ch) { filterChar = ch; }
 
-	void run();
+	int run();
 
 protected:
 	void update();
@@ -39,7 +38,6 @@ private:
 
 	unsigned int direntry_index;
 	unsigned int current_page;
-	unsigned int returncode;
 
 	unsigned char filterChar;
 

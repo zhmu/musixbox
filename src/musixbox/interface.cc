@@ -54,15 +54,12 @@ Interface::run()
 			fprintf(stderr, "musixbox: unable to play initial file: %s\n", e.what());
 		}
 	}
-int r;
 
 	while (!interaction->mustTerminate()) {
 		switch(state) {
 			case 0: /* browser form */
 				fBrowser->setFilterChar(fAlphaBrowser->getSelectedChar());
-				r = fBrowser->run();
-	printf("r=%u\n", r);
-				switch (r) {
+				switch (fBrowser->run()) {
 					case FORMBROWSER_CODE_SELECTED:
 						currentFile = fBrowser->getSelectedFile();
 						playFile();

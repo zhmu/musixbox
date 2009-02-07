@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <string.h>
 #include "lyricsbrowser.h"
 #include "interface.h"
 
@@ -72,17 +73,16 @@ LyricsBrowser::draw()
 					break;
 
 				/* we have found a match! */
-				mvwprintw(window, y, x, "%s", s.substr(index, pos - index).c_str());
-				x += pos - index;
+				x += drawLyric(x, y, s.substr(index, pos - index).c_str());
 				wattrset(window, COLOR_PAIR(PAIR_HILIGHT));
 				mvwprintw(window, y, x, "%s", s.substr(pos, lookup.size()).c_str());
 				wattrset(window, COLOR_PAIR(PAIR_BROWSER));
 				x += lookup.size();
 				index = pos + lookup.size();
 			}
-			mvwprintw(window, y, x, "%s", s.substr(index).c_str());
+			drawLyric(x, y, s.substr(index).c_str());
 		} else {
-			mvwprintw(window, y, 1, "%s", s.c_str());
+			drawLyric(1, y, s.c_str());
 		}
 		y++;
 	}
@@ -228,4 +228,46 @@ LyricsBrowser::tryLookup()
 	if (gotFirstMatch) {
 		first_line = first_match;
 	}
+}
+
+unsigned int
+LyricsBrowser::drawLyric(unsigned int x, unsigned int y, const char* s)
+{
+	unsigned int num = 0;
+	while (*s != '\0') {
+		if (*s == '<') {
+			/*
+			 * OK, this may be a opening '<'. Look for the
+			 * terminating closing '>'.
+			 */
+			const char* ptr = strchr(s, '>');
+			if (ptr == NULL)
+				break;
+			string str = string(s + 1, ptr - s - 1);
+			/*
+			 * 'str' contains the tag itself, i.e. 'b' or '/b'. We need
+			 * to lowercase 'str' and take a corresponding course
+			 * of action (emphasize / restore attribute.
+			 */
+			transform(str.begin(), str.end(), str.begin(), ::tolower);
+			if (str == "i")
+				wattrset(window, COLOR_PAIR(PAIR_BROWSER) | A_BOLD);
+			if (str == "b")
+				wattrset(window, COLOR_PAIR(PAIR_BROWSER) | A_STANDOUT);
+			if (str == "/i" || str == "/b")
+				wattrset(window, COLOR_PAIR(PAIR_BROWSER));
+			s = (ptr + 1);
+			continue;
+		}
+
+		mvwprintw(window, y, x, "%c", *s);
+		num++; x++; s++;
+	}
+
+	if (*s != '\0') {
+		/* We can draw whatever portion of text is there */
+		mvwprintw(window, y, x, "%s", s);
+		num += strlen(s);
+	}
+	return num;
 }

@@ -36,6 +36,14 @@ protected:
 	/*! \brief Called if an attempt to look up a string is to be made */
 	void tryLookup();
 
+	/*! \brief Draw a portion of the lyrics
+	 *  \param x X-position to use
+	 *  \param y Y-position to use
+	 *  \param s Lyrics to draw
+	 *  \returns Number of charachters drawn
+	 */
+	unsigned int drawLyric(unsigned int x, unsigned int y, const char* s);
+
 private:
 	//! \brief Window used to draw
 	WINDOW* window;

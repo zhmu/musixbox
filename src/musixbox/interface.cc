@@ -127,7 +127,14 @@ Interface::next()
 	if (!playingFromPlaylist)
 		return;
 
-	string resource = playlist.getNextResource();
+	/*
+	 * We use the playlist like a stack: we pop off the first
+	 * item and play it. This ensures the screen will not be
+	 * littered with playlist items we have already played.
+	 */
+	playlist.removeItem(0);
+	playlist.setCurrentPlayItem(0);
+	string resource = playlist.getCurrentResource();
 	if (resource == "") {
 		/* End of playlist */
 		playingFromPlaylist = false;
@@ -170,7 +177,6 @@ Interface::addToPlaylist(string resource)
 void
 Interface::startPlaylist(int num) {
 	playlist.setCurrentPlayItem(num);
-	playlist.setNextPlayItem(num + 1);
 	string resource = playlist.getCurrentResource();
 	if (resource == "")
 		return;

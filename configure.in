@@ -300,6 +300,6 @@ echo
 
 AC_OUTPUT([Makefile lib/Makefile lib/core/Makefile lib/ui/Makefile src/Makefile
 	   lib/misc/Makefile src/musixbox/Makefile src/musixcurses/Makefile
-           include/Makefile include/core/Makefile include/misc/Makefile
-           include/ui/Makefile include/musixbox/Makefile
+	   src/musixplay/Makefile include/Makefile include/core/Makefile
+	   include/misc/Makefile include/ui/Makefile include/musixbox/Makefile
            include/musixcurses/Makefile])

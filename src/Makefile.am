@@ -1,1 +1,1 @@
-SUBDIRS = musixbox musixcurses
+SUBDIRS = musixbox musixcurses musixplay

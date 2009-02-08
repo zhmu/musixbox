@@ -36,12 +36,12 @@ private:
 
 Configuration* config;
 PlayPlayer* player = NULL;
-int quit = 0;
+int interrupt = 0;
 
 void
 sigint(int num)
 {
-	quit++;
+	interrupt++;
 }
 
 void
@@ -69,15 +69,48 @@ void
 play(int argc, char** argv, Output* output)
 {
 	for (int n = 0; n < argc; n++) {
-		if (quit)
-			break;
+		/*
+		 * Initialize playback. We wait half a second afterwards as we
+		 * are waiting for the track information to become available -
+		 * if the user hits ^C during this time, we quit immediately.
+		 * Otherwise, we just skip the track and continue.
+		 */
 		printf("Playing %s...\n", argv[n]);
 		player = new PlayPlayer(argv[n], output);
 		player->play();
-		while (!player->isFinished() && !quit) {
+		usleep(500000);
+		if (interrupt)
+			break;
+
+		/*
+		 * Attempt to display the track information.
+		 */
+		Info* info = player->getInfo();
+		printf("Artist: %s\n",
+		 info != NULL && info->getArtist() != NULL ? info->getArtist() :
+		 "(unknown)");
+		printf("Album:  %s\n",
+		 info != NULL && info->getAlbum() != NULL ? info->getAlbum() :
+		 "(unknown)");
+		printf("Title:  %s\n",
+		 info != NULL && info->getTitle() != NULL ? info->getTitle() :
+		 "(unknown)");
+
+		/*
+		 * Keep playing until either the track is done, or we are
+		 * interrupted.
+		 */
+		while (!player->isFinished() && !interrupt) {
+			unsigned int playingTime = player->getPlayingTime();
+			unsigned int totalTime = player->getTotalTime();
+			printf("%u:%02u / %u:%02u\r", playingTime / 60, playingTime % 60, totalTime / 60, totalTime % 60);
+			fflush(stdout);
 			sleep(1);
 		}
 		delete player; player = NULL;
+		interrupt = 0;
+		/* Print an extra newline to skip the timestamp above */
+		printf("\n");
 	}
 }
 

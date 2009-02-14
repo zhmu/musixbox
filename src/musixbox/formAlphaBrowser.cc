@@ -24,9 +24,9 @@ formAlphaBrowser::formAlphaBrowser(Interaction* in, Folder* folder)
 	for (int j = 0; j < 4; j++)
 		for (int i = 0; i < 7; i++) {
 			int ch = j * 7 + i;
-			int x = i * (interaction->getWidth() / 7) + 4 /* fontwidth/2 */;
-			int y = j * (interaction->getTextHeight() * 2) +
-			            (interaction->getTextHeight() / 2);
+			int x = i * (interaction->getWidth() / 7);
+			x += (interaction->getWidth() - (6 * (interaction->getWidth() / 7))) / 4;
+			int y = j * (interaction->getTextHeight() + interaction->getTextHeight() / 4);
 			if (ch < 26) {
 				/* If we have no folders with this char, skip it */
 				if (!chars[ch])
@@ -39,7 +39,7 @@ formAlphaBrowser::formAlphaBrowser(Interaction* in, Folder* folder)
 				add(l);
 			}
 			if (ch ==  27) {
-				bLeave = new Image(x, y, 8, 8, Images::leave());
+				bLeave = new Image(x, y, 16, 16, Images::leave());
 				add(bLeave);
 			}
 	}

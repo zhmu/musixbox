@@ -27,10 +27,7 @@ private:
 
 	Image* bNext;
 	Image* bPlay;
-	Image* bStop;
 	Image* bFile;
-	Image* bVolUp;
-	Image* bVolDn;
 	Image* bPlaylist;
 };
 

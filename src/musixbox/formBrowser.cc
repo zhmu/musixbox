@@ -12,9 +12,9 @@ formBrowser::formBrowser(Interaction* in, Interface* iface, Folder* f)
 	 * First of all, introduce the buttons - this ensures that they
 	 * override any war between the 'is this a label or a button'-conflict.
 	 */
-	bUp =    new Image( 0, interaction->getHeight() - 8, 8, 8, Images::up());
-	bDown =  new Image(interaction->getWidth() / 2, interaction->getHeight() - 8, 8, 8, Images::down());
-	bLeave = new Image(interaction->getWidth() - 16, interaction->getHeight() - 12, 8, 8, Images::leave());
+	bUp =    new Image( 0, interaction->getHeight() - 12, 16, 16, Images::up());
+	bDown =  new Image(interaction->getWidth() / 2, interaction->getHeight() - 12, 16, 16, Images::down());
+	bLeave = new Image(interaction->getWidth() - 16, interaction->getHeight() - 12, 16, 16, Images::leave());
 	add(bLeave); add(bUp); add(bDown);
 
 	/* Place the labels on there */
@@ -25,7 +25,7 @@ formBrowser::formBrowser(Interaction* in, Interface* iface, Folder* f)
 		dirlabel.push_back(l);
 
 		Image* q = new Image(interaction->getWidth() - 8, i * interaction->getTextHeight(),
-		                     8, 8, Images::miniPlus());
+		                     8, interaction->getTextHeight(), Images::miniPlus());
 		q->setData(new formBrowserControlData(CD_TYPE_QUEUE, i));
 		queuebtn.push_back(q);
 		add(q); add(l);

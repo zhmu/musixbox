@@ -12,9 +12,9 @@ formPlaylist::formPlaylist(Interaction* in, Interface* iface)
 	 * First of all, introduce the buttons - this ensures that they
 	 * override any war between the 'is this a label or a button'-conflict.
 	 */
-	bUp =    new Image( 0, interaction->getHeight() - 8, 8, 8, Images::up());
-	bDown =  new Image(interaction->getWidth() / 2, interaction->getHeight() - 8, 8, 8, Images::down());
-	bLeave = new Image(interaction->getWidth() - 16, interaction->getHeight() - 12, 8, 8, Images::leave());
+	bUp =    new Image( 0, interaction->getHeight() - 12, 16, 8, Images::up());
+	bDown =  new Image(interaction->getWidth() / 2, interaction->getHeight() - 12, 16, 8, Images::down());
+	bLeave = new Image(interaction->getWidth() - 16, interaction->getHeight() - 12, 16, 8, Images::leave());
 	add(bLeave); add(bUp); add(bDown);
 
 	/* Place the labels on there */

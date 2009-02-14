@@ -1,4 +1,5 @@
 #include "core/exceptions.h"
+#include "ui/font.h"
 #include "ui/form.h"
 #include "formPlayer.h"
 #include "interface.h"
@@ -19,16 +20,14 @@ formPlayer::formPlayer(Interaction* in, Interface* iface)
 	                    interaction->getWidth(), interaction->getTextHeight());
 	lPlayingTime = new Label(0, 3 * interaction->getTextHeight(),
 	                    interaction->getWidth(), interaction->getTextHeight());
+	lArtist->setFont(&font8); lAlbum->setFont(&font8); lTitle->setFont(&font8); lPlayingTime->setFont(&font8);
 	add(lArtist); add(lAlbum); add(lTitle); add(lPlayingTime);
 
-	bPlay     = new Image( 2, interaction->getHeight() - 12, 8, 8, Images::play());
-	bStop     = new Image(14, interaction->getHeight() - 12, 8, 8, Images::stop());
-	bNext     = new Image(26, interaction->getHeight() - 12, 8, 8, Images::next());
-	bFile     = new Image(38, interaction->getHeight() - 12, 8, 8, Images::file());
-	bVolUp    = new Image(50, interaction->getHeight() - 12, 8, 8, Images::plus());
-	bVolDn    = new Image(62, interaction->getHeight() - 12, 8, 8, Images::minus());
-	bPlaylist = new Image(74, interaction->getHeight() - 12, 8, 8, Images::playlist());
-	add(bPlay); add(bStop); add(bNext); add(bFile); add(bVolUp); add(bVolDn);
+	bPlay     = new Image( 0, interaction->getHeight() - 12, 24, 8, Images::play());
+	bNext     = new Image(24, interaction->getHeight() - 12, 24, 8, Images::next());
+	bFile     = new Image(48, interaction->getHeight() - 12, 24, 8, Images::file());
+	bPlaylist = new Image(72, interaction->getHeight() - 12, 24, 8, Images::playlist());
+	add(bPlay); add(bNext); add(bFile);
 	add(bPlaylist);
 }
 
@@ -84,12 +83,6 @@ formPlayer::interact(Control* control)
 		return;
 	}
 
-	if (control == bStop) {
-		if (interface->getPlayer() != NULL)
-			interface->getPlayer()->stop();
-		return;
-	}
-
 	if (control == bNext) {
 		interface->next();
 		return;
@@ -104,24 +97,6 @@ formPlayer::interact(Control* control)
 	if (control == bPlaylist) {
 		setReturnValue(1);
 		close();
-		return;
-	}
-
-	if ((control == bVolUp || control == bVolDn) && interface->getMixer() != NULL) {
-		try {
-			int volume = interface->getMixer()->getVolume();
-			if (control == bVolDn) {
-				if (volume > 4)
-					volume -= 4;
-				else
-					volume = 0;
-			} else {
-				volume += 4;
-			}
-			interface->getMixer()->setVolume(volume);
-		} catch (MixerException& e) {
-			fprintf(stderr, "Warning: mixer failure: %s", e.what());
-		}
 		return;
 	}
 }

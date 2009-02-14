@@ -60,7 +60,11 @@ public:
 	//! \brief Set the control visiblity
 	void setVisible(bool b) { visible = b; }
 
-	//! \brief Set the font to use
+	/*! \brief Set the font to use
+	 *  \param f The font to use
+	 *
+	 *  The default font will be used if f is NULL.
+	 */
 	void setFont(FONT* f);
 
 protected:

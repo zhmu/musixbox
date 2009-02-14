@@ -37,5 +37,7 @@ Control::isTouched(unsigned int cx, unsigned int cy)
 
 void
 Control::setFont(FONT* f) {
+	if (font == NULL)
+		font = &DEFAULT_FONT;
 	font = f;
 }

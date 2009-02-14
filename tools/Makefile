@@ -1,4 +1,5 @@
 CFLAGS=		-I/usr/local/include -I/usr/local/include/freetype2
+CFLAGS+=	-I/usr/include/freetype2
 LIBS=		-L/usr/local/lib -lfreetype
 
 all:		convert_font touch_test

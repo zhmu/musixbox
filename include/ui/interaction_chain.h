@@ -29,8 +29,8 @@ public:
 
 	void clear(unsigned int x, unsigned int y, unsigned int h, unsigned int w);
 	void putpixel(unsigned int x, unsigned int y, unsigned int c);
-	void puttext(unsigned int x, unsigned int y, const char* s);
-	void gettextsize(const char* s, unsigned int* h, unsigned int* w);
+	void puttext(unsigned int x, unsigned int y, const char* s, FONT* font);
+	void gettextsize(const char* s, unsigned int* h, unsigned int* w, FONT* font);
 	bool getInteraction(unsigned int* x, unsigned int* y, unsigned int* type);
 	void flushInteraction();
 

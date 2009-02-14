@@ -1,20 +1,22 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdint.h>
 #include "ui/font.h"
 #include "ui/interaction.h"
 
 using namespace std;
 
 void
-Interaction::puttext(unsigned int x, unsigned int y, const char* s)
+Interaction::puttext(unsigned int x, unsigned int y, const char* s, FONT* font)
 {
+	y += font->height;
 	for (; *s; s++) {
-		struct CHARACTER* c = &theFont[(unsigned char)*s];
-		for (int i = 0; i < c->width; i++) {
-			for (int j = 0; j < 8 /*c->height*/; j++) {
-				unsigned char d = c->data[i * ((j / 8) + 1)];
-				if (d & (1 << j))
-					putpixel(x + i, y + j + (c->height - c->yshift), 1);
+		struct CHARACTER* c = &font->chars[(unsigned char)*s];
+		for (int j = 0; j < c->height; j++) {
+			for (int i = 0; i <= c->width; i++) {
+				uint8_t d = c->data[j];
+				if (d & (1 << i))
+					putpixel(x + i, y + j - c->yshift, 1);
 			}
 		}
 		x += c->advance_x;
@@ -22,12 +24,12 @@ Interaction::puttext(unsigned int x, unsigned int y, const char* s)
 }
 
 void
-Interaction::gettextsize(const char* s, unsigned int* h, unsigned int* w)
+Interaction::gettextsize(const char* s, unsigned int* h, unsigned int* w, FONT* font)
 {
-	unsigned int calch = 8 /* XXX */, calcw = 0;
+	unsigned int calch = font->height, calcw = 0;
 
 	for (; *s; s++) {
-		struct CHARACTER* c = &theFont[(unsigned char)*s];
+		struct CHARACTER* c = &font->chars[(unsigned char)*s];
 		calcw += c->advance_x;
 	}
 
@@ -100,4 +102,10 @@ Interaction::calculateInteractionDelta()
 	 * If we reach this, time has gone backwards, since !P1 && !P2 holds.
 	 */
 	return 0;
+}
+
+unsigned int
+Interaction::getTextHeight()
+{
+	return DEFAULT_FONT.height;
 }

@@ -1,4 +1,5 @@
 #include <sys/time.h>
+#include "font.h"
 
 #ifndef __INTERACTION_H__
 #define __INTERACTION_H__
@@ -34,7 +35,7 @@ public:
 	virtual void requestTermination() { mustBeTerminating = true; }
 
 	//! \brief Returns the size of a text string
-	virtual inline unsigned int getTextHeight() { return 8; }
+	unsigned int getTextHeight();
 
 	/*! \brief Place a pixel on the interaction provider
 	 *  \param x X-position
@@ -55,14 +56,16 @@ public:
 	 *  \param x X-position
 	 *  \param y Y-position
 	 *  \param s Text to place
+	 *  \param font Font to use
 	 */
-	virtual void puttext(unsigned int x, unsigned int y, const char* s);
+	virtual void puttext(unsigned int x, unsigned int y, const char* s, FONT* font);
 
 	/*! \brief Returns text height and width
 	 *  \param h Height of the text
 	 *  \param w Width of the text
+	 *  \param font Font to use
 	 */
-	virtual void gettextsize(const char* s, unsigned int* h, unsigned int* w);
+	virtual void gettextsize(const char* s, unsigned int* h, unsigned int* w, FONT* font);
 
 	/* \brief Returns interaction, if any
 	 * \param x X-coordinate

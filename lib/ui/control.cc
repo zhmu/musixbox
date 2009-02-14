@@ -9,6 +9,7 @@ Control::Control(unsigned int x, unsigned int y, unsigned int width, unsigned in
 	this->form = NULL; this->x = x; this->y = y;
 	this->width = width; this->height = height;
 	this->data = NULL; this->visible = true;
+	this->font = &DEFAULT_FONT;
 }
 
 void
@@ -24,7 +25,7 @@ Control::puttext(unsigned int x, unsigned int y, string s)
 {
 	if (form == NULL)
 		return;
-	form->puttext(x, y, s);
+	form->puttext(x, y, s, font);
 }
 
 bool
@@ -32,4 +33,9 @@ Control::isTouched(unsigned int cx, unsigned int cy)
 {
 	return (cx >= x && cx <= x + width &&
 	        cy >= y && cy <= y + height);
+}
+
+void
+Control::setFont(FONT* f) {
+	font = f;
 }

@@ -32,9 +32,9 @@ Form::putpixel(unsigned int x, unsigned int y, unsigned int c)
 }
 
 void
-Form::puttext(unsigned int x, unsigned int y, string s)
+Form::puttext(unsigned int x, unsigned int y, string s, FONT* font)
 {
-	interaction->puttext(x, y, s.c_str());
+	interaction->puttext(x, y, s.c_str(), font);
 }
 
 int

@@ -1,5 +1,6 @@
 #include <string>
 #include <vector>
+#include "font.h"
 
 class Control;
 class Interaction;
@@ -55,9 +56,10 @@ protected:
 	/*! \brief Place text on the screen
 	 *  \param x X-position
 	 *  \param y Y-position
+	 *  \param font Font to use
 	 *  \param s String to place
 	 */
-	void puttext(unsigned int x, unsigned int y, std::string s);
+	void puttext(unsigned int x, unsigned int y, std::string s, FONT* font);
 
 	/*! \brief Called if a control is being interacted
 	 *  \parm control Control that is interacted with

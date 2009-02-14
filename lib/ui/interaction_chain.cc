@@ -57,16 +57,16 @@ InteractionChain::putpixel(unsigned int x, unsigned int y, unsigned int c)
 }
 
 void
-InteractionChain::puttext(unsigned int x, unsigned int y, const char* s)
+InteractionChain::puttext(unsigned int x, unsigned int y, const char* s, FONT* font)
 {
 	for (unsigned int i = 0; i < provider.size(); i++)
-		provider[i]->puttext(x, y, s);
+		provider[i]->puttext(x, y, s, font);
 }
 
 void
-InteractionChain::gettextsize(const char* s, unsigned int* h, unsigned int* w)
+InteractionChain::gettextsize(const char* s, unsigned int* h, unsigned int* w, FONT* font)
 {
-	provider[0]->gettextsize(s, h, w);
+	provider[0]->gettextsize(s, h, w, font);
 }
 
 void

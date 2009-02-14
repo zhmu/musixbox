@@ -1,4 +1,5 @@
 #include <string>
+#include "font.h"
 #include "form.h"
 
 #ifndef __CONTROL_H__
@@ -59,6 +60,9 @@ public:
 	//! \brief Set the control visiblity
 	void setVisible(bool b) { visible = b; }
 
+	//! \brief Set the font to use
+	void setFont(FONT* f);
+
 protected:
 	//! \brief X and Y position
 	unsigned int x, y;
@@ -77,6 +81,9 @@ protected:
 
 	//! \brief Control's private data;
 	void* data;
+
+	//*! \brief Font data used
+	FONT* font;
 
 	//! \brief Place a pixel on the screen
 	virtual void putpixel(unsigned int x, unsigned int y, unsigned int c);

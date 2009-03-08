@@ -2,6 +2,7 @@
 #include <pthread.h>
 #include <signal.h>
 #include "decoderfactory.h"
+#include "exceptions.h"
 #include "player.h"
 
 using namespace std;
@@ -53,6 +54,8 @@ Player::Player(string resource, Output* o, Visualizer* v)
 	pthread_cond_init(&cv_suspend, NULL);
 
 	DecoderFactory::construct(resource, this, output, visualizer, &input, &decoder, &info);
+	if (decoder == NULL)
+		throw PlayerException("no decoder available");
 }
 
 Player::~Player()

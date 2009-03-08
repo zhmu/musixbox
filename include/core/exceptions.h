@@ -79,4 +79,10 @@ public:
 	InfoException(const std::string errstr) : MusixBoxException(errstr) { }
 };
 
+//! \brief Exception class used by the player
+class PlayerException : public MusixBoxException {
+public:
+	PlayerException(const std::string errstr) : MusixBoxException(errstr) { }
+};
+
 #endif /* __EXCEPTIONS_H__ */

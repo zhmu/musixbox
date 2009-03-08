@@ -48,7 +48,7 @@ formPlayer::update()
 		info = NULL;
 	}
 
-	bPlay->setImage(isPaused ? Images::pause() : Images::play());
+	bPlay->setImage(isPaused ? Images::play() : Images::pause());
 
 	const char* s;
 	s = "Unknown Artist";

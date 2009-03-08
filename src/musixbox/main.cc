@@ -122,6 +122,8 @@ main(int argc, char** argv)
 			case 'n': config->clear();
 			          break;
 			case 'd': daemonize++;
+				  if(daemon(1, 1) < 0)
+				  	fprintf(stderr, "couldn't daemonize (%s), continuing anyway\n", strerror(errno));
 			          break;
 #ifdef WITH_SDLGFX
 			case 'z': zoom_factor = atoi(optarg);
@@ -174,8 +176,8 @@ main(int argc, char** argv)
 		signal(SIGINT, terminate);
 		signal(SIGTERM, terminate);
 
-		if (daemonize && daemon(1, 1) < 0)
-			fprintf(stderr, "couldn't daemonize (%s), continuing anyway\n", strerror(errno));
+//		if (daemonize && daemon(1, 1) < 0)
+//			fprintf(stderr, "couldn't daemonize (%s), continuing anyway\n", strerror(errno));
 
 		interface->run();
 	

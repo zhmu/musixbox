@@ -61,6 +61,9 @@ public:
 	//! \brief Is the player paused?
 	bool isPaused();
 
+	//! \brief Is the player stopped?
+	bool isStopped();
+
 	//! \brief Retrieve the associated information object
 	Info* getInfo();
 

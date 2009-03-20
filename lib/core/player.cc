@@ -163,6 +163,15 @@ Player::isPaused()
 	return b;
 }
 
+bool
+Player::isStopped()
+{
+	pthread_mutex_lock(&mtx_data);
+	bool b = !havePlayerThread;
+	pthread_mutex_unlock(&mtx_data);
+	return b;
+}
+
 Info*
 Player::getInfo()
 {

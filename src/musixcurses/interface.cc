@@ -106,7 +106,17 @@ Interface::fillStatus()
 	if (info != NULL && info->getTitle() != NULL) s = info->getTitle();
 	mvwprintw(winStatus, 3, 2, "%s", s);
 
-	snprintf(temp, sizeof(temp), "%u:%02u / %u:%02u", playingTime / 60, playingTime % 60, totalTime / 60, totalTime % 60);
+	char icon[2];
+	if (player == NULL || player->isStopped()) {
+		icon[0] = '['; icon[1] = ']';
+	} else if (player->isPaused()) {
+		icon[0] = '|'; icon[1] = '|';
+	} else /* playing */ {
+		icon[0] = '|'; icon[1] = '>';
+	}
+	snprintf(temp, sizeof(temp), "%c%c %u:%02u / %u:%02u",
+	 icon[0], icon[1],
+	 playingTime / 60, playingTime % 60, totalTime / 60, totalTime % 60);
 	mvwprintw(winStatus, 5, 2, temp);
 
 	/* Force an update; the alarm function ensures we trigger an update about a second later */

@@ -25,8 +25,8 @@ OutputSWMixer::play(char* buf, size_t len)
 	 * Note: int16_t because input is expected to signed 16 bit PCM values.
 	 */
 	int16_t* ptr = (int16_t*)buf;
-	for (size_t i = 0; i < len / 2; i++)
-		*ptr++ *= ((float)volume / 100.0f);
+	for (size_t i = 0; i < len / 2; i++, ptr++)
+		*ptr = (int16_t)((float)*ptr * ((float)volume / 100.0f));
 	output->play(buf, len);
 }
 

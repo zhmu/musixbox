@@ -5,6 +5,9 @@
  */
 class Visualizer {
 public:
+	//! \brief Destroys the visualizer
+	inline virtual ~Visualizer() { };
+
 	/*! \brief Update visualizer content
 	 *  \param audio Raw audio output in 16 bit PCM format
 	 *  \param num Number of samples in the output stream

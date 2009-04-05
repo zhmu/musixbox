@@ -15,6 +15,9 @@ public:
 		window = w; searching = false;
 	}
 
+	//! \brief Destructs the new menu
+	inline virtual ~Menu() { }
+
 	//! \brief Draw menu
 	void draw();
 

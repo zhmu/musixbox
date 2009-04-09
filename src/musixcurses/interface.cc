@@ -1,7 +1,9 @@
 #include <sys/types.h>
+#include <sys/select.h>
+#include <sys/time.h>
 #include <sys/ioctl.h>
 #include <curses.h>
-#include <signal.h>
+#include <unistd.h>
 #include "core/exceptions.h"
 #include "curseplayer.h"
 #include "interface.h"
@@ -119,15 +121,8 @@ Interface::fillStatus()
 	 playingTime / 60, playingTime % 60, totalTime / 60, totalTime % 60);
 	mvwprintw(winStatus, 5, 2, temp);
 
-	/* Force an update; the alarm function ensures we trigger an update about a second later */
+	/* Force an update; we'll periodically have updates later */
 	wrefresh(winStatus);
-	alarm(1);
-}
-
-void
-Interface::requestUpdate()
-{
-	fillStatus();
 }
 
 void
@@ -435,7 +430,25 @@ Interface::run()
 	/*
 	 * Handle input until the user hammers F10.
 	 */
-	while (1) {
+	while (true) {
+		/*
+		 * Wait a full seconds for input; if none arrives, do an
+		 * update.
+		 */
+		struct timeval tv;
+		fd_set fds;
+		tv.tv_sec = 1; tv.tv_usec = 0;
+		FD_ZERO(&fds);
+		FD_SET(STDIN_FILENO, &fds);
+		if (select(STDIN_FILENO + 1, &fds, NULL, NULL, &tv) == 0) {
+			/* 1 second elapsed! */
+			fillStatus();
+			continue;
+		}
+
+		if (!FD_ISSET(STDIN_FILENO, &fds))
+			continue;
+
 		int c = getch();
 		if (c == KEY_F(2)) {
 			if (mode != MODE_LYRICS) {
@@ -461,7 +474,6 @@ Interface::run()
 				break;
 		}
 	}
-
 }
 
 void
@@ -544,6 +556,24 @@ void
 Interface::dialog(std::string s)
 {
 	drawDialog(s, true);
+
+	/*
+	 * While the dialog's active, nicely update the counter.
+	 */
+	while (true) {
+		struct timeval tv;
+		fd_set fds;
+		tv.tv_sec = 1; tv.tv_usec = 0;
+		FD_ZERO(&fds);
+		FD_SET(STDIN_FILENO, &fds);
+		if (select(STDIN_FILENO + 1, &fds, NULL, NULL, &tv) == 0) {
+			fillStatus();
+			continue;
+		}
+
+		if (FD_ISSET(STDIN_FILENO, &fds))
+			break;
+	}
 	(void)getch();
 	clearDialog();
 }

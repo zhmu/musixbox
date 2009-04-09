@@ -19,12 +19,12 @@ formBrowser::formBrowser(Interaction* in, Interface* iface, Folder* f)
 
 	/* Place the labels on there */
 	for (unsigned int i = 0; i < (interaction->getHeight() - interaction->getTextHeight())  / interaction->getTextHeight(); i++) {
-		Label* l = new Label(0, i * interaction->getTextHeight(),
+		Label* l = new Label(10, i * interaction->getTextHeight(),
 		                     interaction->getWidth() - 10, interaction->getTextHeight());
 		l->setData(new formBrowserControlData(CD_TYPE_LABEL, i));
 		dirlabel.push_back(l);
 
-		Image* q = new Image(interaction->getWidth() - 8, i * interaction->getTextHeight(),
+		Image* q = new Image(0, i * interaction->getTextHeight() + 2,
 		                     8, interaction->getTextHeight(), Images::miniPlus());
 		q->setData(new formBrowserControlData(CD_TYPE_QUEUE, i));
 		queuebtn.push_back(q);
@@ -194,11 +194,36 @@ formBrowser::interact(Control* control)
 	}
 
 	/*
-	 * If we got here, it must be an enqueue link - enqueue whatever is
-	 * there
+	 * If we got here, it must be an enqueue link; first of all,
+	 * update the display so the user knows why we are not
+	 * responding...
 	 */
+	unsigned int num_labels = (interaction->getHeight() / interaction->getTextHeight()) - 1;
+	vector<bool> visibleLabels;
+	for (unsigned int i = 0; i < num_labels; i++) {
+		visibleLabels.push_back(dirlabel[i]->isVisible());
+		dirlabel[i]->hide();
+		queuebtn[i]->hide();
+	}
+	unsigned int magic_label = num_labels / 2;
+	string stored_label = dirlabel[magic_label]->getText();
+	dirlabel[magic_label]->setText("Adding tracks...");
+	dirlabel[magic_label]->show();
+	redraw();
+	interaction->yield();
+
+	/* Enqueue the lot */
 	Label* l = (Label*)dirlabel[data->getValue()];
 	interface->addToPlaylist(l->getText());
+
+	/* Restore the form */
+	for (unsigned int i = 0; i < num_labels; i++) {
+		dirlabel[i]->setVisible(visibleLabels[i]);
+		queuebtn[i]->setVisible(visibleLabels[i]);
+	}
+	dirlabel[magic_label]->setText(stored_label);
+	redraw();
+	interaction->yield();
 
 	/* If we are silent, start playing! */
 	if (!interface->havePlayer())

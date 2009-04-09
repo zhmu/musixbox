@@ -1,9 +1,10 @@
 #include <sys/types.h>
 #include <sys/ioctl.h>
-#include <signal.h>
 #include <getopt.h>
 #include <stdlib.h>
 #include <string>
+#include <string.h>
+#include <termios.h>
 #include <unistd.h>
 #include "core/outputmixerfactory.h"
 #include "core/exceptions.h"
@@ -36,13 +37,6 @@ private:
 
 Configuration* config;
 PlayPlayer* player = NULL;
-int interrupt = 0;
-
-void
-sigint(int num)
-{
-	interrupt++;
-}
 
 void
 usage()
@@ -68,7 +62,24 @@ usage()
 void
 play(int argc, char** argv, Output* output)
 {
+	struct termios ti_orig, ti;
+
+	/*
+	 * For stdin, ignore signals, disable echoing and processing; this
+	 * allows us to catch single charachter,s as well as ^C without
+	 * having to resort to signals.
+	 */
+	tcgetattr(STDIN_FILENO, &ti_orig);
+	memcpy(&ti, &ti_orig, sizeof(ti));
+	ti.c_lflag &= ~(ECHO | ICANON | ISIG);
+	ti.c_cflag &= CSIZE;
+	ti.c_cflag |= CS8;
+	tcsetattr(STDIN_FILENO, TCSANOW, &ti);
+
 	for (int n = 0; n < argc; n++) {
+		struct timeval tv;
+		fd_set fds;
+
 		/*
 		 * Initialize playback. We wait half a second afterwards as we
 		 * are waiting for the track information to become available -
@@ -78,9 +89,17 @@ play(int argc, char** argv, Output* output)
 		printf("Playing %s...\n", argv[n]);
 		player = new PlayPlayer(argv[n], output);
 		player->play();
-		usleep(500000);
-		if (interrupt)
-			break;
+		tv.tv_sec = 0; tv.tv_usec = 500000;
+		FD_ZERO(&fds);
+		FD_SET(STDIN_FILENO, &fds);
+		select(STDIN_FILENO + 1, &fds, NULL, NULL, &tv);
+		if (FD_ISSET(STDIN_FILENO, &fds)) {
+			unsigned char ch;
+			if (read(STDIN_FILENO, &ch, 1)) {
+				if (ch == 3 /* ctrl-c */)
+					break;
+			}
+		}
 
 		/*
 		 * Attempt to display the track information.
@@ -100,18 +119,48 @@ play(int argc, char** argv, Output* output)
 		 * Keep playing until either the track is done, or we are
 		 * interrupted.
 		 */
-		while (!player->isFinished() && !interrupt) {
+		while (!player->isFinished()) {
 			unsigned int playingTime = player->getPlayingTime();
 			unsigned int totalTime = player->getTotalTime();
-			printf("%u:%02u / %u:%02u\r", playingTime / 60, playingTime % 60, totalTime / 60, totalTime % 60);
+			printf("\r%u:%02u / %u:%02u%s", playingTime / 60, playingTime % 60, totalTime / 60, totalTime % 60, player->isPaused() ? " - paused" : "");
 			fflush(stdout);
-			sleep(1);
+
+			/*
+			 * Wait for stdin input to arrive, or wait until a
+			 * second elapsed; we need to perform work either
+			 * way.
+			 */
+			struct timeval tv;
+			fd_set fds;
+			tv.tv_sec = 1; tv.tv_usec = 0;
+			FD_ZERO(&fds);
+			FD_SET(STDIN_FILENO, &fds);
+			select(STDIN_FILENO + 1, &fds, NULL, NULL, &tv);
+			if (!FD_ISSET(STDIN_FILENO, &fds))
+				/* Timeout was reached - update screen */
+				continue;
+
+			unsigned char ch;
+			if (!read(STDIN_FILENO, &ch, 1))
+				continue;
+
+			if (ch == ' ' /* space */) {
+				player->isPaused() ? player->cont() : player->pause();
+				/* nuke any potential paused message */
+				printf("\r                                             ");
+			}
+			if (ch == 3 /* ctrl-c */)
+				break;
+
 		}
 		delete player; player = NULL;
-		interrupt = 0;
+
 		/* Print an extra newline to skip the timestamp above */
 		printf("\n");
 	}
+
+	/* Restore the terminal to whatever it was */
+	tcsetattr(STDIN_FILENO, TCSANOW, &ti_orig);
 }
 
 int
@@ -161,8 +210,6 @@ main(int argc, char** argv)
 			}
 			OutputMixerFactory::construct(str, &output, &mixer);
 		}
-
-		signal(SIGINT, sigint);
 
 		play(argc, argv, output);
 

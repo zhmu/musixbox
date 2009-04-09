@@ -1,7 +1,7 @@
 #include <sys/types.h>
 #include <sys/ioctl.h>
-#include <signal.h>
 #include <getopt.h>
+#include <signal.h>
 #include <stdlib.h>
 #include <string>
 #include <unistd.h>
@@ -17,14 +17,6 @@ using namespace std;
 
 Interface* interface = NULL;
 Configuration* config;
-
-void
-handle_update(int num)
-{
-	if (interface != NULL)
-		interface->requestUpdate();
-	signal(SIGALRM, handle_update);
-}
 
 void
 usage()
@@ -112,7 +104,6 @@ main(int argc, char** argv)
 		lyrics = new Lyrics(config->getString("lyrics fetcher"));
 
 		signal(SIGQUIT, SIG_IGN);
-		signal(SIGALRM, handle_update);
 
 		interface = new Interface(output, mixer, folder, lyrics, (argc > 0) ? argv[0] : NULL);
 		interface->run();

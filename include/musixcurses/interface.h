@@ -47,9 +47,6 @@ public:
 	//! \brief Called if the current track finished playing
 	void trackDone();
 
-	//! \brief Called if a status update is requested
-	void requestUpdate();
-
 	//! \brief Called if a resize has been detected
 	void signalResize();
 

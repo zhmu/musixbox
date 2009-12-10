@@ -50,6 +50,7 @@ DecoderFactory::construct(string resource, Player* player, Output* output, Visua
 		*input = new InputFile(resource);
 
 	string extension = string(resource.begin() + resource.find_last_of(".") + 1, resource.end());
+	transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
 	try {
 		list<string> ext;
 #ifdef WITH_VORBIS

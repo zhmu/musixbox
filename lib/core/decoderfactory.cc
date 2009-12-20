@@ -52,31 +52,26 @@ DecoderFactory::construct(string resource, Player* player, Output* output, Visua
 	string extension = string(resource.begin() + resource.find_last_of(".") + 1, resource.end());
 	transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
 	try {
-		list<string> ext;
 #ifdef WITH_VORBIS
-		ext = DecoderOgg::getExtensions();
-		if (find(ext.begin(), ext.end(), extension) != ext.end()) {
+		if (checkExtension(DecoderOgg::getExtensions(), extension)) {
 			*decoder = new DecoderOgg(player, *input, output, visualizer);
 			*info = new InfoOgg(*decoder);
 		} else
 #endif /* WITH_VORBIS */
 #ifdef WITH_FLAC
-		ext = DecoderFLAC::getExtensions();
-		if (find(ext.begin(), ext.end(), extension) != ext.end()) {
+		if (checkExtension(DecoderFLAC::getExtensions(), extension)) {
 			*decoder = new DecoderFLAC(player, *input, output, visualizer);
 			*info = new InfoFLAC(*decoder);
 		} else
 #endif /* WITH_FLAC */
 #ifdef WITH_MIKMOD
-		ext = DecoderModule::getExtensions();
-		if (find(ext.begin(), ext.end(), extension) != ext.end()) {
+		if (checkExtension(DecoderModule::getExtensions(), extension)) {
 			*decoder = new DecoderModule(player, *input, output, visualizer);
 			*info = new InfoModule(*decoder);
 		} else
 #endif /* WITH_MIKMOD */
 #ifdef WITH_SIDPLAY2
-		ext = DecoderSID::getExtensions();
-		if (find(ext.begin(), ext.end(), extension) != ext.end()) {
+		if (checkExtension(DecoderSID::getExtensions(), extension)) {
 			*decoder = new DecoderSID(player, *input, output, visualizer);
 			*info = new InfoSID(*decoder);
 		} else
@@ -101,3 +96,11 @@ DecoderFactory::construct(string resource, Player* player, Output* output, Visua
 		*info = NULL;
 	}
 }
+
+bool
+DecoderFactory::checkExtension(std::list<string> extensions, std::string ext)
+{
+	return find(extensions.begin(), extensions.end(), ext) != extensions.end();
+}
+
+/* vim:set ts=2 sw=2: */

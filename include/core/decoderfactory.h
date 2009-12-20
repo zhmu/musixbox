@@ -1,3 +1,4 @@
+#include <list>
 #include <string>
 #include "input.h"
 #include "info.h"
@@ -22,6 +23,14 @@ public:
 	static void construct(std::string resource, Player* player, Output* output,
 	                      Visualizer* visualizer, Input** input, Decoder** decoder,
 	                      Info** info);
+
+protected:
+	/*! \brief Check whether an extension can be handled by a decodea
+	 *  \param extensions List of extensions
+	 *  \param ext Extension to check
+	 *  \returns true if it can be handeled
+	 */
+	static bool checkExtension(std::list<std::string> extensions, std::string ext);
 };
 
 #endif /* __DECODERFACTORY_H__ */

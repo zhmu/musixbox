@@ -28,6 +28,16 @@ public:
 	inline const char* getTitle() {
 		return (reinterpret_cast<DecoderFLAC*> (decoder))->getTitle();
 	}
+
+	//! \brief Retrieve song year
+	inline int getYear() {
+		return (reinterpret_cast<DecoderFLAC*> (decoder))->getYear();
+	}
+
+	//! \brief Retrieve track number
+	inline int getNr() {
+		return (reinterpret_cast<DecoderFLAC*> (decoder))->getNr();
+	}
 };
 
 #endif /* __INFO_FLAC_H__ */

@@ -30,6 +30,12 @@ public:
 
 	//! \brief Retrieve song title
 	inline virtual const char* getTitle() { return title; }
+
+	//! \brief Retrieve track year
+	inline virtual int getYear() { return year; }
+
+	//! \brief Retrieve track number
+	inline virtual int getNr() { return nr; }
 	
 protected:
 	//! \brief Decoder object we belong to
@@ -46,6 +52,12 @@ protected:
 
 	//! \brief Title of the song
 	char* title;
+
+	//! \brief Year of the song
+	int year;
+
+	//! \brief Track number of the song
+	int nr;
 };
 
 #endif /* __INFO_H__ */

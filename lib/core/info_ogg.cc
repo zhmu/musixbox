@@ -25,5 +25,11 @@ InfoOgg::load(string res)
 		if (!strncasecmp(c->user_comments[i], "ALBUM", ptr - c->user_comments[i])) {
 			album = strdup(ptr + 1);
 		}
+		if (!strncasecmp(c->user_comments[i], "TRACKNUMBER", ptr - c->user_comments[i])) {
+			nr = atoi(ptr + 1);
+		}
+		if (!strncasecmp(c->user_comments[i], "YEAR", ptr - c->user_comments[i])) {
+			year = atoi(ptr + 1);
+		}
 	}
 }

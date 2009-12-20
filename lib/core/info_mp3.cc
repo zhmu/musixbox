@@ -31,6 +31,18 @@ InfoMP3::load(string res)
 	if (frame != NULL) {
 		album = (char*)id3_ucs4_latin1duplicate(id3_field_getstrings(&frame->fields[1], 0));
 	}
+	frame = id3_tag_findframe(tag, ID3_FRAME_TRACK, 0);
+	if (frame != NULL) {
+		id3_ucs4_t const* str = id3_field_getstrings(&frame->fields[1], 0);
+		if (str != NULL) {
+			nr = id3_ucs4_getnumber(str);
+		}
+	}
+	frame = id3_tag_findframe(tag, ID3_FRAME_YEAR, 0);
+	if (frame != NULL) {
+		char* str = (char*)id3_ucs4_latin1duplicate(id3_field_getstrings(&frame->fields[1], 0));
+		year = atoi(str);
+	}
 	
 	id3_file_close(id3);
 }

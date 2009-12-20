@@ -5,7 +5,7 @@ using namespace std;
 
 Info::Info(Decoder* d) {
 	totaltime = 0; decoder = d;
-	artist = NULL; album = NULL; title = NULL;
+	artist = NULL; album = NULL; title = NULL; year = 0; nr = 0;
 }
 
 Info::~Info() {

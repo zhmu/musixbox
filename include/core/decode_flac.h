@@ -37,11 +37,15 @@ protected:
 	inline const char* getArtist() { return artist; }
 	inline const char* getAlbum() { return album; }
 	inline const char* getTitle() { return title; }
+	inline int getYear() { return year; }
+	inline int getNr() { return nr; }
 
 private:
 	char* artist;
 	char* album;
 	char* title;
+	int year;
+	int nr;
 };
 
 #endif /* __DECODE_FLAC_H__ */

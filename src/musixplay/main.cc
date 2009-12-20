@@ -114,6 +114,14 @@ play(int argc, char** argv, Output* output)
 		printf("Title:  %s\n",
 		 info != NULL && info->getTitle() != NULL ? info->getTitle() :
 		 "(unknown)");
+		if (info != NULL && info->getYear() != 0)
+			printf("Year:   %u\n", info->getYear());
+		else 
+			printf("Year:   (unknown)\n");
+		if (info != NULL && info->getNr() != 0)
+			printf("Track#: %u\n", info->getNr());
+		else 
+			printf("Track#: (unknown)\n");
 
 		/*
 		 * Keep playing until either the track is done, or we are

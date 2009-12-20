@@ -115,6 +115,12 @@ DecoderFLAC::metadata_callback(const FLAC__StreamMetadata* metadata)
 			if (!strncasecmp(tag, "ALBUM", ptr - tag)) {
 				album = strdup(ptr + 1);
 			}
+			if (!strncasecmp(tag, "TRACKNUMBER", ptr - tag)) {
+				nr = atoi(ptr + 1);
+			}
+			if (!strncasecmp(tag, "DATE", ptr - tag)) {
+				year = atoi(ptr + 1);
+			}
 		}
 	}
 }

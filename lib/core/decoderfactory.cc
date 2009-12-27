@@ -28,6 +28,10 @@
 #ifdef WITH_CURL
 #include "core/input_remote.h"
 #endif
+#ifdef WITH_MPG123
+#include "core/decode_mp3_mpg123.h"
+#include "core/info_mp3_mpg123.h"
+#endif
 #include "core/exceptions.h"
 
 using namespace std;
@@ -76,18 +80,23 @@ DecoderFactory::construct(string resource, Player* player, Output* output, Visua
 			*info = new InfoSID(*decoder);
 		} else
 #endif /* WITH_SIDPLAY2 */
-#ifdef WITH_MAD
+#if defined(WITH_MAD) || defined(WITH_MPG123)
 		{
 			/* assume MP3 */
+#ifdef WITH_MPG123
+			*decoder = new DecoderMP3_MPG123(player, *input, output, visualizer);
+			*info = new InfoMP3_MPG123(*decoder);
+#else
 			*decoder = new DecoderMP3(player, *input, output, visualizer);
 #ifdef WITH_ID3TAG
 			*info = new InfoMP3(*decoder);
 #endif
-#else /* WITH_MAD */
+#endif
+#else /* WITH_MAD && WITH_MPG123 */
 		{
 			delete *input; *input = NULL;
 			return;
-#endif /* !WITH_MAD */
+#endif /* !WITH_MAD && !WITH_MPG123 */
 		}
 		if (*info != NULL)
 			(*info)->load(resource.c_str());

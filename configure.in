@@ -81,6 +81,12 @@ if test "$XML_CONFIG" != "no"; then
 	LDFLAGS="$LDFLAGS `$XML_CONFIG --libs`"
 	CPPFLAGS="$CPPFLAGS `$XML_CONFIG --cflags`"
 fi
+AC_ARG_WITH(mpg123,
+[  --with-mpg123=dir           MP3 decoding using libmpg123], 
+[
+	LDFLAGS="$LDFLAGS -L$with_mpg123/lib"
+	CPPFLAGS="$CPPFLAGS -I$with_mpg123/include"
+])
 
 # we need pthreads
 AC_SEARCH_LIBS([pthread_create], [pthread], [],
@@ -162,6 +168,13 @@ if test "x${SDL_FALSE}" != "x"; then
 else
 	AM_CONDITIONAL([SDLGFX], [false])
 fi
+AC_CHECK_LIB([mpg123], [mpg123_init], [
+	AC_DEFINE(WITH_MPG123, [], [Decode using libmpg123])
+	LDFLAGS="$LDFLAGS -lmpg123"
+	AM_CONDITIONAL([MPG123], [true])
+], [
+	AM_CONDITIONAL([MPG123], [false])
+])
 
 AC_MSG_CHECKING(for whether FLAC++ is usuable)
 AC_LANG_PUSH(C++)
@@ -220,8 +233,18 @@ echo
 echo "Summary"
 echo "------"
 echo -n "MP3 support:          "
-if test "x${MAD_FALSE}" != "x"; then
-	echo "Yes (libmad)"
+if test "x${MAD_FALSE}${MPG123_FALSE}" != "x"; then
+	echo -n "Yes ("
+	if test "x${MPG123_FALSE}" != "x"; then
+		echo -n "libmad"
+	fi
+	if test "x${MPG123_FALSE}" != "x"; then
+		if test "x${MPG123_FALSE}" != "x"; then
+			echo -n ", "
+		fi
+		echo -n "libmpg321"
+	fi
+	echo ")"
 else
 	echo "No"
 fi

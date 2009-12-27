@@ -12,6 +12,9 @@ libcore_a_SOURCES=	decode.cc decode_tone.cc \
 if MAD
 libcore_a_SOURCES+=	decode_mp3.cc
 endif
+if MPG123
+libcore_a_SOURCES+=	decode_mp3_mpg123.cc
+endif
 if ID3TAG
 libcore_a_SOURCES+=	info_mp3.cc
 endif

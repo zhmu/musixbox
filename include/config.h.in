@@ -45,6 +45,9 @@
 /* Decode using libmikmod */
 #undef WITH_MIKMOD
 
+/* Decode using libmpg123 */
+#undef WITH_MPG123
+
 /* Interaction using SDL */
 #undef WITH_SDL
 

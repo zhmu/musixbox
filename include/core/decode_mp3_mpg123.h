@@ -10,6 +10,8 @@
  */
 class DecoderMP3_MPG123 : public Decoder {
 	friend class InfoMP3_MPG123;
+	friend ssize_t my_mpg123_read(int fd, void* buf, size_t len);
+	friend off_t my_mpg123_seek(int fd, off_t offset, int whence);
 public:
 	DecoderMP3_MPG123(Player* p, Input* i, Output* o, Visualizer* v);
 	~DecoderMP3_MPG123();
@@ -32,6 +34,7 @@ private:
 	mpg123_id3v1* v1;
 	mpg123_id3v2* v2;
 	bool handled_id3;
+	bool handleID3();
 
 	char* artist;
 	char* album;

@@ -18,6 +18,9 @@ endif
 if ID3TAG
 libcore_a_SOURCES+=	info_mp3.cc
 endif
+if ID3LIB
+libcore_a_SOURCES+=	info_mp3_id3lib.cc
+endif
 if VORBIS
 libcore_a_SOURCES+=	decode_ogg.cc info_ogg.cc
 endif

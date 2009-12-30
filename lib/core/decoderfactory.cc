@@ -32,6 +32,9 @@
 #include "core/decode_mp3_mpg123.h"
 #include "core/info_mp3_mpg123.h"
 #endif
+#ifdef WITH_ID3LIB
+#include "core/info_mp3_id3lib.h"
+#endif
 #include "core/exceptions.h"
 
 using namespace std;
@@ -85,10 +88,16 @@ DecoderFactory::construct(string resource, Player* player, Output* output, Visua
 			/* assume MP3 */
 #ifdef WITH_MPG123
 			*decoder = new DecoderMP3_MPG123(player, *input, output, visualizer);
+#ifdef WITH_ID3LIB
+			*info = new InfoMP3_ID3Lib(*decoder);
+#else
 			*info = new InfoMP3_MPG123(*decoder);
+#endif /* WITH_ID3LIB */
 #else
 			*decoder = new DecoderMP3(player, *input, output, visualizer);
-#ifdef WITH_ID3TAG
+#ifdef WITH_ID3LIB
+			*info = new InfoMP3_ID3Lib(*decoder);
+#elif defined(WITH_ID3TAG)
 			*info = new InfoMP3(*decoder);
 #endif
 #endif

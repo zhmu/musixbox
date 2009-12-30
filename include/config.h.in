@@ -36,6 +36,9 @@
 /* Decode using libFLAC++ */
 #undef WITH_FLAC
 
+/* Parse ID3 tags using id3lib++ */
+#undef WITH_ID3LIB
+
 /* Decode ID3 tags using libid3tag */
 #undef WITH_ID3TAG
 

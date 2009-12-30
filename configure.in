@@ -17,7 +17,7 @@ AC_ARG_WITH(mad,
 	CPPFLAGS="$CPPFLAGS -I$with_mad/include"
 ])
 AC_ARG_WITH(id3tag,
-[  --with-id3tag=dir           Decode MP3 tags using libid3tag],
+[  --with-id3tag=dir           Decode MP3 ID3 tags using libid3tag],
 [
 	LDFLAGS="$LDFLAGS -L$with_id3tag/lib"
 	CPPFLAGS="$CPPFLAGS -I$with_id3tag/include"
@@ -86,6 +86,12 @@ AC_ARG_WITH(mpg123,
 [
 	LDFLAGS="$LDFLAGS -L$with_mpg123/lib"
 	CPPFLAGS="$CPPFLAGS -I$with_mpg123/include"
+])
+AC_ARG_WITH(id3lib,
+[  --with-id3lib=dir           Decode MP3 ID3 tags using id3lib],
+[
+	LDFLAGS="$LDFLAGS -L$with_id3lib/lib"
+	CPPFLAGS="$CPPFLAGS -I$with_id3lib/include"
 ])
 
 # we need pthreads
@@ -228,7 +234,26 @@ AC_CHECK_LIB([xml2], [xmlReadMemory], [
 	AM_CONDITIONAL([XML], [false])
 ])
 
-# display an overview of how we will be builtj
+AC_MSG_CHECKING(for whether id3lib is usuable)
+AC_LANG_PUSH(C++)
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <id3/tag.h>
+
+class Test : public ID3_Tag
+{
+};]],
+ [[Test test;]])], [
+ AC_MSG_RESULT(yes)
+ AC_DEFINE(WITH_ID3LIB, [], [Parse ID3 tags using id3lib++])
+ LDFLAGS="$LDFLAGS -lid3"
+ AM_CONDITIONAL([ID3LIB], [true])
+], [
+ AC_MSG_RESULT(no)
+ AM_CONDITIONAL([ID3LIB], [false])
+])
+AC_LANG_POP(C++)
+
+
+# display an overview of how we will be built
 echo
 echo "Summary"
 echo "------"
@@ -249,8 +274,18 @@ else
 	echo "No"
 fi
 echo -n "MP3 tag support:      "
-if test "x${ID3TAG_FALSE}" != "x"; then
-	echo "Yes (libid3tag)"
+if test "x${ID3TAG_FALSE}{ID3LIB_FALSE}" != "xx"; then
+	echo -n "Yes ("
+	if test "x${ID3TAG_FALSE}" != "x"; then
+		echo -n "libid3tag"
+	fi
+	if test "x${ID3LIB_FALSE}" != "x"; then
+		if test "x${ID3TAG_FALSE}" != "x"; then
+			echo -n ", "
+		fi
+		echo -n "id3lib"
+	fi
+	echo ")"
 else
 	echo "No"
 fi

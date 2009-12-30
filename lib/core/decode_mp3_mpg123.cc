@@ -103,7 +103,12 @@ DecoderMP3_MPG123::DecoderMP3_MPG123(Player* p, Input* i, Output* o, Visualizer*
 	pthread_mutex_unlock(&libmpg123_mutex);
 
 	int errcode;
-	handle = mpg123_new(NULL, &errcode);
+	pars = mpg123_new_pars(&errcode);
+	if (errcode != MPG123_OK)
+		throw DecoderException(string("mpg123_new_pars() failed: ") + mpg123_plain_strerror(errcode));
+	mpg123_par(pars, MPG123_ADD_FLAGS, MPG123_QUIET, 0);
+
+	handle = mpg123_parnew(pars, NULL, &errcode);
 	if (handle == NULL)
 		throw DecoderException(string("mpg123_new() failed: ") + mpg123_plain_strerror(errcode));
 
@@ -119,13 +124,6 @@ DecoderMP3_MPG123::DecoderMP3_MPG123(Player* p, Input* i, Output* o, Visualizer*
 
 	if (mpg123_open_fd(handle, decoderidx) != MPG123_OK)
 		throw DecoderException(string("mpg123_open_feed() failed: ") + mpg123_strerror(handle));
-
-#if 0
-	off_t file_len = input->getLength();
-	if (file_len > 0) {
-		mpg123_set_filesize(handle, file_len);
-	}
-#endif
 
 	/* Default to no ID3 information */
 	v1 = NULL; v2 = NULL; handled_id3 = false;
@@ -201,6 +199,7 @@ DecoderMP3_MPG123::~DecoderMP3_MPG123()
 	pthread_mutex_unlock(&libmpg123_mutex);
 
 	mpg123_delete(handle);
+	mpg123_delete_pars(pars);
 	if (artist != NULL) free(artist);
 	if (album  != NULL) free(album);
 	if (title  != NULL) free(title);

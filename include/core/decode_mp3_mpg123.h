@@ -31,6 +31,7 @@ protected:
 
 private:
 	mpg123_handle* handle;
+	mpg123_pars* pars;
 	mpg123_id3v1* v1;
 	mpg123_id3v2* v2;
 	bool handled_id3;

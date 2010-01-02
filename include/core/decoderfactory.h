@@ -10,6 +10,7 @@
 
 //! \brief Static class that aids in constructing appropriate decoder and info objects
 class DecoderFactory {
+	friend class InfoFactory;
 public:
 	/*! \brief Constructs a decoder, input provider and information object based on a resource
 	 *  \param resource Resource to use
@@ -23,6 +24,13 @@ public:
 	static void construct(std::string resource, Player* player, Output* output,
 	                      Visualizer* visualizer, Input** input, Decoder** decoder,
 	                      Info** info);
+
+	/*! \brief Retrieves a list of all extensions that can be handled
+	 *
+	 *  This is useful for applications implementing a media library and
+	 *  thus need to guess which files are worth scanning/
+	 */
+	static void getExtensions(std::list<std::string>& extensions);
 
 protected:
 	/*! \brief Check whether an extension can be handled by a decodea

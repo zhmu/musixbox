@@ -121,4 +121,34 @@ DecoderFactory::checkExtension(std::list<string> extensions, std::string ext)
 	return find(extensions.begin(), extensions.end(), ext) != extensions.end();
 }
 
+void
+DecoderFactory::getExtensions(std::list<std::string>& extensions)
+{
+#define ADD_EXTENSIONS(exts,cl) do {                                      \
+	list<string> l = cl::getExtensions();                                   \
+	for (list<string>::iterator it = l.begin(); it != l.end(); it++)        \
+		exts.push_back(*it);                                                  \
+} while (0);
+
+#ifdef WITH_VORBIS
+	ADD_EXTENSIONS(extensions, DecoderOgg);
+#endif
+#ifdef WITH_FLAC
+	ADD_EXTENSIONS(extensions, DecoderFLAC);
+#endif
+#ifdef WITH_MIKMOD
+	ADD_EXTENSIONS(extensions, DecoderModule);
+#endif
+#ifdef WITH_SIDPLAY2
+	ADD_EXTENSIONS(extensions, DecoderSID);
+#endif
+#ifdef WITH_MPG123
+	ADD_EXTENSIONS(extensions, DecoderMP3_MPG123);
+#else
+#ifdef WITH_MAD
+	ADD_EXTENSIONS(extensions, DecoderMP3);
+#endif
+#endif
+}
+
 /* vim:set ts=2 sw=2: */

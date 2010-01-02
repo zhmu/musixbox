@@ -7,7 +7,8 @@ libcore_a_SOURCES=	decode.cc decode_tone.cc \
 			decoderfactory.cc player.cc \
 			outputmixerfactory.cc \
 			folderfactory.cc \
-			output_oss.cc
+			output_oss.cc \
+			infofactory.cc
 
 if MAD
 libcore_a_SOURCES+=	decode_mp3.cc

@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include "core/exceptions.h"
 #include "ui/font.h"
 #include "ui/form.h"

@@ -2,6 +2,7 @@
 #include <sys/ioctl.h>
 #include <getopt.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <string>
 #include <string.h>
 #include <termios.h>

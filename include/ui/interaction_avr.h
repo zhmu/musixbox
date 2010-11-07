@@ -1,3 +1,4 @@
+#include <stdint.h>
 #include "interaction.h"
 
 #ifndef __INTERACTION_AVR_H__

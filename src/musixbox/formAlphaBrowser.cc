@@ -1,4 +1,5 @@
 #include <string.h>
+#include <stdio.h>
 #include "ui/form.h"
 #include "ui/interaction.h"
 #include "formAlphaBrowser.h"

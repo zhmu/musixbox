@@ -1,4 +1,5 @@
 #include <mad.h>
+#include <stdint.h>
 #include "decode.h"
 
 #ifndef __DECODE_MP3_H__

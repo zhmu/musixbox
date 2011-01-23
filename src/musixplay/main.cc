@@ -67,7 +67,7 @@ play(int argc, char** argv, Output* output)
 
 	/*
 	 * For stdin, ignore signals, disable echoing and processing; this
-	 * allows us to catch single charachter,s as well as ^C without
+	 * allows us to catch single charachters as well as ^C without
 	 * having to resort to signals.
 	 */
 	tcgetattr(STDIN_FILENO, &ti_orig);

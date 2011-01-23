@@ -172,7 +172,7 @@ formBrowser::interact(Control* control)
 	formBrowserControlData* data = (formBrowserControlData*)control->getData();
 	if (data->getType() == CD_TYPE_LABEL) {
 		/* If we got here, it must have been an item */
-		Label* l = reinterpret_cast<Label*>(control);
+		Label* l = static_cast<Label*>(control);
 
 		/* Rememember on which page we were in the current path */
 		cachedIndexMap[getIndexKey()] = current_page;
@@ -233,12 +233,12 @@ formBrowser::interact(Control* control)
 bool
 formBrowser::getNextFile(std::string& file)
 {
-        /*
+	/*
 	 * Try to ascend through the directory vector to the next file - if
 	 * there are no more files, just give up.
-         */
-        if (++direntry_index >= folder->getEntries().size())
-                return false;
+	 */
+	if (++direntry_index >= folder->getEntries().size())
+		return false;
 
 	file = selectedPath + "/" + folder->getEntries()[direntry_index];
 	return true;
@@ -247,8 +247,8 @@ formBrowser::getNextFile(std::string& file)
 bool
 formBrowser::getPreviousFile(std::string& file)
 {
-        if (direntry_index <= 0)
-                return false;
+	if (direntry_index <= 0)
+		return false;
 
 	file = selectedPath + "/" + folder->getEntries()[--direntry_index];
 	return true;

@@ -63,7 +63,7 @@ formAlphaBrowser::interact(Control* control)
 	}
 
 	/* If we got here, it must be one of the A...Z labels */
-	Label* l = reinterpret_cast<Label*>(control);
+	Label* l = static_cast<Label*>(control);
 	sel_ch = 'A' + *(reinterpret_cast<int*> (l->getData()));
 	close();
 }

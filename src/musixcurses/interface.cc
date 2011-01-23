@@ -428,7 +428,7 @@ void
 Interface::run()
 {
 	/*
-	 * Handle input until the user hammers F10.
+	 * Handle input until the user hammers F10 or escape. 
 	 */
 	while (true) {
 		/*
@@ -460,7 +460,7 @@ Interface::run()
 			redraw();
 			continue;
 		}
-		if (c == KEY_F(10))
+		if (c == KEY_F(10) || c == 27 /* escape */)
 			break;
 		switch(mode) {
 			case MODE_BROWSER:

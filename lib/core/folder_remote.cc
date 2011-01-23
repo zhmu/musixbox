@@ -73,7 +73,7 @@ FolderRemote::retrieveEntries()
 			/* There is a 'folder' attribute */
 			folder = true;
 		} else if (name != NULL) {
-			char* ptr = strrchr(name, '/');
+			const char* ptr = strrchr(name, '/');
 			if (ptr != NULL && ptr[1] == '\0') {
 				/* The last charachter of the name is a / */
 				folder = true;

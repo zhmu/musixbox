@@ -55,7 +55,6 @@ DecoderMP3::convertOutput(char* buf, unsigned int* len, struct mad_header const*
 	return 1;
 }
 
-
 int
 DecoderMP3::handleInput(struct mad_stream* stream)
 {

@@ -10,7 +10,7 @@ PlaylistItem::PlaylistItem(string res)
 	Info* info;
 
 	resource = res;
-        artist = ""; album = ""; title = "";
+	artist = ""; album = ""; title = "";
 
 	/*
 	 * Construct a decoder and an information object. We simply pass NULL as the

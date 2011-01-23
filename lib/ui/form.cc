@@ -16,7 +16,7 @@ void
 Form::redraw()
 {
 	/* Clear everything */
-       interaction->clear(0, 0, interaction->getHeight(), interaction->getWidth());
+	interaction->clear(0, 0, interaction->getHeight(), interaction->getWidth());
 
 	/* Let the controls draw themselves one by one, if they are visible */
 	for (unsigned int i = 0; i < controls.size(); i++) {
@@ -42,7 +42,7 @@ Form::run()
 {
 	/*
 	 * Ensure we do at least one run of the form - and don't trust lingering
-	 * coordinates
+	 * coordinates.
 	 */
 	mustClose = false; return_value = 0;
 	interaction->flushInteraction();

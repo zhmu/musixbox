@@ -15,7 +15,7 @@
 using namespace std;
 
 /*
- * struct COMMANDMAP is used to look up the corresponding aergument length
+ * struct COMMANDMAP is used to look up the corresponding argument length
  * per command.
  */
 struct COMMANDMAP {

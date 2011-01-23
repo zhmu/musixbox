@@ -100,7 +100,7 @@ OutputALSA::play(char* buf, size_t len)
 			continue;
 		if (r == -EPIPE) {
 			/*
-			 * We get EPIPE if something interrupt ALSA. For example, this occurs
+			 * We get EPIPE if something interrupts ALSA. For example, this occurs
 			 * whenever the playing thread gets paused and resumes later on. Just
 			 * prepare the device for futher output and be on our merry way.
 			 */

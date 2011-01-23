@@ -342,7 +342,7 @@ if test "x${CURL_FALSE}" != "x"; then
 else
 	echo "No"
 fi
-echo -n "Specium analyzer:     "
+echo -n "Spectrum analyzer:   "
 if test "x${FFTW_FALSE}" != "x"; then
 	echo "Yes (libfftw)"
 else

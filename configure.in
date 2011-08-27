@@ -252,6 +252,30 @@ class Test : public ID3_Tag
 ])
 AC_LANG_POP(C++)
 
+AC_MSG_CHECKING(for whether libadplug is usuable)
+AC_LANG_PUSH(C++)
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <adplug/adplug.h>
+#include <adplug/emuopl.h>
+
+class Test
+{
+public:
+	Test() {
+		CEmuopl opl(44100, true, true);
+		CPlayer* p = CAdPlug::factory(NULL, &opl);
+		delete p;
+	}
+};]],
+ [[Test test;]])], [
+ AC_MSG_RESULT(yes)
+ AC_DEFINE(WITH_ADPLUG, [], [Decode using libadplug])
+ LDFLAGS="$LDFLAGS -ladplug"
+ AM_CONDITIONAL([ADPLUG], [true])
+], [
+ AC_MSG_RESULT(no)
+ AM_CONDITIONAL([ADPLUG], [false])
+])
+AC_LANG_POP(C++)
 
 # display an overview of how we will be built
 echo
@@ -310,6 +334,12 @@ fi
 echo -n "SID support:          "
 if test "x${SIDPLAY2_FALSE}" != "x"; then
 	echo "Yes (libsidplay2)"
+else
+	echo "No"
+fi
+echo -n "AdLib support:        "
+if test "x${ADPLUG_FALSE}" != "x"; then
+	echo "Yes (libadplug)"
 else
 	echo "No"
 fi

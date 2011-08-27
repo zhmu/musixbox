@@ -9,10 +9,13 @@ public:
 	/*! \brief Constructs the input stream object
 	 *  \param resource Resource to open
 	 */
-	inline Input(std::string resource) { }
+	inline Input(std::string res) { resource = res; }
 
 	//! \brief Destructs the input stream object
 	inline virtual ~Input() { }
+
+	//! \brief Retrieve the resource we were created with
+	const std::string& getResource() const { return resource; }
 
 	/*! \brief Read data from the stream
 	 *  \param buffer Output buffer to place data in
@@ -38,6 +41,10 @@ public:
 	 *  \return Current byte position, or 0 if this is unknown
 	 */
 	virtual size_t getCurrentPosition() { return 0; }
+
+private:
+	//! \brief Resource created with
+	std::string resource;
 };
 
 #endif /* __INPUT_H__ */

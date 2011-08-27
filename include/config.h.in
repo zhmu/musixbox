@@ -24,6 +24,9 @@
 /* Version number of package */
 #undef VERSION
 
+/* Decode using libadplug */
+#undef WITH_ADPLUG
+
 /* Output using ALSA */
 #undef WITH_ALSA
 

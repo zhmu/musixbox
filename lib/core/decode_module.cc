@@ -206,9 +206,13 @@ DecoderModule::getExtensions()
 	list<string> l;
 	l.push_back("669"); l.push_back("amf"); l.push_back("apun");
 	l.push_back("dsm"); l.push_back("far"); l.push_back("gdm");
-	l.push_back("it");  l.push_back("imf"); l.push_back("mod");
+	l.push_back("it");  l.push_back("mod");
 	l.push_back("med"); l.push_back("mtm"); l.push_back("okt");
 	l.push_back("s3m"); l.push_back("stm"); l.push_back("stx");
 	l.push_back("ult"); l.push_back("uni"); l.push_back("xm");
+#if 0
+	/* XXX .imf files are more commonly AdLib files */
+	l.push_back("imf");
+#endif
 	return l;
 }

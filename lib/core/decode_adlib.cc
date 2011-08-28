@@ -102,8 +102,12 @@ DecoderAdLib::getExtensions()
 	l.push_back("mad"); l.push_back("mid"); l.push_back("mkj");
 	l.push_back("msc"); l.push_back("mtk"); l.push_back("rad");
 	l.push_back("raw"); l.push_back("rix"); l.push_back("rol");
-	l.push_back("s3m"); l.push_back("sa2"); l.push_back("sat");
+	l.push_back("sa2"); l.push_back("sat");
 	l.push_back("sci"); l.push_back("sng"); l.push_back("sxad");
 	l.push_back("xms"); l.push_back("xsm");
+#if 0
+	/* XXX .s3m files are much more commonly Amiga modules */
+	l.push_back("s3m");
+#endif
 	return l;
 }

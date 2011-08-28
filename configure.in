@@ -277,6 +277,26 @@ public:
 ])
 AC_LANG_POP(C++)
 
+AC_MSG_CHECKING(for whether SDL_mixer is usuable)
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <SDL/SDL.h>
+#include <SDL/SDL_mixer.h>
+
+void test() {
+	/* Check some API functions which we really need */
+	Mix_OpenAudio(44100, AUDIO_S16LSB, 2, 1024);
+	Mix_LoadMUS_RW(NULL);
+	Mix_SetPostMix(NULL, NULL);
+}]],
+ [[test();]])], [
+ AC_MSG_RESULT(yes)
+ AC_DEFINE(WITH_SDL_MIXER, [], [Decode MIDI using SDL_mixer])
+ LDFLAGS="$LDFLAGS -lSDL_mixer"
+ AM_CONDITIONAL([SDL_MIXER], [true])
+], [
+ AC_MSG_RESULT(no)
+ AM_CONDITIONAL([SDL_MIXER], [false])
+])
+
 # display an overview of how we will be built
 echo
 echo "Summary"
@@ -340,6 +360,12 @@ fi
 echo -n "AdLib support:        "
 if test "x${ADPLUG_FALSE}" != "x"; then
 	echo "Yes (libadplug)"
+else
+	echo "No"
+fi
+echo -n "MIDI support:         "
+if test "x${SDL_MIXER_FALSE}" != "x"; then
+	echo "Yes (libSDL_mixer)"
 else
 	echo "No"
 fi

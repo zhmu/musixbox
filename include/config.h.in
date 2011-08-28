@@ -63,6 +63,9 @@
 /* Support functions from SDL_gfx */
 #undef WITH_SDLGFX
 
+/* Decode MIDI using SDL_mixer */
+#undef WITH_SDL_MIXER
+
 /* Decode using libsidplay2 */
 #undef WITH_SIDPLAY2
 

@@ -43,6 +43,9 @@ endif
 if ADPLUG
 libcore_a_SOURCES+=	decode_adlib.cc info_adlib.cc
 endif
+if SDL_MIXER
+libcore_a_SOURCES+=	decode_midi.cc
+endif
 if CURL
 libcore_a_SOURCES+=	input_remote.cc
 if XML

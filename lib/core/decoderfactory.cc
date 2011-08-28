@@ -28,6 +28,9 @@
 #include "core/decode_adlib.h"
 #include "core/info_adlib.h"
 #endif
+#ifdef WITH_SDL_MIXER
+#include "core/decode_midi.h"
+#endif
 #include "core/input_file.h"
 #ifdef WITH_CURL
 #include "core/input_remote.h"
@@ -75,6 +78,11 @@ DecoderFactory::construct(string resource, Player* player, Output* output, Visua
 			*info = new InfoFLAC(*decoder);
 		} else
 #endif /* WITH_FLAC */
+#ifdef WITH_SDL_MIXER
+		if (checkExtension(DecoderMIDI::getExtensions(), extension)) {
+			*decoder = new DecoderMIDI(player, *input, output, visualizer);
+		} else
+#endif /* WITH_SDL_MIXER */
 #ifdef WITH_ADPLUG
 		if (checkExtension(DecoderAdLib::getExtensions(), extension)) {
 			*decoder = new DecoderAdLib(player, *input, output, visualizer);
@@ -154,6 +162,9 @@ DecoderFactory::getExtensions(std::list<std::string>& extensions)
 #endif
 #ifdef WITH_ADPLUG
 	ADD_EXTENSIONS(extensions, DecoderAdLib);
+#endif
+#ifdef WITH_SDL_MIXER
+	ADD_EXTENSIONS(extensions, DecoderMIDI);
 #endif
 #ifdef WITH_MPG123
 	ADD_EXTENSIONS(extensions, DecoderMP3_MPG123);

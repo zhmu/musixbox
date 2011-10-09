@@ -1,4 +1,5 @@
 #include <ao/ao.h>
+#include <string.h>
 #include "exceptions.h"
 #include "output_ao.h"
 
@@ -15,6 +16,7 @@ OutputAO::OutputAO() : Output()
 
 	drvid = ao_default_driver_id();
 
+	memset(&format, 0, sizeof(format));
 	format.bits = 16;
 	format.channels = 2;
 	format.rate = 44100;

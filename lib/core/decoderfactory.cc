@@ -2,6 +2,7 @@
 #include <string.h>
 #include "config.h"
 #include "decoderfactory.h"
+#include "core/decode_tone.h"
 #ifdef WITH_MAD
 #include "core/decode_mp3.h"
 #endif
@@ -51,6 +52,19 @@ DecoderFactory::construct(string resource, Player* player, Output* output, Visua
 {
 	/* Initially, nothing has been constructed yet */
 	*input = NULL; *decoder = NULL; *info = NULL;
+
+	/*
+	 * If the resource starts with 'tone:', assume the tone generator is to be
+	 * used.
+	 */
+	if (resource.find("tone:") == 0) {
+		float tone = atof(resource.c_str() + 5);
+		if (tone > 0.0f) {
+			*decoder = new DecoderTone(player, NULL, output, visualizer);
+			(dynamic_cast<DecoderTone*>(*decoder))->setFrequency(tone);
+			return;
+		}
+	}
 
 #ifdef WITH_CURL
 	/*

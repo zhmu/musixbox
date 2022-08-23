@@ -17,3 +17,25 @@ Information on an input file (i.e. title, artist and album) can be obtained as w
  * OSS
 
 Software volume control can be used if desired.
+
+## Screenshots
+
+musixbox, minimalistic UI designed for small touchscreens:
+
+![musixbox](images/musixbox.png)
+
+musixcurses, ncurses-based general UI:
+
+![musixcurses](images/musixcurses.png)
+
+musixplay, command-line player:
+
+![musixplay](images/musixplay.png)
+
+## Hardware frontend support
+
+Originally, the <i>musixbox</i> player frontend was intended to handle interactions using a touchscreen 320x160 LCD display connected using an AVR as a serial port. The schematics and code are available at [GitHub](https://github.com/zhmu/hardware/tree/master/musixbox-ui). Note that a SDL input provider is available which mimics the hardware.
+
+The hardware looks like this (I didn't design the enclosure, it was made by a neighbour at the time):
+
+![Hardware](images/hw.png)
